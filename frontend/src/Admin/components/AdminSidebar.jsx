@@ -25,11 +25,13 @@ function Sidebar() {
   const menu = [
     { name: "Home", icon: <Home size={18} />, path: "/admin" },
     { name: "Complaints", icon: <FileText size={18} />, path: "/complaintsservices" },
+    { name: "RequestDetail", icon: <FileText size={18} />, path: "/request-detail" },
     { name: "Services", icon: <Bell size={18} />, path: "/adminservices" },
     { name: "UserManagement", icon: <AlertTriangle size={18} />, path: "/usermanagement" },
     { name: "Alerts", icon: <Wrench size={18} />, path: "/managingalerts" },
     { name: "Analytics", icon: <Calendar size={18} />, path: "/analytics" },
-    { name: "AuditLogs", icon: <History size={18} />, path: "/auditlogs" }
+    { name: "AuditLogs", icon: <History size={18} />, path: "/auditlogs" },
+        { name: "AdminNotification", icon: <History size={18} />, path: "/admin-notification" }
   ];
 
   return (

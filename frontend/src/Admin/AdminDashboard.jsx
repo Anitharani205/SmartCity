@@ -1,14 +1,8 @@
-
 import React from "react";
 import AdminSidebar from "./components/AdminSidebar";
 import {
   Bell,
-  Settings,
-  Home,
-  FileText,
-  Users,
-  AlertTriangle,
-  BarChart3
+  Settings
 } from "lucide-react";
 
 import {
@@ -45,24 +39,22 @@ export default function AdminDashboard() {
 
   return (
     <div className="flex h-screen bg-gray-100">
-        <AdminSidebar/>
-
-   
+      <AdminSidebar />
 
       <div className="flex-1 flex flex-col">
 
-     
-
+        {/* Top Navbar */}
         <div className="bg-white border-b p-4 flex justify-between items-center">
 
           <input
-            className="bg-gray-100 px-4 py-2 rounded w-96"
+            className="bg-gray-100 px-4 py-2 rounded w-96 outline-none"
             placeholder="Search for reports, citizens, or tickets..."
           />
 
           <div className="flex gap-4 items-center">
-            <Bell/>
-            <Settings/>
+            <Bell />
+            <Settings />
+
             <button className="bg-blue-600 text-white px-4 py-2 rounded">
               + Create New Alert
             </button>
@@ -70,41 +62,62 @@ export default function AdminDashboard() {
 
         </div>
 
-      
-
         <div className="p-6 space-y-6">
 
+         
           <div>
-            <h2 className="text-2xl font-bold">Admin Dashboard Overview</h2>
-            <p className="text-gray-500">Monday, 23 March 2026</p>
+            <h2 className="text-2xl font-bold">
+              Admin Dashboard Overview
+            </h2>
+
+            <p className="text-gray-500">
+              Monday, 23 March 2026
+            </p>
           </div>
 
          
-
           <div className="grid grid-cols-4 gap-4">
 
-            <Card title="Total Complaints" value="1,284" change="+12%" />
+            <Card
+              title="Total Complaints"
+              value="1,284"
+              change="+12%"
+            />
 
-            <Card title="Active Requests" value="456" change="-5%" />
+            <Card
+              title="Active Requests"
+              value="456"
+              change="-5%"
+            />
 
-            <Card title="City Alerts" value="12" change="+2%" />
+            <Card
+              title="City Alerts"
+              value="12"
+              change="+2%"
+            />
 
-            <Card title="Avg. Resolution Time" value="2.4 Days" change="-10%" />
+            <Card
+              title="Avg. Resolution Time"
+              value="2.4 Days"
+              change="-10%"
+            />
 
           </div>
 
-       
-
+        
           <div className="grid grid-cols-3 gap-6">
 
             <div className="col-span-2 bg-white p-6 rounded-xl shadow-sm">
 
-              <h3 className="font-semibold mb-4">Complaint Trends</h3>
+              <h3 className="font-semibold mb-4">
+                Complaint Trends
+              </h3>
 
               <ResponsiveContainer width="100%" height={250}>
                 <LineChart data={chartData}>
-                  <XAxis dataKey="day"/>
-                  <Tooltip/>
+                  <XAxis dataKey="day" />
+                  <Tooltip />
+
                   <Line
                     type="monotone"
                     dataKey="value"
@@ -116,9 +129,12 @@ export default function AdminDashboard() {
 
             </div>
 
+          
             <div className="bg-white p-6 rounded-xl shadow-sm">
 
-              <h3 className="font-semibold mb-4">Service Distribution</h3>
+              <h3 className="font-semibold mb-4">
+                Service Distribution
+              </h3>
 
               <ResponsiveContainer width="100%" height={250}>
                 <PieChart>
@@ -128,21 +144,59 @@ export default function AdminDashboard() {
                     innerRadius={60}
                     outerRadius={90}
                     dataKey="value"
+                    paddingAngle={3}
                   >
                     {pieData.map((entry, index) => (
-                      <Cell key={index} fill={COLORS[index]} />
+                      <Cell
+                        key={index}
+                        fill={COLORS[index]}
+                      />
                     ))}
                   </Pie>
 
+                  <Tooltip />
+
                 </PieChart>
               </ResponsiveContainer>
+
+             
+              <div className="mt-4 space-y-3">
+
+                {pieData.map((item, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center justify-between"
+                  >
+
+                    <div className="flex items-center gap-3">
+
+                      <div
+                        className="w-4 h-4 rounded-full"
+                        style={{
+                          backgroundColor: COLORS[index]
+                        }}
+                      ></div>
+
+                      <span className="text-sm text-gray-700">
+                        {item.name}
+                      </span>
+
+                    </div>
+
+                    <span className="text-sm font-medium text-gray-500">
+                      {item.value}%
+                    </span>
+
+                  </div>
+                ))}
+
+              </div>
 
             </div>
 
           </div>
 
-     
-
+         
           <div className="bg-white rounded-xl shadow-sm p-6">
 
             <h3 className="font-semibold mb-4">
@@ -167,11 +221,17 @@ export default function AdminDashboard() {
 
                 <tr className="border-t">
 
-                  <td className="py-3">Sarah Miller</td>
+                  <td className="py-3">
+                    Sarah Miller
+                  </td>
 
-                  <td>Main water pipe burst in Sector 4B</td>
+                  <td>
+                    Main water pipe burst in Sector 4B
+                  </td>
 
-                  <td>Utilities</td>
+                  <td>
+                    Utilities
+                  </td>
 
                   <td className="text-red-500 font-semibold">
                     Critical
@@ -197,25 +257,35 @@ export default function AdminDashboard() {
   );
 }
 
-function Card({title,value,change}){
+function Card({ title, value, change }) {
 
   const positive = change.includes("+");
 
-  return(
+  return (
     <div className="bg-white p-5 rounded-xl shadow-sm">
 
-      <p className="text-gray-500">{title}</p>
+      <p className="text-gray-500">
+        {title}
+      </p>
 
       <div className="flex justify-between items-center mt-2">
 
-        <h2 className="text-2xl font-bold">{value}</h2>
+        <h2 className="text-2xl font-bold">
+          {value}
+        </h2>
 
-        <span className={positive ? "text-green-500" : "text-red-500"}>
+        <span
+          className={
+            positive
+              ? "text-green-500 font-semibold"
+              : "text-red-500 font-semibold"
+          }
+        >
           {change}
         </span>
 
       </div>
 
     </div>
-  )
+  );
 }

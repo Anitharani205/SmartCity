@@ -1,91 +1,133 @@
-import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   Home,
   FileText,
   Bell,
-  AlertTriangle,
-  Wrench,
-  Calendar,
-  LogOut
+  ClipboardList,
+  LogOut,
 } from "lucide-react";
+
+import {
+  Link,
+  useLocation,
+  useNavigate,
+} from "react-router-dom";
 
 function MunicipalSidebar() {
 
   const location = useLocation();
   const navigate = useNavigate();
 
-  const handleLogout = () => {
-    localStorage.removeItem("token"); 
-    navigate("/login"); 
-  };
-
   const menu = [
-    { name: "Home", icon: <Home size={18} />, path: "/municipal" },
-    { name: "Request", icon: <FileText size={18} />, path: "/request" },
-    { name: "Task", icon: <Bell size={18} />, path: "/task" },
-    { name: "ComplaintDetail", icon: <AlertTriangle size={18} />, path: "/complaintdetail" },
-    { name: "Manage", icon: <Wrench size={18} />, path: "/manage" },
-    { name: "Notification", icon: <Calendar size={18} />, path: "/notification" },
+    {
+      name: "Dashboard",
+      icon: <Home size={18} />,
+      path: "/municipal",
+    },
+    {
+      name: "Requests",
+      icon: <FileText size={18} />,
+      path: "/request",
+    },
+    {
+      name: "Assigned Tasks",
+      icon: <Bell size={18} />,
+      path: "/assigned-task",
+    },
+    {
+      name: "Task Workflow",
+      icon: <ClipboardList size={18} />,
+      path: "/task",
+    },
   ];
 
+  const logout = () => {
+
+    localStorage.removeItem("token");
+
+    navigate("/login");
+  };
+
   return (
-    <div className="w-64 bg-white border-r flex flex-col justify-between h-screen">
+    <div className="w-64 bg-white border-r h-screen fixed flex flex-col justify-between">
 
       <div>
-  
-        <div className="flex items-center gap-3 p-6">
-          <div className="bg-blue-600 p-2 rounded-lg text-white">
-            <Home size={20} />
-          </div>
-
-          <div>
-            <h1 className="font-bold text-lg">CityZen</h1>
-            <p className="text-sm text-gray-500">Citizen Portal</p>
-          </div>
-        </div>
-
-  
-        <nav className="mt-6">
-          {menu.map((item) => (
-            <Link key={item.name} to={item.path}>
-              <div
-                className={`flex items-center gap-3 px-6 py-3 cursor-pointer
-                ${
-                  location.pathname === item.path
-                    ? "bg-blue-50 text-blue-600 font-medium"
-                    : "text-gray-600 hover:bg-gray-100"
-                }`}
-              >
-                {item.icon}
-                {item.name}
-              </div>
-            </Link>
-          ))}
-        </nav>
-      </div>
 
       
-      <div className="p-4 space-y-3">
+        <div className="p-6 border-b">
 
-   
-        <div className="flex items-center gap-3 bg-gray-100 p-3 rounded-lg">
-          <div className="w-10 h-10 rounded-full bg-orange-200 flex items-center justify-center font-bold">
+          <h1 className="text-2xl font-bold text-blue-600">
+            CityZen
+          </h1>
+
+          <p className="text-sm text-gray-500">
+            Municipal Staff Panel
+          </p>
+
+        </div>
+
+       
+        <div className="mt-4 px-3">
+
+          {menu.map((item) => (
+
+            <Link
+              key={item.name}
+              to={item.path}
+            >
+
+              <div
+                className={`flex items-center gap-3 px-4 py-3 rounded-xl mb-2 transition-all
+                ${
+                  location.pathname === item.path
+                    ? "bg-blue-600 text-white"
+                    : "hover:bg-gray-100 text-gray-700"
+                }`}
+              >
+
+                {item.icon}
+
+                {item.name}
+
+              </div>
+
+            </Link>
+
+          ))}
+
+        </div>
+
+      </div>
+
+    
+      <div className="p-4 border-t">
+
+        <div className="flex items-center gap-3 mb-4">
+
+          <div className="w-10 h-10 bg-orange-300 rounded-full flex items-center justify-center font-bold">
             A
           </div>
 
           <div>
-            <p className="font-medium text-sm">Alex Johnson</p>
-            <p className="text-xs text-gray-500">Resident ID: 48291</p>
+            <p className="font-semibold text-sm">
+              Admin
+            </p>
+
+            <p className="text-xs text-gray-500">
+              Municipal Staff
+            </p>
           </div>
+
         </div>
 
-   
         <button
-          onClick={handleLogout}
-          className="flex items-center gap-2 w-full px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg"
+          onClick={logout}
+          className="w-full bg-red-50 text-red-600 py-3 rounded-xl flex items-center justify-center gap-2 hover:bg-red-100"
         >
+
           <LogOut size={18} />
+
           Logout
+
         </button>
 
       </div>

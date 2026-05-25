@@ -1,216 +1,210 @@
-
-import React, { useState } from "react";
+import { useEffect, useState } from "react";
+import API from "../services/api";
 import AdminSidebar from "./components/AdminSidebar";
-import { Bell, Search, Download } from "lucide-react";
-import ComplaintSummary from "./ComplaintSummary"; 
 
 export default function Complaints() {
 
-  const [selectedComplaint, setSelectedComplaint] = useState(null); // ✅ ADD
+  const [complaints, setComplaints] = useState([]);
 
-  const complaints = [
-    {
-      id: "#CMP-8821",
-      title: "Pothole Hazard",
-      location: "Downtown District",
-      category: "Public Works",
-      priority: "High",
-      status: "Escalated"
-    },
-    {
-      id: "#CMP-8822",
-      title: "Broken Streetlight",
-      location: "Oak Avenue",
-      category: "Utilities",
-      priority: "Moderate",
-      status: "New"
-    },
-    {
-      id: "#CMP-8823",
-      title: "Illegal Dumping",
-      location: "Industrial Zone",
-      category: "Sanitation",
-      priority: "High",
-      status: "Pending"
-    },
-    {
-      id: "#CMP-8824",
-      title: "Noise Complaint",
-      location: "Residential East",
-      category: "Public Safety",
-      priority: "Low",
-      status: "New"
-    },
-    {
-      id: "#CMP-8825",
-      title: "Water Leakage",
-      location: "North Plaza",
-      category: "Utilities",
-      priority: "Moderate",
-      status: "Escalated"
-    }
-  ];
-
-  const [activeTab, setActiveTab] = useState("All Complaints");
-  const [searchText, setSearchText] = useState("");
-
-  const filteredComplaints = complaints.filter((c) => {
-    const fullText = [
-      c.id,
-      c.title,
-      c.location,
-      c.category,
-      c.priority,
-      c.status
-    ]
-      .map(v => String(v).toLowerCase())
-      .join(" ");
-
-    if (!fullText.includes(searchText.toLowerCase())) return false;
-
-    if (activeTab === "Escalated") return c.status === "Escalated";
-    if (activeTab === "Pending Assignment") return c.status === "Pending";
-    if (activeTab === "Flagged") return c.priority === "High";
-
-    return true;
-  });
-
-  const exportCSV = () => {
-    const rows = complaints.map(c =>
-      `${c.id},${c.title},${c.location},${c.category},${c.priority},${c.status}`
-    );
-
-    const csv =
-      "ID,Title,Location,Category,Priority,Status\n" +
-      rows.join("\n");
-
-    const blob = new Blob([csv], { type: "text/csv" });
-    const url = URL.createObjectURL(blob);
-
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "complaints.csv";
-    a.click();
+  const staffMap = {
+    Sarah: "sarah@municipal.com",
+    David: "david@municipal.com",
+    Michael: "michael@municipal.com"
   };
 
+  useEffect(() => {
+    loadComplaints();
+  }, []);
 
-  if (selectedComplaint) {
-    return (
-      <ComplaintSummary
-        complaint={selectedComplaint}
-        goBack={() => setSelectedComplaint(null)}
-      />
-    );
-  }
+  const loadComplaints = async () => {
+
+    try {
+
+      const res = await API.get("/complaints");
+
+      setComplaints(res.data);
+
+    } catch (err) {
+
+      console.log(err);
+    }
+  };
+
+  const assignTask = async (id, staff) => {
+
+    try {
+
+      await API.put(`/complaints/assign/${id}`, {
+        assignedStaffName: staff,
+        assignedStaffEmail: staffMap[staff]
+      });
+
+      alert(`Assigned to ${staff}`);
+
+      loadComplaints();
+
+    } catch (err) {
+
+      console.log(err);
+
+      alert("Assignment Failed");
+    }
+  };
 
   return (
-    <div className="flex h-screen bg-gray-100">
+    <div className="flex bg-gray-100 min-h-screen">
 
-      <AdminSidebar/>
+      {/* SIDEBAR */}
+      <div className="fixed left-0 top-0 h-screen w-64 bg-white shadow-lg z-50">
+        <AdminSidebar />
+      </div>
 
-      <div className="flex-1 flex flex-col">
+      {/* CONTENT */}
+      <div className="flex-1 ml-64 p-8">
 
-        <div className="bg-white border-b p-4 flex justify-between items-center">
+        {/* HEADER */}
+        <div className="flex justify-between items-center mb-8">
 
-          <h2 className="text-xl font-semibold">
-            Complaint Management
-          </h2>
+          <div>
 
-          <div className="flex items-center gap-4">
+            <h1 className="text-4xl font-bold text-gray-800">
+              Complaint Management
+            </h1>
 
-            <div className="flex items-center bg-gray-100 px-3 py-2 rounded">
-
-              <Search size={16}/>
-
-              <input
-                className="bg-transparent ml-2 outline-none"
-                placeholder="Search complaints..."
-                value={searchText}
-                onChange={(e)=>setSearchText(e.target.value)}
-              />
-
-            </div>
-
-            <button
-              onClick={exportCSV}
-              className="flex items-center gap-2 bg-gray-200 px-3 py-2 rounded"
-            >
-              <Download size={16}/>
-              Export Data
-            </button>
-
-            <Bell/>
+            <p className="text-gray-500 mt-2">
+              Assign municipal staff to citizen complaints
+            </p>
 
           </div>
 
         </div>
 
-        <div className="p-6">
+        {/* TABLE CARD */}
+        <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
 
-          <div className="flex gap-6 border-b pb-2 mb-6 text-gray-500">
+          <div className="overflow-x-auto">
 
-            {[
-              "All Complaints",
-              "Pending Assignment",
-              "Escalated",
-              "Flagged"
-            ].map(tab => (
+            <table className="w-full">
 
-              <button
-                key={tab}
-                onClick={() => setActiveTab(tab)}
-                className={`pb-2 ${
-                  activeTab === tab
-                    ? "border-b-2 border-blue-600 text-blue-600"
-                    : ""
-                }`}
-              >
-                {tab}
-              </button>
+              {/* TABLE HEADER */}
+              <thead className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white">
 
-            ))}
-
-          </div>
-
-          <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-
-            <table className="w-full text-left">
-
-              <thead className="bg-gray-50 text-gray-500 text-sm">
                 <tr>
-                  <th className="p-4">Complaint ID</th>
-                  <th>Title</th>
-                  <th>Location</th>
-                  <th>Category</th>
-                  <th>Priority</th>
-                  <th>Status</th>
-                  <th>Actions</th>
+
+                  <th className="p-4 text-left">Complaint</th>
+
+                  <th className="p-4 text-left">Citizen</th>
+
+                  <th className="p-4 text-left">Location</th>
+
+                  <th className="p-4 text-left">Status</th>
+
+                  <th className="p-4 text-left">Assigned Staff</th>
+
+                  <th className="p-4 text-center">Assign Task</th>
+
                 </tr>
+
               </thead>
 
+              {/* TABLE BODY */}
               <tbody>
 
-                {filteredComplaints.map((c,index)=>(
+                {complaints.map((c) => (
 
-                  <tr key={index} className="border-t hover:bg-gray-50">
+                  <tr
+                    key={c.id}
+                    className="border-b hover:bg-gray-50 transition"
+                  >
 
-                    <td className="p-4 text-blue-600 font-semibold">{c.id}</td>
-                    <td>{c.title}</td>
-                    <td>{c.location}</td>
-                    <td><Badge text={c.category}/></td>
-                    <td><PriorityBadge level={c.priority}/></td>
-                    <td><StatusBadge status={c.status}/></td>
+                    {/* TITLE */}
+                    <td className="p-4">
 
-                    
-                    <td
-                      className="text-blue-600 cursor-pointer"
-                      onClick={()=>setSelectedComplaint(c)}
-                    >
-                      View Details
+                      <div className="font-semibold text-gray-800">
+                        {c.title}
+                      </div>
+
+                      <div className="text-sm text-gray-500">
+                        {c.category}
+                      </div>
+
+                    </td>
+
+                    {/* CITIZEN */}
+                    <td className="p-4 text-gray-700">
+                      {c.citizen}
+                    </td>
+
+                    {/* LOCATION */}
+                    <td className="p-4 text-gray-700">
+                      {c.location}
+                    </td>
+
+                    {/* STATUS */}
+                    <td className="p-4">
+
+                      <span className={`px-3 py-1 rounded-full text-sm font-medium
+                        ${c.status === "Resolved"
+                          ? "bg-green-100 text-green-700"
+                          : c.status === "In Progress"
+                          ? "bg-yellow-100 text-yellow-700"
+                          : "bg-red-100 text-red-700"
+                        }`}
+                      >
+                        {c.status}
+                      </span>
+
+                    </td>
+
+                    {/* ASSIGNED */}
+                    <td className="p-4 text-gray-700">
+
+                      {c.assignedStaffName ? (
+                        <span className="font-medium">
+                          {c.assignedStaffName}
+                        </span>
+                      ) : (
+                        <span className="text-gray-400">
+                          Not Assigned
+                        </span>
+                      )}
+
+                    </td>
+
+                    {/* DROPDOWN */}
+                    <td className="p-4 text-center">
+
+                      <select
+                        defaultValue=""
+                        onChange={(e) => {
+                          if (e.target.value) {
+                            assignTask(c.id, e.target.value);
+                          }
+                        }}
+                        className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      >
+
+                        <option value="">
+                          Select Staff
+                        </option>
+
+                        <option value="Sarah">
+                          Sarah
+                        </option>
+
+                        <option value="David">
+                          David
+                        </option>
+
+                        <option value="Michael">
+                          Michael
+                        </option>
+
+                      </select>
+
                     </td>
 
                   </tr>
-
                 ))}
 
               </tbody>
@@ -225,38 +219,4 @@ export default function Complaints() {
 
     </div>
   );
-}
-
-function Badge({text}){
-  return(
-    <span className="bg-gray-200 px-3 py-1 rounded-full text-sm">
-      {text}
-    </span>
-  )
-}
-
-function PriorityBadge({level}){
-  const colors = {
-    High:"bg-red-100 text-red-600",
-    Moderate:"bg-blue-100 text-blue-600",
-    Low:"bg-gray-200 text-gray-600"
-  };
-  return(
-    <span className={`px-3 py-1 rounded-full text-sm ${colors[level]}`}>
-      {level}
-    </span>
-  )
-}
-
-function StatusBadge({status}){
-  const colors = {
-    Escalated:"bg-yellow-100 text-yellow-700",
-    Pending:"bg-gray-200 text-gray-700",
-    New:"bg-green-100 text-green-600"
-  };
-  return(
-    <span className={`px-3 py-1 rounded-full text-sm ${colors[status]}`}>
-      {status}
-    </span>
-  )
 }

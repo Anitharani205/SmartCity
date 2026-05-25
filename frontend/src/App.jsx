@@ -4,6 +4,7 @@ import LandingPage from "./LandingPage";
 import Login from "./Login";
 import SignUp from "./SignUp";
 
+
 import Dashboard from "./Citizen/Dashboard";
 import Services from "./Citizen/Services";
 import Alerts from "./Citizen/Alerts";
@@ -14,22 +15,21 @@ import Report from "./Citizen/Report";
 
 import MunicipalDashboard from "./Municipal/MunicipalDashboard";
 import Request from "./Municipal/Request";
+import DetailPage from "./Municipal/DetailPage";
+import ReceiveAssignedTask from "./Municipal/ReceiveAssignedTask";
 import Task from "./Municipal/Task";
-import ComplaintDetail from "./Municipal/ComplaintDetail";
-import Manage from "./Municipal/Manage";
-import Notification from "./Municipal/Notification";
-
 
 import AdminDashboard from "./Admin/AdminDashboard";
-import RequestDetail from "./Admin/RequestDetail";
 import Complaints from "./Admin/Complaints";
 import ComplaintSummary from "./Admin/ComplaintSummary";
+import RequestDetail from "./Admin/RequestDetail";
 import AdminServices from "./Admin/AdminServices";
 import UserManagement from "./Admin/UserManagement";
-import CreateUser from "./Admin/NewUser"; 
+import CreateUser from "./Admin/NewUser";
 import ManagingAlerts from "./Admin/ManagingAlerts";
 import Analytics from "./Admin/Analytics";
 import AuditLogs from "./Admin/AuditLogs";
+import AdminNotification from "./Admin/AdminNotification";
 
 function App() {
   return (
@@ -37,10 +37,11 @@ function App() {
 
       <Routes>
 
+        
         <Route path="/" element={<LandingPage />} />
-
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<SignUp />} />
+
         <Route path="/citizen" element={<Dashboard />} />
         <Route path="/services" element={<Services />} />
         <Route path="/alerts" element={<Alerts />} />
@@ -49,26 +50,23 @@ function App() {
         <Route path="/complainthistory" element={<ComplaintHistory />} />
         <Route path="/report" element={<Report />} />
 
-    
         <Route path="/municipal" element={<MunicipalDashboard />} />
         <Route path="/request" element={<Request />} />
-        <Route path="/task" element={<Task />} />
-        <Route path="/complaintdetail" element={<ComplaintDetail />} />
-        <Route path="/manage" element={<Manage />} />
-        <Route path="/notification" element={<Notification />} />
-
+        <Route path="/detail-page" element={<DetailPage />} />
+        <Route path="/assigned-task" element={<ReceiveAssignedTask />} />
+        <Route path="/task" element={<Task />}/>
+   
         <Route path="/admin" element={<AdminDashboard />} />
         <Route path="/complaintsservices" element={<Complaints />} />
         <Route path="/complaintsummary" element={<ComplaintSummary />} />
+        <Route path="/request-detail" element={<RequestDetail />}/>
         <Route path="/adminservices" element={<AdminServices />} />
         <Route path="/usermanagement" element={<UserManagement />} />
-
-       
         <Route path="/create-user" element={<CreateUser />} />
-
         <Route path="/managingalerts" element={<ManagingAlerts />} />
         <Route path="/analytics" element={<Analytics />} />
         <Route path="/auditlogs" element={<AuditLogs />} />
+        <Route path="/admin-notification" element={<AdminNotification />} />
 
       </Routes>
 

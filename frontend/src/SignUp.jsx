@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import API from "./services/api";
 
 function SignUp() {
 
@@ -8,42 +9,61 @@ function SignUp() {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
-    aadhaar: "",
     password: "",
-    confirmPassword: ""
+    confirmPassword: "",
+    aadhaar: ""
   });
 
   const handleChange = (e) => {
+
     setFormData({
       ...formData,
       [e.target.name]: e.target.value
     });
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  const handleSubmit = async (e) => {
 
-    if (formData.password !== formData.confirmPassword) {
-      alert("Passwords do not match");
-      return;
-    }
+  e.preventDefault();
 
-    const users = JSON.parse(localStorage.getItem("users")) || [];
+  if(formData.password !== formData.confirmPassword){
+    alert("Passwords do not match");
+    return;
+  }
 
-    users.push({
+  try {
+
+    console.log(formData);
+
+    const response = await API.post("/auth/register", {
+
       name: formData.name,
       email: formData.email,
-      aadhaar: formData.aadhaar,
-      password: formData.password
+      password: formData.password,
+      aadhaar: formData.aadhaar
     });
 
-    localStorage.setItem("users", JSON.stringify(users));
+    console.log(response.data);
 
-    alert("Signup Successful!");
+    alert("Signup Success");
+
     navigate("/login");
-  };
+
+  } catch(error){
+
+    console.log(error);
+
+    if(error.response){
+      alert(error.response.data);
+    }
+    else{
+      alert("Backend not running");
+    }
+  }
+};
 
   return (
+
     <div className="min-h-screen flex items-center justify-center bg-blue-500">
 
       <div className="bg-white p-10 rounded-2xl shadow-lg w-[400px]">
@@ -52,11 +72,7 @@ function SignUp() {
           Create Your CityZen Account
         </h1>
 
-        <p className="text-center text-gray-500 mb-6">
-          Sign up to access citizen services
-        </p>
-
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4 mt-6">
 
           <input
             type="text"
@@ -71,7 +87,7 @@ function SignUp() {
           <input
             type="email"
             name="email"
-            placeholder="Email Address"
+            placeholder="Email"
             className="w-full p-3 rounded-lg bg-gray-200"
             value={formData.email}
             onChange={handleChange}
@@ -118,10 +134,13 @@ function SignUp() {
         </form>
 
         <p className="text-center mt-5 text-gray-600">
+
           Already have an account?{" "}
-          <Link to="/login" className="text-blue-600 font-medium">
+
+          <Link to="/login" className="text-blue-600">
             Login
           </Link>
+
         </p>
 
       </div>

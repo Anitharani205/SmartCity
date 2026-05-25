@@ -1,146 +1,120 @@
-import { Mail, Lock, Eye } from "lucide-react";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import API from "./services/api";
 
 function Login() {
 
   const navigate = useNavigate();
 
-  const [email,setEmail] = useState("");
-  const [password,setPassword] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
 
-    if(email === "citizen@gmail.com" && password === "1234"){
-      navigate("/citizen");
+    if(email === "" || password === ""){
+      alert("Please fill all fields");
       return;
     }
 
-    if(email === "municipal@gmail.com" && password === "1234"){
-      navigate("/municipal");
-      return;
-    }
+    try {
 
-    if(email === "admin@gmail.com" && password === "1234"){
-      navigate("/admin");
-      return;
-    }
+      const response = await API.post("/auth/login", {
 
-    alert("Invalid Login");
+        email,
+        password
+      });
+
+      const data = response.data;
+
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("role", data.role);
+      localStorage.setItem("email", email);
+
+      alert("Login Successful");
+
+      // ROLE BASED NAVIGATION
+
+      if(email.endsWith("@citizen.com")){
+
+        navigate("/citizen");
+      }
+
+      else if(email.endsWith("@municipal.com")){
+
+        navigate("/municipal");
+      }
+
+      else if(email.endsWith("@admin.com")){
+
+        navigate("/admin");
+      }
+
+      else{
+
+        navigate("/");
+      }
+
+    } catch(error){
+
+      console.log(error);
+
+      alert("Invalid Email or Password");
+    }
   };
 
   return (
 
-    <div className="h-screen flex items-center justify-center bg-gradient-to-r from-indigo-300 via-purple-300 to-pink-300">
+    <div className="min-h-screen flex justify-center items-center bg-blue-500">
 
-      <div className="w-[900px] h-[520px] bg-white rounded-xl shadow-2xl flex overflow-hidden">
+      <div className="bg-white p-10 rounded-2xl shadow-lg w-[400px]">
 
-      
+        <h1 className="text-3xl font-bold text-center text-gray-800 mb-8">
+          Login
+        </h1>
 
-        <div className="w-1/2 p-10 flex flex-col justify-center text-white bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500">
+        <div className="space-y-5">
 
-          <h1 className="text-4xl font-bold mb-4">
-            Welcome to CityZen
-          </h1>
+          <input
+            type="email"
+            placeholder="Enter Email"
+            className="w-full p-3 rounded-lg bg-gray-200 outline-none"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
 
-          <p className="text-sm leading-6">
-            Smart civic complaint management system that allows citizens
-            to report issues easily and helps municipalities solve them
-            efficiently for better city living.
+          <input
+            type="password"
+            placeholder="Enter Password"
+            className="w-full p-3 rounded-lg bg-gray-200 outline-none"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+
+          <button
+            onClick={handleLogin}
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-lg"
+          >
+            Login
+          </button>
+
+          <p className="text-center text-gray-600">
+
+            Don't have an account?{" "}
+
+            <Link
+              to="/signup"
+              className="text-blue-600 font-semibold"
+            >
+              Sign Up
+            </Link>
+
           </p>
-
-        </div>
-
-
-        
-
-        <div className="w-1/2 bg-gray-50 flex items-center justify-center">
-
-          <div className="w-[320px]">
-
-            <h2 className="text-xl font-semibold text-center mb-6 text-gray-700">
-              Login to Your Account
-            </h2>
-
-
-            
-
-            <div className="flex items-center bg-gray-200 rounded-full px-4 py-2 mb-4">
-              <Mail size={18} className="text-gray-500"/>
-              <input
-                type="text"
-                placeholder="Email / Aadhaar Number"
-                className="ml-3 bg-transparent outline-none w-full"
-                value={email}
-                onChange={(e)=>setEmail(e.target.value)}
-              />
-            </div>
-
-
-           
-
-            <div className="flex items-center bg-gray-200 rounded-full px-4 py-2 mb-4">
-              <Lock size={18} className="text-gray-500"/>
-              <input
-                type="password"
-                placeholder="Password"
-                className="ml-3 bg-transparent outline-none w-full"
-                value={password}
-                onChange={(e)=>setPassword(e.target.value)}
-              />
-              <Eye size={18} className="text-gray-500 cursor-pointer"/>
-            </div>
-
-
-          
-
-            <button
-              onClick={handleLogin}
-              className="w-full bg-indigo-500 hover:bg-indigo-600 text-white py-2 rounded-full mb-3 transition"
-            >
-              Login
-            </button>
-
-
-          
-
-            <p className="text-right text-xs text-gray-500 mb-4 cursor-pointer">
-              Forgot Password?
-            </p>
-
-
-          
-
-            <div className="flex items-center mb-4">
-              <hr className="flex-grow border-gray-300"/>
-              <span className="mx-2 text-gray-400 text-sm">OR</span>
-              <hr className="flex-grow border-gray-300"/>
-            </div>
-
-
-          
-
-            <button className="w-full bg-orange-500 hover:bg-orange-600 text-white py-2 rounded-full mb-3 transition">
-              Login with Aadhaar
-            </button>
-
-
-           
-            <button
-              onClick={() => navigate("/signup")}
-              className="w-full bg-orange-400 hover:bg-orange-500 text-white py-2 rounded-full transition"
-            >
-              New User? Aadhaar Sign Up
-            </button>
-
-          </div>
 
         </div>
 
       </div>
 
     </div>
-
   );
 }
 

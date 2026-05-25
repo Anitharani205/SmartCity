@@ -1,226 +1,210 @@
-
-import React, { useState } from "react"; 
+import React, { useEffect, useState } from "react";
 import AdminSidebar from "./components/AdminSidebar";
-import {
-  Home,
-  FileText,
-  Users,
-  AlertTriangle,
-  BarChart3,
-  Search,
-  Bell
-} from "lucide-react";
+import API from "../services/api";
 
 export default function AdminServices() {
 
-  const bookings = [
-    {
-      service:"Plumbing",
-      citizen:"David Richardson",
-      location:"42 North Ave, Ward 4",
-      status:"Pending",
-      date:"Oct 24, 2023 - 09:30 AM"
-    },
-    {
-      service:"Power Grid",
-      citizen:"Eliza Vance",
-      location:"Greenwood High, Sector 12",
-      status:"Assigned",
-      date:"Oct 24, 2023 - 11:15 AM"
-    },
-    {
-      service:"Water Supply",
-      citizen:"Marcus Aurelius",
-      location:"Industrial Park, Unit 4B",
-      status:"Overdue",
-      date:"Oct 23, 2023 - 04:45 PM"
-    },
-    {
-      service:"Waste Management",
-      citizen:"Sarah Connor",
-      location:"Skyview Apartments, Ward 2",
-      status:"Completed",
-      date:"Oct 23, 2023 - 02:20 PM"
-    },
-    {
-      service:"Plumbing",
-      citizen:"Thomas Miller",
-      location:"18 Heritage Way",
-      status:"Pending",
-      date:"Oct 24, 2023 - 02:00 PM"
+  const [bookings, setBookings] = useState([]);
+
+  const staffMap = {
+    Sarah: "sarah@municipal.com",
+    David: "david@municipal.com",
+    Michael: "michael@municipal.com"
+  };
+
+  useEffect(() => {
+    loadServices();
+  }, []);
+
+  const loadServices = async () => {
+
+    try {
+
+      const res = await API.get("/services");
+
+      setBookings(res.data);
+
+    } catch (err) {
+
+      console.log(err);
     }
-  ];
+  };
 
-  const [search, setSearch] = useState("");
-  const [activeFilter, setActiveFilter] = useState("All Time");
+  const assignService = async (id, staff) => {
 
-  
-  const filteredBookings = bookings.filter((b) => {
+    try {
 
-   
-    const fullText = [
-      b.service,
-      b.citizen,
-      b.location,
-      b.status,
-      b.date
-    ]
-      .join(" ")
-      .toLowerCase();
+      await API.put(`/services/assign/${id}`, {
+        assignedStaffName: staff,
+        assignedStaffEmail: staffMap[staff]
+      });
 
-    if (!fullText.includes(search.toLowerCase())) return false;
+      alert(`Assigned to ${staff}`);
 
+      loadServices();
 
-    if (activeFilter === "Week") {
-      return b.date.includes("Oct 24"); 
+    } catch (err) {
+
+      console.log(err);
+
+      alert("Assignment Failed");
     }
-
-    if (activeFilter === "Month") {
-      return b.date.includes("Oct");
-    }
-
-    return true;
-  });
+  };
 
   return (
-    <div className="flex h-screen bg-gray-100">
+    <div className="flex bg-gray-100 min-h-screen">
 
-      <AdminSidebar/>
+      {/* SIDEBAR */}
+      <div className="fixed left-0 top-0 h-screen w-64 bg-white shadow-lg z-50">
+        <AdminSidebar />
+      </div>
 
-      <div className="flex-1 flex flex-col">
+      {/* CONTENT */}
+      <div className="flex-1 ml-64 p-8">
 
-       
+        {/* HEADER */}
+        <div className="mb-8">
 
-        <div className="bg-white border-b p-4 flex justify-between items-center">
+          <h1 className="text-4xl font-bold text-gray-800">
+            Service Management
+          </h1>
 
-          <h2 className="text-xl font-semibold">
-            Admin Services Overview
-          </h2>
-
-          <div className="flex items-center gap-4">
-
-            <div className="flex items-center bg-gray-100 px-3 py-2 rounded">
-
-              <Search size={16}/>
-              <input
-                className="bg-transparent ml-2 outline-none"
-                placeholder="Search bookings, citizens..."
-                
-                
-                value={search}
-                onChange={(e)=>setSearch(e.target.value)}
-              />
-
-            </div>
-
-            <Bell/>
-
-            <div className="flex items-center gap-2">
-              <img
-                src="https://i.pravatar.cc/30"
-                className="rounded-full"
-              />
-              <span className="text-sm">Sarah Jenkins</span>
-            </div>
-
-          </div>
+          <p className="text-gray-500 mt-2">
+            Assign municipal staff to citizen services
+          </p>
 
         </div>
 
-       
+        {/* TABLE CARD */}
+        <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
 
-        <div className="p-6 space-y-6">
+          <div className="overflow-x-auto">
 
-         
+            <table className="w-full">
 
-          <div className="grid grid-cols-4 gap-6">
-
-            <StatCard title="Total Bookings" value="1,284" change="+12%"/>
-            <StatCard title="Staff Allocated %" value="82%" change="-3%"/>
-            <StatCard title="Completion Rate" value="94%" change="+2%"/>
-            <StatCard title="Pending Requests" value="45" change="+5%"/>
-
-          </div>
-
-          
-
-          <div className="bg-white rounded-xl shadow-sm p-6">
-
-            <div className="flex justify-between mb-4">
-
-              <h3 className="font-semibold">
-                All Utility Bookings
-              </h3>
-
-              <div className="flex gap-2">
-
-                
-                <button onClick={()=>setActiveFilter("All Time")} className="px-3 py-1 bg-gray-100 rounded">
-                  All Time
-                </button>
-
-                <button onClick={()=>setActiveFilter("Week")} className="px-3 py-1 bg-gray-100 rounded">
-                  Week
-                </button>
-
-                <button onClick={()=>setActiveFilter("Month")} className="px-3 py-1 bg-gray-100 rounded">
-                  Month
-                </button>
-
-                <button onClick={()=>alert("Category filter clicked")} className="px-3 py-1 bg-gray-100 rounded">
-                  Filter Category
-                </button>
-
-                <button onClick={()=>alert("Status filter clicked")} className="px-3 py-1 bg-gray-100 rounded">
-                  Status
-                </button>
-
-              </div>
-
-            </div>
-
-            <table className="w-full text-left">
-
-              <thead className="text-gray-500 text-sm border-b">
+              {/* HEADER */}
+              <thead className="bg-gradient-to-r from-green-600 to-emerald-600 text-white">
 
                 <tr>
 
-                  <th className="py-3">Service Type</th>
-                  <th>Citizen Name</th>
-                  <th>Location</th>
-                  <th>Status</th>
-                  <th>Date/Time</th>
-                  <th>Actions</th>
+                  <th className="p-4 text-left">
+                    Service
+                  </th>
+
+                  <th className="p-4 text-left">
+                    Citizen
+                  </th>
+
+                  <th className="p-4 text-left">
+                    Location
+                  </th>
+
+                  <th className="p-4 text-left">
+                    Status
+                  </th>
+
+                  <th className="p-4 text-left">
+                    Assigned Staff
+                  </th>
+
+                  <th className="p-4 text-center">
+                    Assign Service
+                  </th>
 
                 </tr>
 
               </thead>
 
+              {/* BODY */}
               <tbody>
 
-                
-                {filteredBookings.map((b,i)=>(
+                {bookings.map((b) => (
 
-                  <tr key={i} className="border-b hover:bg-gray-50">
+                  <tr
+                    key={b.id}
+                    className="border-b hover:bg-gray-50 transition"
+                  >
 
-                    <td className="py-3">{b.service}</td>
-
-                    <td>{b.citizen}</td>
-
-                    <td>{b.location}</td>
-
-                    <td>
-                      <StatusBadge status={b.status}/>
+                    {/* SERVICE */}
+                    <td className="p-4 font-semibold text-gray-800">
+                      {b.service}
                     </td>
 
-                    <td>{b.date}</td>
+                    {/* CITIZEN */}
+                    <td className="p-4 text-gray-700">
+                      {b.citizen}
+                    </td>
 
-                   
-                    <td
-                      className="text-blue-600 cursor-pointer"
-                      onClick={()=>alert(`Managing ${b.citizen}`)}
-                    >
-                      Manage
+                    {/* LOCATION */}
+                    <td className="p-4 text-gray-700">
+                      {b.location}
+                    </td>
+
+                    {/* STATUS */}
+                    <td className="p-4">
+
+                      <span className={`px-3 py-1 rounded-full text-sm font-medium
+                        ${b.status === "Resolved"
+                          ? "bg-green-100 text-green-700"
+                          : b.status === "In Progress"
+                          ? "bg-yellow-100 text-yellow-700"
+                          : "bg-red-100 text-red-700"
+                        }`}
+                      >
+                        {b.status}
+                      </span>
+
+                    </td>
+
+                    {/* STAFF */}
+                    <td className="p-4 text-gray-700">
+
+                      {b.assignedStaffName ? (
+                        <span className="font-medium">
+                          {b.assignedStaffName}
+                        </span>
+                      ) : (
+                        <span className="text-gray-400">
+                          Not Assigned
+                        </span>
+                      )}
+
+                    </td>
+
+                    {/* DROPDOWN */}
+                    <td className="p-4 text-center">
+
+                      <select
+                        defaultValue=""
+                        onChange={(e) => {
+                          if (e.target.value) {
+                            assignService(
+                              b.id,
+                              e.target.value
+                            );
+                          }
+                        }}
+                        className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
+                      >
+
+                        <option value="">
+                          Select Staff
+                        </option>
+
+                        <option value="Sarah">
+                          Sarah
+                        </option>
+
+                        <option value="David">
+                          David
+                        </option>
+
+                        <option value="Michael">
+                          Michael
+                        </option>
+
+                      </select>
+
                     </td>
 
                   </tr>
@@ -230,30 +214,6 @@ export default function AdminServices() {
 
             </table>
 
-            <div className="flex justify-between mt-4 text-sm text-gray-500">
-
-              <span>
-                Showing {filteredBookings.length} results
-              </span>
-
-              <div className="flex gap-2">
-
-                <button className="px-3 py-1 bg-blue-600 text-white rounded">
-                  1
-                </button>
-
-                <button className="px-3 py-1 border rounded">
-                  2
-                </button>
-
-                <button className="px-3 py-1 border rounded">
-                  3
-                </button>
-
-              </div>
-
-            </div>
-
           </div>
 
         </div>
@@ -262,48 +222,4 @@ export default function AdminServices() {
 
     </div>
   );
-}
-
-
-function StatCard({title,value,change}){
-
-  const positive = change.includes("+");
-
-  return(
-    <div className="bg-white p-6 rounded-xl shadow-sm">
-
-      <p className="text-gray-500">{title}</p>
-
-      <div className="flex justify-between mt-2">
-
-        <h3 className="text-2xl font-bold">
-          {value}
-        </h3>
-
-        <span className={positive ? "text-green-500" : "text-red-500"}>
-          {change}
-        </span>
-
-      </div>
-
-    </div>
-  )
-}
-
-
-
-function StatusBadge({status}){
-
-  const colors = {
-    Pending:"bg-yellow-100 text-yellow-700",
-    Assigned:"bg-blue-100 text-blue-600",
-    Overdue:"bg-red-100 text-red-600",
-    Completed:"bg-green-100 text-green-600"
-  };
-
-  return(
-    <span className={`px-3 py-1 rounded-full text-sm ${colors[status]}`}>
-      {status}
-    </span>
-  )
 }

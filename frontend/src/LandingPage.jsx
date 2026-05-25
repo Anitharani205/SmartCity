@@ -4,252 +4,413 @@ import {
   Activity,
   Wrench,
   Bell,
-  Megaphone,
   ArrowRight,
-  Users,
-  Star
+  Star,
+  Sparkles,
+  ShieldCheck,
+  MapPinned,
 } from "lucide-react";
 
 export default function LandingPage() {
   const navigate = useNavigate();
 
   return (
-    <div className="font-sans text-gray-800">
+    <div className="bg-[#07111f] text-white font-sans overflow-hidden">
 
-      {/* NAVBAR */}
-      <nav className="flex justify-between items-center px-12 py-5 bg-white shadow-sm">
-        <h1 className="text-lg font-semibold text-blue-900">The Civic Horizon</h1>
+      
+      <nav className="fixed top-0 left-0 w-full z-50 backdrop-blur-xl bg-[#07111f]/70 border-b border-white/10">
+        <div className="max-w-7xl mx-auto px-6 md:px-12 py-4 flex items-center justify-between">
 
-        <div className="hidden md:flex gap-8 text-sm text-gray-600">
-          <a>Services</a>
-          <a>Infrastructure</a>
-          <a>Community</a>
-          <a>Contact</a>
-        </div>
+          <div>
+            <h1 className="text-2xl font-bold tracking-wide bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
+              The Civic Horizon
+            </h1>
+          </div>
 
-        <div className="flex gap-4 items-center">
-          <button onClick={() => navigate("/login")}>Login</button>
+          <div className="hidden md:flex items-center gap-8 text-sm text-gray-300">
+            <a className="hover:text-cyan-400 transition cursor-pointer">
+              Services
+            </a>
 
-          <button
-            className="bg-blue-900 text-white px-4 py-2 rounded-md"
-            onClick={() => navigate("/signup")}
-          >
-            Sign Up
-          </button>
+            <a className="hover:text-cyan-400 transition cursor-pointer">
+              Infrastructure
+            </a>
+
+            <a className="hover:text-cyan-400 transition cursor-pointer">
+              Community
+            </a>
+
+            <a className="hover:text-cyan-400 transition cursor-pointer">
+              Contact
+            </a>
+          </div>
+
+          <div className="flex items-center gap-4">
+
+           
+            <button
+              onClick={() => navigate("/login")}
+              className="border border-cyan-400/30 bg-white/5 hover:bg-cyan-400/10 transition px-5 py-2 rounded-full text-cyan-300 font-medium"
+            >
+              Login
+            </button>
+
+            
+            <button
+              onClick={() => navigate("/signup")}
+              className="bg-gradient-to-r from-cyan-400 to-blue-500 hover:scale-105 transition px-5 py-2 rounded-full font-medium shadow-lg shadow-cyan-500/20"
+            >
+              Sign Up
+            </button>
+          </div>
         </div>
       </nav>
 
-      {/* HERO */}
-      <section className="relative h-[700px] flex items-center px-12">
-        <img
-          src="https://images.unsplash.com/photo-1494526585095-c41746248156"
-          className="absolute inset-0 w-full h-full object-cover brightness-75"
-          alt="city"
-        />
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-900/90 to-blue-800/40" />
 
-        <div className="relative z-10 grid md:grid-cols-2 gap-10 w-full">
-          <div className="text-white max-w-xl">
-            <h1 className="text-5xl font-bold">
-              Smart City Management Platform
+      
+      <section className="relative min-h-screen flex items-center px-6 md:px-12 pt-28">
+
+        <img
+          src="https://images.unsplash.com/photo-1519501025264-65ba15a82390"
+          alt="city"
+          className="absolute inset-0 w-full h-full object-cover"
+        />
+
+        <div className="absolute inset-0 bg-gradient-to-br from-[#07111f]/95 via-[#07111f]/80 to-cyan-900/40"></div>
+
+        <div className="absolute top-32 left-20 w-72 h-72 bg-cyan-500/20 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-10 right-10 w-80 h-80 bg-blue-600/20 rounded-full blur-3xl"></div>
+
+        <div className="relative z-10 max-w-7xl mx-auto grid lg:grid-cols-2 gap-14 items-center w-full">
+
+          <div>
+
+            <div className="inline-flex items-center gap-2 bg-white/10 border border-white/10 px-4 py-2 rounded-full text-sm text-cyan-300 backdrop-blur-md mb-6">
+              <Sparkles size={16} />
+              Next Generation Smart City Platform
+            </div>
+
+            <h1 className="text-5xl md:text-7xl font-extrabold leading-tight">
+              Transforming Cities
+              <span className="block bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
+                Through Technology
+              </span>
             </h1>
 
-            <p className="mt-4 text-gray-200">
-              Report issues, book services, and stay updated with your city.
+            <p className="mt-6 text-lg text-gray-300 leading-relaxed max-w-xl">
+              Report issues, track complaints, receive emergency alerts,
+              and connect with your city using one intelligent platform.
             </p>
 
-            <div className="mt-6 flex gap-4">
+            <div className="mt-10 flex flex-wrap gap-5">
+
               <button
-                className="bg-teal-400 px-6 py-3 rounded-md"
                 onClick={() => navigate("/signup")}
+                className="bg-gradient-to-r from-cyan-400 to-blue-500 hover:scale-105 transition-all duration-300 px-8 py-4 rounded-2xl font-semibold text-black shadow-2xl shadow-cyan-500/30"
               >
                 Get Started
               </button>
-              <button className="border px-6 py-3 rounded-md">
-                Explore
+
+              <button className="border border-white/20 bg-white/10 backdrop-blur-lg hover:bg-white/20 transition px-8 py-4 rounded-2xl font-medium">
+                Explore Services
               </button>
+
             </div>
+
+            <div className="mt-12 flex flex-wrap gap-8">
+
+              <div>
+                <h2 className="text-3xl font-bold text-cyan-400">14K+</h2>
+                <p className="text-gray-400 text-sm">Issues Resolved</p>
+              </div>
+
+              <div>
+                <h2 className="text-3xl font-bold text-cyan-400">98%</h2>
+                <p className="text-gray-400 text-sm">Citizen Satisfaction</p>
+              </div>
+
+              <div>
+                <h2 className="text-3xl font-bold text-cyan-400">24/7</h2>
+                <p className="text-gray-400 text-sm">Monitoring</p>
+              </div>
+
+            </div>
+
           </div>
 
-          {/* LIVE DASHBOARD CARD */}
-          <div className="bg-white/10 backdrop-blur-lg p-6 rounded-xl text-white max-w-sm ml-auto">
-            <h3 className="mb-4">Live Dashboard</h3>
 
-            <div className="space-y-3">
-              <div className="flex justify-between">
-                <span className="flex items-center gap-2">
-                  <Activity size={16}/> Infrastructure
-                </span>
-                <span>98%</span>
+          
+          <div className="relative">
+
+            <div className="bg-white/10 border border-white/10 backdrop-blur-2xl rounded-3xl p-8 shadow-2xl shadow-cyan-500/10">
+
+              <div className="flex items-center justify-between mb-8">
+                <h3 className="text-2xl font-semibold">
+                  Live City Dashboard
+                </h3>
+
+                <div className="w-3 h-3 rounded-full bg-green-400 animate-pulse"></div>
               </div>
 
-              <div className="flex justify-between">
-                <span className="flex items-center gap-2">
-                  <Wrench size={16}/> Complaints
-                </span>
-                <span>14k+</span>
-              </div>
+              <div className="space-y-5">
 
-              <div className="flex justify-between">
-                <span className="flex items-center gap-2">
-                  <Bell size={16}/> Alerts
-                </span>
-                <span>3 Active</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+                <div className="bg-white/5 rounded-2xl p-5 border border-white/5 hover:border-cyan-400/40 transition">
 
-      {/* SERVICES */}
-      <section className="py-20 text-center bg-gray-100">
-        <h2 className="text-3xl font-bold">Our Services</h2>
+                  <div className="flex items-center justify-between">
 
-        <div className="grid md:grid-cols-3 gap-8 px-12 mt-10">
-          {[
-            {
-              img: "https://images.unsplash.com/photo-1581091215367-59ab6b1b6c3b",
-              title: "Report Issues",
-              desc: "Raise complaints like potholes instantly",
-            },
-            {
-              img: "https://images.unsplash.com/photo-1581578731548-c64695cc6952",
-              title: "Book Services",
-              desc: "Schedule maintenance easily",
-            },
-            {
-              img: "https://images.unsplash.com/photo-1504384308090-c894fdcc538d",
-              title: "City Alerts",
-              desc: "Stay updated with emergencies",
-            },
-          ].map((item, i) => (
-            <div key={i} className="bg-white rounded-xl shadow overflow-hidden">
+                    <div className="flex items-center gap-3">
 
-              <img src={item.img} className="h-40 w-full object-cover" alt="service"/>
+                      <div className="bg-cyan-400/20 p-3 rounded-xl">
+                        <Activity className="text-cyan-400" />
+                      </div>
 
-              <div className="p-5 text-left">
-                <h3 className="font-semibold text-lg">{item.title}</h3>
-                <p className="text-gray-600 text-sm">{item.desc}</p>
+                      <div>
+                        <h4 className="font-medium">
+                          Infrastructure Health
+                        </h4>
 
-                <div className="flex items-center mt-3 text-blue-900">
-                  Explore <ArrowRight size={16} className="ml-1" />
+                        <p className="text-sm text-gray-400">
+                          System performance
+                        </p>
+                      </div>
+
+                    </div>
+
+                    <h2 className="text-xl font-bold text-cyan-400">
+                      98%
+                    </h2>
+
+                  </div>
                 </div>
-              </div>
 
+
+                <div className="bg-white/5 rounded-2xl p-5 border border-white/5 hover:border-blue-400/40 transition">
+
+                  <div className="flex items-center justify-between">
+
+                    <div className="flex items-center gap-3">
+
+                      <div className="bg-blue-500/20 p-3 rounded-xl">
+                        <Wrench className="text-blue-400" />
+                      </div>
+
+                      <div>
+                        <h4 className="font-medium">
+                          Complaints Processed
+                        </h4>
+
+                        <p className="text-sm text-gray-400">
+                          Active civic requests
+                        </p>
+                      </div>
+
+                    </div>
+
+                    <h2 className="text-xl font-bold text-blue-400">
+                      14K+
+                    </h2>
+
+                  </div>
+                </div>
+
+
+                <div className="bg-white/5 rounded-2xl p-5 border border-white/5 hover:border-purple-400/40 transition">
+
+                  <div className="flex items-center justify-between">
+
+                    <div className="flex items-center gap-3">
+
+                      <div className="bg-purple-500/20 p-3 rounded-xl">
+                        <Bell className="text-purple-400" />
+                      </div>
+
+                      <div>
+                        <h4 className="font-medium">
+                          Emergency Alerts
+                        </h4>
+
+                        <p className="text-sm text-gray-400">
+                          Real-time notifications
+                        </p>
+                      </div>
+
+                    </div>
+
+                    <h2 className="text-xl font-bold text-purple-400">
+                      3 Active
+                    </h2>
+
+                  </div>
+                </div>
+
+              </div>
             </div>
-          ))}
+          </div>
+
         </div>
       </section>
 
-      {/* HOW IT WORKS */}
-      <section className="py-20 px-12 grid md:grid-cols-2 gap-16 items-center">
 
-        <img
-          src="https://images.unsplash.com/photo-1521791136064-7986c2920216"
-          className="rounded-xl shadow-lg"
-          alt="process"
-        />
+      
+      <section className="py-28 px-6 md:px-12 bg-[#0b1728]">
 
-        <div>
-          <h2 className="text-3xl font-bold mb-6">How It Works</h2>
+        <div className="max-w-7xl mx-auto text-center">
 
-          {[
-            "Register using Aadhaar",
-            "Choose a civic service",
-            "Track progress in real-time",
-          ].map((step, i) => (
-            <div key={i} className="flex gap-4 mb-6">
-              <div className="bg-blue-900 text-white w-10 h-10 flex items-center justify-center rounded">
-                {i + 1}
-              </div>
-              <p className="text-gray-600">{step}</p>
-            </div>
-          ))}
-        </div>
+          <div className="inline-block px-5 py-2 rounded-full bg-cyan-500/10 border border-cyan-400/20 text-cyan-300 text-sm mb-5">
+            Smart Civic Features
+          </div>
 
-      </section>
-
-      {/* DASHBOARD PREVIEW */}
-      <section className="py-20 px-12 bg-gray-100 grid md:grid-cols-2 gap-10 items-center">
-
-        <div>
-          <h2 className="text-3xl font-bold mb-4">
-            Real-Time City Dashboard
+          <h2 className="text-4xl md:text-5xl font-bold">
+            Everything Citizens Need
           </h2>
-          <p className="text-gray-600">
-            Monitor complaints, infrastructure health, and alerts in one place.
+
+          <p className="text-gray-400 mt-5 max-w-2xl mx-auto">
+            Modern services that simplify communication between citizens and city authorities.
           </p>
 
-          <button className="mt-6 bg-blue-900 text-white px-6 py-3 rounded-md">
-            View Dashboard
-          </button>
+
+          <div className="grid md:grid-cols-3 gap-8 mt-16">
+
+            {[
+              {
+                icon: <MapPinned className="text-cyan-400" size={28} />,
+                title: "Report City Issues",
+                desc: "Raise complaints instantly with smart location tracking.",
+              },
+
+              {
+                icon: <ShieldCheck className="text-blue-400" size={28} />,
+                title: "Secure Services",
+                desc: "Book maintenance and civic services safely online.",
+              },
+
+              {
+                icon: <Bell className="text-purple-400" size={28} />,
+                title: "Emergency Alerts",
+                desc: "Receive live notifications during emergencies.",
+              },
+
+            ].map((item, i) => (
+
+              <div
+                key={i}
+                className="group bg-white/5 border border-white/10 rounded-3xl p-8 backdrop-blur-xl hover:-translate-y-3 hover:border-cyan-400/40 transition-all duration-300"
+              >
+
+                <div className="w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center mb-6 mx-auto group-hover:scale-110 transition">
+                  {item.icon}
+                </div>
+
+                <h3 className="text-2xl font-semibold mb-4">
+                  {item.title}
+                </h3>
+
+                <p className="text-gray-400 leading-relaxed">
+                  {item.desc}
+                </p>
+
+                <div className="mt-6 inline-flex items-center gap-2 text-cyan-400 font-medium cursor-pointer">
+                  Explore <ArrowRight size={18} />
+                </div>
+
+              </div>
+            ))}
+
+          </div>
         </div>
-
-        <img
-          src="https://images.unsplash.com/photo-1551288049-bebda4e38f71"
-          className="rounded-xl shadow-lg"
-          alt="dashboard"
-        />
-
       </section>
 
-      {/* TESTIMONIALS */}
-      <section className="py-20 bg-gray-50 text-center">
-        <h2 className="text-3xl font-bold">What Citizens Say</h2>
 
-        <div className="grid md:grid-cols-3 gap-8 px-12 mt-10">
+     
+      <section className="py-28 px-6 md:px-12 bg-[#07111f] text-center">
+
+        <h2 className="text-4xl font-bold">
+          Loved by Citizens
+        </h2>
+
+        <p className="text-gray-400 mt-4 max-w-2xl mx-auto">
+          Thousands of Indian citizens trust Civic Horizon for smart city management.
+        </p>
+
+        <div className="grid md:grid-cols-3 gap-8 mt-16 max-w-7xl mx-auto">
+
           {[
-            "https://randomuser.me/api/portraits/women/44.jpg",
-            "https://randomuser.me/api/portraits/men/32.jpg",
-            "https://randomuser.me/api/portraits/women/68.jpg",
+            "https://randomuser.me/api/portraits/men/75.jpg",
+            "https://randomuser.me/api/portraits/women/65.jpg",
+            "https://randomuser.me/api/portraits/men/45.jpg",
           ].map((img, i) => (
-            <div key={i} className="bg-white p-6 rounded-xl shadow text-center">
+
+            <div
+              key={i}
+              className="bg-white/5 border border-white/10 rounded-3xl p-8 backdrop-blur-xl hover:border-cyan-400/30 transition"
+            >
 
               <img
                 src={img}
-                className="w-16 h-16 rounded-full mx-auto mb-3"
                 alt="user"
+                className="w-20 h-20 rounded-full mx-auto border-4 border-cyan-400/30 object-cover"
               />
 
-              <p className="text-sm text-gray-600">
-                "This platform made reporting issues super easy!"
+              <h3 className="mt-4 text-xl font-semibold">
+                {["Arun Kumar", "Priya Sharma", "Rahul Verma"][i]}
+              </h3>
+
+              <p className="text-cyan-400 text-sm mt-1">
+                Chennai, India
               </p>
 
-              <div className="flex justify-center mt-3">
-                <Star /><Star /><Star /><Star /><Star />
+              <p className="mt-6 text-gray-300 leading-relaxed">
+                “This platform made city complaint management faster and easier than ever before.”
+              </p>
+
+              <div className="flex justify-center gap-1 mt-5 text-cyan-400">
+
+                <Star fill="currentColor" size={18} />
+                <Star fill="currentColor" size={18} />
+                <Star fill="currentColor" size={18} />
+                <Star fill="currentColor" size={18} />
+                <Star fill="currentColor" size={18} />
+
               </div>
             </div>
           ))}
+
         </div>
       </section>
 
-      {/* CTA */}
-      <section className="relative py-20 text-center text-white">
 
-        <img
-          src="https://images.unsplash.com/photo-1508057198894-247b23fe5ade"
-          className="absolute inset-0 w-full h-full object-cover"
-          alt="cta"
-        />
+     
+      <section className="relative py-28 px-6 md:px-12 overflow-hidden">
 
-        <div className="absolute inset-0 bg-blue-900/80"></div>
+        <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/20 to-blue-600/20 blur-3xl"></div>
 
-        <div className="relative z-10">
-          <h2 className="text-3xl font-bold">Join Smart City Today</h2>
+        <div className="relative max-w-5xl mx-auto bg-gradient-to-r from-cyan-500/10 to-blue-600/10 border border-white/10 backdrop-blur-2xl rounded-[40px] p-14 text-center shadow-2xl shadow-cyan-500/10">
+
+          <h2 className="text-4xl md:text-5xl font-bold leading-tight">
+            Build a Smarter Future
+            <span className="block text-cyan-400 mt-2">
+              For Your City Today
+            </span>
+          </h2>
+
+          <p className="text-gray-300 mt-6 max-w-2xl mx-auto text-lg">
+            Join thousands of citizens using modern digital services.
+          </p>
 
           <button
             onClick={() => navigate("/signup")}
-            className="mt-6 bg-teal-400 px-6 py-3 rounded-md text-black"
+            className="mt-10 bg-gradient-to-r from-cyan-400 to-blue-500 hover:scale-105 transition-all duration-300 px-10 py-4 rounded-2xl text-black font-bold shadow-xl shadow-cyan-500/30"
           >
-            Get Started
+            Join Now
           </button>
-        </div>
 
+        </div>
       </section>
 
-      {/* FOOTER */}
-      <footer className="bg-gray-100 py-10 text-center">
-        <p>© 2024 The Civic Horizon</p>
+
+      
+      <footer className="border-t border-white/10 py-8 text-center text-gray-500 bg-[#07111f]">
+        © 2026 The Civic Horizon • Designed with Modern UI
       </footer>
 
     </div>
