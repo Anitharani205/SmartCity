@@ -1,12 +1,18 @@
 import React, { useState } from "react";
 import API from "../services/api";
+import { useNavigate } from "react-router-dom";
+import Sidebar from "./components/Sidebar";
 
 export default function Report() {
 
+  const navigate = useNavigate();
+
   const [form, setForm] = useState({
-    title: "",
-    location: "",
+    citizenName: "",
     category: "",
+    title: "",
+    address: "",
+    mapLink: "",
     priority: "Low"
   });
 
@@ -16,102 +22,168 @@ export default function Report() {
 
     try {
 
-      // logged in citizen email
-      const citizenEmail =
-        localStorage.getItem("email");
-
       await API.post("/complaints", {
         ...form,
-        citizen: citizenEmail
+        citizen: localStorage.getItem("email")
       });
 
       alert("Complaint Submitted Successfully!");
 
       setForm({
-        title: "",
-        location: "",
+        citizenName: "",
         category: "",
+        title: "",
+        address: "",
+        mapLink: "",
         priority: "Low"
       });
+
+      navigate("/citizen");
 
     } catch (err) {
 
       console.log(err);
-
       alert("Failed to submit complaint");
     }
   };
 
   return (
-    <div className="p-6">
+    <div className="bg-gray-100 min-h-screen">
 
-      <h2 className="text-xl font-bold mb-4">
-        Report Issue
-      </h2>
+      <Sidebar />
 
-      <form
-        onSubmit={handleSubmit}
-        className="space-y-3"
-      >
+      <div className="ml-64 p-6">
 
-        <input
-          placeholder="Title"
-          value={form.title}
-          className="border p-2 w-full"
-          onChange={(e) =>
-            setForm({
-              ...form,
-              title: e.target.value
-            })
-          }
-        />
+        <h2 className="text-2xl font-bold mb-6">
+          Report Complaint
+        </h2>
 
-        <input
-          placeholder="Location"
-          value={form.location}
-          className="border p-2 w-full"
-          onChange={(e) =>
-            setForm({
-              ...form,
-              location: e.target.value
-            })
-          }
-        />
+        <form onSubmit={handleSubmit} className="space-y-4">
 
-        <input
-          placeholder="Category"
-          value={form.category}
-          className="border p-2 w-full"
-          onChange={(e) =>
-            setForm({
-              ...form,
-              category: e.target.value
-            })
-          }
-        />
+          <input
+            placeholder="Citizen Name"
+            value={form.citizenName}
+            className="border p-3 w-full rounded"
+            onChange={(e) =>
+              setForm({
+                ...form,
+                citizenName: e.target.value
+              })
+            }
+          />
 
-        <select
-          value={form.priority}
-          className="border p-2 w-full"
-          onChange={(e) =>
-            setForm({
-              ...form,
-              priority: e.target.value
-            })
-          }
-        >
-          <option>Low</option>
-          <option>Medium</option>
-          <option>High</option>
-        </select>
+          {/* Category Dropdown */}
+          <select
+            value={form.category}
+            className="border p-3 w-full rounded"
+            onChange={(e) =>
+              setForm({
+                ...form,
+                category: e.target.value
+              })
+            }
+          >
+            <option value="">
+              Select Complaint Category
+            </option>
 
-        <button
-          className="bg-blue-600 text-white px-4 py-2 rounded"
-        >
-          Submit
-        </button>
+            <option value="Water Issue">
+              Water Issue
+            </option>
 
-      </form>
+            <option value="Road Issue">
+              Road Issue
+            </option>
+
+            <option value="Electricity Issue">
+              Electricity Issue
+            </option>
+
+            <option value="Garbage Issue">
+              Garbage Issue
+            </option>
+
+            <option value="Drainage Issue">
+              Drainage Issue
+            </option>
+
+            <option value="Traffic Issue">
+              Traffic Issue
+            </option>
+
+            <option value="Public Property Damage">
+              Public Property Damage
+            </option>
+
+            <option value="Stray Animal Issue">
+              Stray Animal Issue
+            </option>
+
+            <option value="Other">
+              Other
+            </option>
+          </select>
+
+          <input
+            placeholder="Complaint Title"
+            value={form.title}
+            className="border p-3 w-full rounded"
+            onChange={(e) =>
+              setForm({
+                ...form,
+                title: e.target.value
+              })
+            }
+          />
+
+          <textarea
+            placeholder="Address"
+            value={form.address}
+            className="border p-3 w-full rounded"
+            rows="4"
+            onChange={(e) =>
+              setForm({
+                ...form,
+                address: e.target.value
+              })
+            }
+          />
+
+          <input
+            placeholder="Google Maps Link"
+            value={form.mapLink}
+            className="border p-3 w-full rounded"
+            onChange={(e) =>
+              setForm({
+                ...form,
+                mapLink: e.target.value
+              })
+            }
+          />
+
+          <select
+            value={form.priority}
+            className="border p-3 w-full rounded"
+            onChange={(e) =>
+              setForm({
+                ...form,
+                priority: e.target.value
+              })
+            }
+          >
+            <option value="Low">Low</option>
+            <option value="Medium">Medium</option>
+            <option value="High">High</option>
+          </select>
+
+          <button className="bg-blue-600 text-white px-6 py-3 rounded">
+            Submit Complaint
+          </button>
+
+        </form>
+
+      </div>
+
     </div>
   );
 }

@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import AdminSidebar from "./components/AdminSidebar";
 import {
@@ -8,7 +7,6 @@ import {
 } from "lucide-react";
 
 export default function AuditLogs() {
-
 
   const logsData = [
     {
@@ -52,7 +50,6 @@ export default function AuditLogs() {
   const [search, setSearch] = useState("");
   const [actionFilter, setActionFilter] = useState("All Types");
   const [page, setPage] = useState(1);
-
 
   const filteredLogs = logsData.filter((log) => {
 
@@ -247,7 +244,6 @@ export default function AuditLogs() {
     </div>
   );
 }
-
 
 
 function ActionBadge({action}){

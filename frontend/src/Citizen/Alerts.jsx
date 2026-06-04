@@ -39,20 +39,21 @@ export default function Alerts() {
       : alertsData.filter(a => a.type === filter);
 
   return (
-    <div className="flex bg-gray-100 min-h-screen">
 
+    <div className="bg-gray-100 min-h-screen">
+
+      {/* Sidebar */}
       <Sidebar />
 
-      <div className="flex-1 p-6">
+      {/* Content */}
+      <div className="ml-64 p-6">
 
-    
         <h1 className="text-2xl font-bold mb-6">
           City Alerts
         </h1>
 
-        
+        {/* Filter */}
         <div className="flex gap-3 mb-6">
-
           {["all","emergency","maintenance","event"].map(type => (
             <button
               key={type}
@@ -65,10 +66,9 @@ export default function Alerts() {
               {type}
             </button>
           ))}
-
         </div>
 
-      
+        {/* Cards */}
         <div className="space-y-5">
 
           {filteredAlerts.map(alert => (
@@ -124,8 +124,7 @@ export default function Alerts() {
 
       </div>
 
-     
-
+      {/* Modal */}
       {selectedAlert && (
 
         <div className="fixed inset-0 bg-black/40 flex justify-center items-center">

@@ -22,7 +22,7 @@ import Task from "./Municipal/Task";
 import AdminDashboard from "./Admin/AdminDashboard";
 import Complaints from "./Admin/Complaints";
 import ComplaintSummary from "./Admin/ComplaintSummary";
-import RequestDetail from "./Admin/RequestDetail";
+import NewUser from "./Admin/NewUser";
 import AdminServices from "./Admin/AdminServices";
 import UserManagement from "./Admin/UserManagement";
 import CreateUser from "./Admin/NewUser";
@@ -59,7 +59,7 @@ function App() {
         <Route path="/admin" element={<AdminDashboard />} />
         <Route path="/complaintsservices" element={<Complaints />} />
         <Route path="/complaintsummary" element={<ComplaintSummary />} />
-        <Route path="/request-detail" element={<RequestDetail />}/>
+        <Route path="/new-user" element={<NewUser />}/>
         <Route path="/adminservices" element={<AdminServices />} />
         <Route path="/usermanagement" element={<UserManagement />} />
         <Route path="/create-user" element={<CreateUser />} />

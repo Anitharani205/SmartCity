@@ -19,17 +19,17 @@ public class ServiceRequestService {
     @Autowired
     private NotificationRepository notificationRepo;
 
-    // GET ALL SERVICES
+  
     public List<ServiceRequest> getAll() {
         return repo.findAll();
     }
 
-    // SAVE NEW SERVICE
+  
     public ServiceRequest save(ServiceRequest s) {
         return repo.save(s);
     }
 
-    // STAFF TASKS
+   
     public List<ServiceRequest> getByStaff(String email) {
         return repo.findByAssignedStaffEmail(email);
     }
@@ -37,7 +37,6 @@ public class ServiceRequestService {
     public List<ServiceRequest> getCitizenServices(String citizen) {
     return repo.findByCitizen(citizen);
 }
-    // ASSIGN STAFF
     public ServiceRequest assign(String id, ServiceRequest req) {
 
         ServiceRequest s = repo.findById(id)
@@ -51,7 +50,7 @@ public class ServiceRequestService {
         return repo.save(s);
     }
 
-    // UPDATE TASK
+   
     public ServiceRequest update(String id, ServiceRequest req) {
 
         ServiceRequest s = repo.findById(id)
@@ -72,7 +71,7 @@ public class ServiceRequestService {
 
         ServiceRequest updated = repo.save(s);
 
-        // NOTIFICATION
+        
         if ("Resolved".equalsIgnoreCase(s.getStatus())) {
 
             NotificationLog n = new NotificationLog();

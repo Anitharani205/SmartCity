@@ -10,7 +10,7 @@ import {
   LogOut
 } from "lucide-react";
 
-function Sidebar() {
+function AdminSidebar() {
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -25,7 +25,6 @@ function Sidebar() {
   const menu = [
     { name: "Home", icon: <Home size={18} />, path: "/admin" },
     { name: "Complaints", icon: <FileText size={18} />, path: "/complaintsservices" },
-    { name: "RequestDetail", icon: <FileText size={18} />, path: "/request-detail" },
     { name: "Services", icon: <Bell size={18} />, path: "/adminservices" },
     { name: "UserManagement", icon: <AlertTriangle size={18} />, path: "/usermanagement" },
     { name: "Alerts", icon: <Wrench size={18} />, path: "/managingalerts" },
@@ -97,4 +96,5 @@ function Sidebar() {
   );
 }
 
-export default Sidebar;
+export default AdminSidebar;
+

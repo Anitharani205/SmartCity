@@ -16,20 +16,18 @@ public class ServiceController {
     @Autowired
     private ServiceRequestService service;
 
-    // CREATE SERVICE
+    
     @PostMapping
     public ServiceRequest create(
             @RequestBody ServiceRequest s) {
         return service.save(s);
     }
 
-    // GET ALL
     @GetMapping
     public List<ServiceRequest> getAll() {
         return service.getAll();
     }
 
-    // STAFF TASKS
     @GetMapping("/staff/{email}")
     public List<ServiceRequest> getStaff(
             @PathVariable String email) {
@@ -42,7 +40,7 @@ public List<ServiceRequest> getCitizenServices(
 
     return service.getCitizenServices(email);
 }
-    // ASSIGN
+  
     @PutMapping("/assign/{id}")
     public ServiceRequest assign(
             @PathVariable String id,
@@ -51,7 +49,7 @@ public List<ServiceRequest> getCitizenServices(
         return service.assign(id, req);
     }
 
-    // UPDATE STATUS
+   
     @PutMapping("/{id}/status")
     public ServiceRequest update(
             @PathVariable String id,

@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import Sidebar from "./components/Sidebar";
 
 import {
@@ -8,7 +7,6 @@ import {
   Sun,
   AlertTriangle,
   Wrench,
-  Megaphone,
   Lightbulb,
   Trash,
   CheckCircle,
@@ -26,14 +24,10 @@ import {
 
 export default function Dashboard() {
 
-  const navigate = useNavigate();
-
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
 
   const itemsPerPage = 5;
-
-  
 
   const activities = [
     { title:"Street Light Repair",status:"In Progress",date:"Oct 21",ref:"#SR9842",icon:<Lightbulb size={18}/>},
@@ -43,8 +37,6 @@ export default function Dashboard() {
     { title:"Drain Cleaning",status:"In Progress",date:"Oct 12",ref:"#SR9888",icon:<Wrench size={18}/>},
     { title:"Electric Issue",status:"Pending",date:"Oct 15",ref:"#SR9777",icon:<AlertTriangle size={18}/>},
   ];
-
-  
 
   const filtered = activities.filter(a =>
     a.title.toLowerCase().includes(search.toLowerCase())
@@ -57,8 +49,6 @@ export default function Dashboard() {
     page * itemsPerPage
   );
 
- 
-
   const chartData = [
     { name:"Completed", value:12 },
     { name:"In Progress", value:6 },
@@ -67,24 +57,23 @@ export default function Dashboard() {
 
   const COLORS = ["#22c55e","#3b82f6","#f59e0b"];
 
-  
-
   const statusColor = status => {
     if(status==="Completed") return "text-green-600 bg-green-100";
     if(status==="In Progress") return "text-blue-600 bg-blue-100";
     return "text-yellow-700 bg-yellow-100";
   };
 
-
-
   return (
-    <div className="flex h-screen bg-gray-100">
 
-      <Sidebar/>
+    <div className="bg-gray-100 min-h-screen">
 
-      <div className="flex-1 p-8 overflow-auto">
+      {/* Sidebar */}
+      <Sidebar />
 
-      
+      {/* Main Content */}
+      <div className="ml-64 p-8">
+
+        {/* Header */}
         <div className="flex justify-between mb-8">
 
           <h1 className="text-3xl font-bold">
@@ -119,7 +108,7 @@ export default function Dashboard() {
           </div>
         </div>
 
-      
+        {/* Stats */}
         <div className="grid grid-cols-4 gap-6 mb-8">
 
           <StatCard icon={<CheckCircle/>} title="Resolved" value="124" color="green"/>
@@ -129,11 +118,9 @@ export default function Dashboard() {
 
         </div>
 
-       
-
+        {/* Chart + Alerts */}
         <div className="grid grid-cols-3 gap-6 mb-8">
 
-          {/* CHART */}
           <div className="col-span-2 bg-white p-6 rounded-xl shadow">
 
             <h3 className="font-semibold mb-4">
@@ -151,7 +138,6 @@ export default function Dashboard() {
               </PieChart>
             </ResponsiveContainer>
 
-           
             <div className="flex gap-6 justify-center mt-4 text-sm">
               <Legend color="green" label="Completed"/>
               <Legend color="blue" label="In Progress"/>
@@ -160,7 +146,6 @@ export default function Dashboard() {
 
           </div>
 
-         
           <div className="bg-white p-6 rounded-xl shadow">
 
             <h3 className="font-semibold mb-4 text-red-600">
@@ -175,8 +160,7 @@ export default function Dashboard() {
 
         </div>
 
-       
-
+        {/* Table */}
         <div className="bg-white p-6 rounded-xl shadow">
 
           <h3 className="font-semibold mb-4">
@@ -186,50 +170,43 @@ export default function Dashboard() {
           <table className="w-full text-sm">
 
             <thead className="text-gray-500 bg-gray-50">
-  <tr>
-    <th className="w-2/5 text-left py-3 px-4">Request</th>
-    <th className="w-1/5 text-center">Status</th>
-    <th className="w-1/5 text-center">Date</th>
-    <th className="w-1/5 text-center">Reference</th>
-  </tr>
-</thead>
-           <tbody className="divide-y">
+              <tr>
+                <th className="text-left py-3 px-4">Request</th>
+                <th className="text-center">Status</th>
+                <th className="text-center">Date</th>
+                <th className="text-center">Reference</th>
+              </tr>
+            </thead>
 
-{currentItems.map((item,i)=>(
-<tr key={i} className="hover:bg-gray-50 transition">
+            <tbody className="divide-y">
 
-  
-  <td className="py-3 px-4">
-    <div className="flex items-center gap-3">
-      <div className="bg-gray-100 p-2 rounded">
-        {item.icon}
-      </div>
-      <span className="font-medium">{item.title}</span>
-    </div>
-  </td>
+              {currentItems.map((item,i)=>(
+                <tr key={i} className="hover:bg-gray-50">
 
+                  <td className="py-3 px-4 flex items-center gap-3">
+                    <div className="bg-gray-100 p-2 rounded">
+                      {item.icon}
+                    </div>
+                    {item.title}
+                  </td>
 
-  <td className="text-center">
-    <span
-      className={`px-3 py-1 rounded-full text-xs font-medium ${statusColor(item.status)}`}
-    >
-      {item.status}
-    </span>
-  </td>
+                  <td className="text-center">
+                    <span className={`px-3 py-1 rounded-full text-xs ${statusColor(item.status)}`}>
+                      {item.status}
+                    </span>
+                  </td>
 
- 
-  <td className="text-center">{item.date}</td>
+                  <td className="text-center">{item.date}</td>
+                  <td className="text-center">{item.ref}</td>
 
+                </tr>
+              ))}
 
-  <td className="text-center text-gray-500">{item.ref}</td>
+            </tbody>
 
-</tr>
-))}
-
-</tbody>
           </table>
 
-         
+          {/* Pagination */}
           <div className="flex justify-between mt-6">
 
             <button
@@ -259,8 +236,6 @@ export default function Dashboard() {
   );
 }
 
-
-
 function StatCard({icon,title,value,color}) {
 
   const colors={
@@ -271,7 +246,7 @@ function StatCard({icon,title,value,color}) {
   };
 
   return(
-    <div className="bg-white p-6 rounded-xl shadow flex justify-between items-center">
+    <div className="bg-white p-6 rounded-xl shadow flex justify-between">
       <div>
         <p className="text-gray-500">{title}</p>
         <h3 className="text-2xl font-bold">{value}</h3>

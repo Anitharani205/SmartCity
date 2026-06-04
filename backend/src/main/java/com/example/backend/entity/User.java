@@ -19,8 +19,15 @@ public class User {
 
     private String aadhaar;
 
+     private String status = "Active";
+
+     private String department;
+
+private Integer activeTasks = 0;
+
     @Enumerated(EnumType.STRING)
     private Role role;
+   
 
     public User() {
     }
@@ -68,4 +75,26 @@ public class User {
     public void setRole(Role role) {
         this.role = role;
     }
+    public String getStatus() {
+    return status;
+}
+
+public void setStatus(String status) {
+    this.status = status;
+}
+public String getDepartment() {
+    return department;
+}
+
+public void setDepartment(String department) {
+    this.department = department;
+}
+
+public Integer getActiveTasks() {
+    return activeTasks;
+}
+
+public void setActiveTasks(Integer activeTasks) {
+    this.activeTasks = activeTasks;
+}
 }

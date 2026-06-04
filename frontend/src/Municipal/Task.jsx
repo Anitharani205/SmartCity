@@ -29,12 +29,10 @@ export default function Task() {
     );
   }
 
-  // UPDATE TASK
   const updateTask = async () => {
 
     try {
 
-      // DYNAMIC API
       const endpoint =
         task.taskType === "Complaint"
           ? `/complaints/${task.id || task._id}/status`
@@ -59,15 +57,15 @@ export default function Task() {
   return (
     <div className="flex bg-gray-100 min-h-screen">
 
-      {/* SIDEBAR */}
+    
       <div className="w-64 fixed left-0 top-0 h-screen bg-white shadow-md">
         <MunicipalSidebar />
       </div>
 
-      {/* MAIN CONTENT */}
+     
       <div className="flex-1 ml-64 p-8">
 
-        {/* TITLE */}
+   
         <h1 className="text-3xl font-bold mb-4">
 
           {task.taskType === "Complaint"
@@ -76,22 +74,22 @@ export default function Task() {
 
         </h1>
 
-        {/* TYPE */}
+        
         <p className="mb-2">
           <strong>Type:</strong> {task.taskType}
         </p>
 
-        {/* CITIZEN */}
+     
         <p className="mb-2">
           <strong>Citizen:</strong> {task.citizen}
         </p>
 
-        {/* LOCATION */}
+        
         <p className="mb-4">
           <strong>Location:</strong> {task.location}
         </p>
 
-        {/* STATUS */}
+       
         <label className="font-semibold">
           Status
         </label>
@@ -110,7 +108,7 @@ export default function Task() {
           <option>Closed</option>
         </select>
 
-        {/* NOTE */}
+      
         <label className="font-semibold block mt-5">
           Progress Note
         </label>
@@ -125,7 +123,7 @@ export default function Task() {
           rows="5"
         />
 
-        {/* PROOF */}
+        
         <label className="font-semibold block mt-5">
           Proof Image URL
         </label>
@@ -139,7 +137,6 @@ export default function Task() {
           className="border p-3 w-full mt-2 rounded"
         />
 
-        {/* VIEW PROOF */}
         {proof && (
 
           <a
@@ -152,7 +149,7 @@ export default function Task() {
           </a>
         )}
 
-        {/* UPDATE */}
+  
         <button
           onClick={updateTask}
           className="bg-blue-600 text-white px-6 py-3 mt-6 rounded"

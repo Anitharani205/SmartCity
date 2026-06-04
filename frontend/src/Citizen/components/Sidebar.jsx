@@ -16,7 +16,6 @@ function Sidebar() {
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    
     localStorage.removeItem("token");
     navigate("/login");
   };
@@ -32,10 +31,11 @@ function Sidebar() {
   ];
 
   return (
-    <div className="w-64 bg-white border-r flex flex-col justify-between h-screen">
+    <div className="w-64 bg-white border-r flex flex-col justify-between h-screen fixed left-0 top-0 overflow-y-auto">
 
+      {/* Top */}
       <div>
-      
+
         <div className="flex items-center gap-3 p-6">
           <div className="bg-blue-600 p-2 rounded-lg text-white">
             <Home size={20} />
@@ -47,7 +47,6 @@ function Sidebar() {
           </div>
         </div>
 
-     
         <nav className="mt-6">
           {menu.map((item) => (
             <Link key={item.name} to={item.path}>
@@ -65,11 +64,12 @@ function Sidebar() {
             </Link>
           ))}
         </nav>
+
       </div>
 
+      {/* Bottom */}
       <div className="p-4 space-y-3">
 
-      
         <div className="flex items-center gap-3 bg-gray-100 p-3 rounded-lg">
           <div className="w-10 h-10 rounded-full bg-orange-200 flex items-center justify-center font-bold">
             A
@@ -81,7 +81,6 @@ function Sidebar() {
           </div>
         </div>
 
-     
         <button
           onClick={handleLogout}
           className="flex items-center gap-2 w-full px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg"

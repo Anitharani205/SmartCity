@@ -67,7 +67,7 @@ function DetailPage() {
             <p><strong>Status:</strong> {request.status}</p>
           </div>
 
-          {/* STAFF DROPDOWN FIXED */}
+       
           <div className="mt-8">
             <label className="font-semibold block mb-2">
               Assign Staff

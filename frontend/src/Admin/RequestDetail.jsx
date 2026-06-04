@@ -96,7 +96,7 @@ export default function RequestDetail() {
 
       <div className="flex-1 flex flex-col overflow-auto">
 
-        {/* HEADER */}
+       
 
         <div className="bg-white border-b p-5 flex justify-between items-center">
 
@@ -157,7 +157,7 @@ export default function RequestDetail() {
 
         </div>
 
-        {/* NOTIFICATIONS */}
+     
 
         <div className="p-6 pb-0">
 
@@ -187,15 +187,15 @@ export default function RequestDetail() {
 
         </div>
 
-        {/* BODY */}
+   
 
         <div className="flex gap-6 p-6">
 
-          {/* LEFT SIDE */}
+       
 
           <div className="flex-1 space-y-6">
 
-            {/* BOOKING DETAILS */}
+            
 
             <Card title="Request Details">
 
@@ -235,7 +235,7 @@ export default function RequestDetail() {
 
             </Card>
 
-            {/* PROBLEM DESCRIPTION */}
+       
 
             <Card title="Problem Description">
 
@@ -256,7 +256,7 @@ export default function RequestDetail() {
 
             </Card>
 
-            {/* TIMELINE */}
+         
 
             <Card title="Request Timeline">
 
@@ -283,7 +283,7 @@ export default function RequestDetail() {
 
             </Card>
 
-            {/* RESOLUTION NOTES */}
+         
 
             <Card title="Resolution Notes">
 
@@ -306,7 +306,7 @@ export default function RequestDetail() {
 
             </Card>
 
-            {/* MUNICIPAL NOTIFICATIONS */}
+          
 
             <Card title="Municipal Notifications">
 
@@ -362,11 +362,9 @@ export default function RequestDetail() {
 
           </div>
 
-          {/* RIGHT SIDE */}
-
           <div className="w-96 space-y-6">
 
-            {/* STATUS */}
+      
 
             <Card title="Update Request Status">
 
@@ -400,8 +398,7 @@ export default function RequestDetail() {
 
             </Card>
 
-            {/* STAFF */}
-
+            
             <Card title="Staff Allocation">
 
               <p className="text-sm text-gray-500 mb-5">
@@ -438,8 +435,6 @@ export default function RequestDetail() {
   );
 }
 
-/* CARD */
-
 function Card({ title, children }) {
 
   return (
@@ -457,7 +452,6 @@ function Card({ title, children }) {
   );
 }
 
-/* INFO */
 
 function Info({ label, value }) {
 
@@ -478,7 +472,6 @@ function Info({ label, value }) {
   );
 }
 
-/* TECHNICIAN CARD */
 
 function Technician({
   name,
@@ -556,3 +549,4 @@ function Technician({
 
   );
 }
+

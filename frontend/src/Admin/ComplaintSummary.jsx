@@ -78,7 +78,6 @@ export default function ComplaintSummary({
   };
 
 
-
   const handleEscalate = () => {
 
     if (!escalationReason.trim()) {
@@ -131,7 +130,6 @@ export default function ComplaintSummary({
       setNotification("");
     }, 3000);
   };
-
 
 
   const handleSaveResolution = () => {
@@ -547,7 +545,6 @@ ${resolution}
 
   );
 }
-
 
 function Info({ label, value }) {
 

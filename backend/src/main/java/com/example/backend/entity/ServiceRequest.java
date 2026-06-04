@@ -10,8 +10,16 @@ public class ServiceRequest {
     private String id;
 
     private String service;
+
+    // NEW FIELDS
+    private String citizenName;
+    private String category;  
     private String citizen;
+    private String address;
+    private String mapLink;
+
     private String location;
+    private String date;
 
     private String status = "Pending";
 
@@ -21,14 +29,10 @@ public class ServiceRequest {
     private String progressNote;
     private String proofImage;
 
-    // GETTERS & SETTERS
+   
 
     public String getId() {
         return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
     }
 
     public String getService() {
@@ -39,6 +43,20 @@ public class ServiceRequest {
         this.service = service;
     }
 
+    public String getCitizenName() {
+        return citizenName;
+    }
+
+    public void setCitizenName(String citizenName) {
+        this.citizenName = citizenName;
+    }
+    public String getCategory() {
+        return category;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
+    }
     public String getCitizen() {
         return citizen;
     }
@@ -47,12 +65,36 @@ public class ServiceRequest {
         this.citizen = citizen;
     }
 
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public String getMapLink() {
+        return mapLink;
+    }
+
+    public void setMapLink(String mapLink) {
+        this.mapLink = mapLink;
+    }
+
     public String getLocation() {
         return location;
     }
 
     public void setLocation(String location) {
         this.location = location;
+    }
+
+    public String getDate() {
+        return date;
+    }
+
+    public void setDate(String date) {
+        this.date = date;
     }
 
     public String getStatus() {

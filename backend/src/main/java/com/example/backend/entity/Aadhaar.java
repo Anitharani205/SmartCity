@@ -10,12 +10,11 @@ public class Aadhaar {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String aadhaarNumber;
-
+   @Column(name = "aadhaar_number")
+private String aadhaarNumber;
     private String status;
 
-    public Aadhaar() {
-    }
+    public Aadhaar() {}
 
     public Long getId() {
         return id;

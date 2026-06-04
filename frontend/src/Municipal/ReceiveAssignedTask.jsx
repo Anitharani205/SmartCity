@@ -13,7 +13,7 @@ function ReceiveAssignedTask() {
     loadTasks();
   }, []);
 
-  // LOAD BOTH COMPLAINTS + SERVICES
+  
   const loadTasks = async () => {
 
     const email = localStorage.getItem("email");
@@ -25,17 +25,17 @@ function ReceiveAssignedTask() {
 
     try {
 
-      // COMPLAINT TASKS
+     
       const complaintRes = await API.get(
         `/complaints/staff/${email}`
       );
 
-      // SERVICE TASKS
+    
       const serviceRes = await API.get(
         `/services/staff/${email}`
       );
 
-      // ADD TYPE
+    
       const complaints = complaintRes.data.map((item) => ({
         ...item,
         taskType: "Complaint"
@@ -46,7 +46,7 @@ function ReceiveAssignedTask() {
         taskType: "Service"
       }));
 
-      // MERGE
+     
       setTasks([...complaints, ...services]);
 
     } catch (error) {
@@ -58,12 +58,11 @@ function ReceiveAssignedTask() {
   return (
     <div className="flex bg-gray-100 min-h-screen">
 
-      {/* SIDEBAR */}
       <div className="w-64 fixed left-0 top-0 h-screen bg-white shadow-md">
         <MunicipalSidebar />
       </div>
 
-      {/* CONTENT */}
+      
       <div className="flex-1 ml-64 p-8">
 
         <h1 className="text-3xl font-bold mb-8">
@@ -87,7 +86,7 @@ function ReceiveAssignedTask() {
                 className="bg-white p-6 rounded shadow hover:shadow-lg transition"
               >
 
-                {/* TITLE */}
+              
                 <h2 className="text-xl font-bold mb-2">
 
                   {task.taskType === "Complaint"
@@ -96,27 +95,27 @@ function ReceiveAssignedTask() {
 
                 </h2>
 
-                {/* TYPE */}
+              
                 <p className="mb-1">
                   <strong>Type:</strong> {task.taskType}
                 </p>
 
-                {/* CITIZEN */}
+                
                 <p className="mb-1">
                   <strong>Citizen:</strong> {task.citizen}
                 </p>
 
-                {/* LOCATION */}
+              
                 <p className="mb-1">
                   <strong>Location:</strong> {task.location}
                 </p>
 
-                {/* STATUS */}
+              
                 <p className="mb-3">
                   <strong>Status:</strong> {task.status}
                 </p>
 
-                {/* OPEN TASK */}
+           
                 <button
                   onClick={() =>
                     navigate("/task", {

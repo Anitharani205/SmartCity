@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import API from "../services/api";
 
 export default function CreateUser() {
 
@@ -26,23 +27,39 @@ export default function CreateUser() {
     });
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  const handleSubmit = async (e) => {
 
-    const newUser = {
+  e.preventDefault();
+
+  try {
+
+    await API.post("/users/create", {
+
       name: form.name,
       email: form.email,
+      password: form.password,
       role: form.role,
-      status: "Active",
-      img: "https://randomuser.me/api/portraits/lego/1.jpg"
-    };
+      department:
+        form.role === "MUNICIPAL"
+          ? form.department
+          : null,
 
-    const existing = JSON.parse(localStorage.getItem("users")) || [];
-    localStorage.setItem("users", JSON.stringify([...existing, newUser]));
+      status: "Active",
+      activeTasks: 0
+
+    });
 
     alert("User Created Successfully!");
-    navigate("/admin");
-  };
+
+    navigate("/usermanagement");
+
+  } catch (err) {
+
+    console.log(err);
+
+    alert("Failed to create user");
+  }
+};
 
   return (
     <div className="flex h-screen bg-gray-100">
@@ -79,17 +96,53 @@ export default function CreateUser() {
               className="border p-2 w-full mb-3"
             />
 
-            <select
-              name="role"
-              onChange={handleChange}
-              className="border p-2 w-full mb-3"
-            >
-              <option>Select Role</option>
-              <option>Citizen</option>
-              <option>Staff</option>
-              <option>Admin</option>
-            </select>
+           <select
+  name="role"
+  value={form.role}
+  onChange={handleChange}
+  className="border p-2 w-full mb-3"
+>
+  <option value="">Select Role</option>
+  <option value="CITIZEN">Citizen</option>
+  <option value="MUNICIPAL">Municipal Staff</option>
+  <option value="ADMIN">Admin</option>
+</select>
+{form.role === "MUNICIPAL" && (
 
+  <select
+    name="department"
+    value={form.department}
+    onChange={handleChange}
+    className="border p-2 w-full mb-3"
+  >
+
+    <option value="">
+      Select Department
+    </option>
+
+    <option value="Water">
+      Water
+    </option>
+
+    <option value="Electrical">
+      Electrical
+    </option>
+
+    <option value="Road">
+      Road
+    </option>
+
+    <option value="Drainage">
+      Drainage
+    </option>
+
+    <option value="Sanitation">
+      Sanitation
+    </option>
+
+  </select>
+
+)}
             <button
               type="button"
               onClick={generatePassword}

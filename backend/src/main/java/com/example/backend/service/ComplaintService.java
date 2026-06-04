@@ -1,5 +1,6 @@
 package com.example.backend.service;
-
+import com.example.backend.entity.User;
+import com.example.backend.repository.UserRepository;
 import com.example.backend.entity.Complaint;
 import com.example.backend.entity.NotificationLog;
 import com.example.backend.repository.ComplaintRepository;
@@ -18,6 +19,8 @@ public class ComplaintService {
 
     @Autowired
     private NotificationRepository notificationRepo;
+    @Autowired
+private UserRepository userRepo;
 
     public List<Complaint> getAll() {
         return repo.findAll();
@@ -26,6 +29,17 @@ public class ComplaintService {
     public Complaint save(Complaint c) {
         return repo.save(c);
     }
+    public void deleteComplaint(String id) {
+
+    Complaint c = repo.findById(id)
+            .orElseThrow(() -> new RuntimeException("Complaint not found"));
+
+    if (!"Resolved".equals(c.getStatus())) {
+        throw new RuntimeException("Only resolved complaints can be deleted");
+    }
+
+    repo.deleteById(id);
+}
 
     public List<Complaint> getByStaff(String email) {
         return repo.findByAssignedStaffEmail(email);
@@ -33,18 +47,34 @@ public class ComplaintService {
     public List<Complaint> getCitizenComplaints(String citizen) {
     return repo.findByCitizen(citizen);
 }
-    // ADMIN ASSIGN
-    public Complaint assignTask(String id, Complaint req) {
-        Complaint c = repo.findById(id).orElseThrow();
+   
+   public Complaint assignTask(String id, Complaint req) {
 
-        c.setAssignedStaffName(req.getAssignedStaffName());
-        c.setAssignedStaffEmail(req.getAssignedStaffEmail());
-        c.setStatus("Assigned");
+    Complaint c = repo.findById(id).orElseThrow();
 
-        return repo.save(c);
+    c.setAssignedStaffName(req.getAssignedStaffName());
+    c.setAssignedStaffEmail(req.getAssignedStaffEmail());
+    c.setStatus("Assigned");
+
+    User staff =
+            userRepo.findByEmail(
+                    req.getAssignedStaffEmail()
+            );
+
+    if (staff != null) {
+
+        Integer tasks =
+                staff.getActiveTasks() == null
+                        ? 0
+                        : staff.getActiveTasks();
+
+        staff.setActiveTasks(tasks + 1);
+
+        userRepo.save(staff);
     }
 
-    // STAFF ACCEPT
+    return repo.save(c);
+}
     public Complaint acceptTask(String id, Complaint req) {
         Complaint c = repo.findById(id).orElseThrow();
 
@@ -54,27 +84,57 @@ public class ComplaintService {
         return repo.save(c);
     }
 
-    // STAFF UPDATE + ADMIN NOTIFICATION
+    
     public Complaint updateStatus(String id, Complaint req) {
 
-        Complaint c = repo.findById(id).orElseThrow();
+    Complaint c = repo.findById(id).orElseThrow();
 
-        c.setStatus(req.getStatus());
-        c.setProgressNote(req.getProgressNote());
-        c.setProofImage(req.getProofImage());
+    c.setStatus(req.getStatus());
+    c.setProgressNote(req.getProgressNote());
+    c.setProofImage(req.getProofImage());
 
-        Complaint updated = repo.save(c);
+    Complaint updated = repo.save(c);
 
-        if ("Resolved".equals(req.getStatus())) {
+    if ("Resolved".equals(req.getStatus())) {
 
-            NotificationLog n = new NotificationLog();
-            n.setMessage("Complaint '" + c.getTitle() + "' resolved by " + c.getAssignedStaffName());
-            n.setRole("ADMIN");
-            n.setCreatedAt(java.time.LocalDateTime.now().toString());
+        User staff =
+                userRepo.findByEmail(
+                        c.getAssignedStaffEmail()
+                );
 
-            notificationRepo.save(n);
+        if (staff != null) {
+
+            Integer tasks =
+                    staff.getActiveTasks() == null
+                            ? 0
+                            : staff.getActiveTasks();
+
+            staff.setActiveTasks(
+                    Math.max(0, tasks - 1)
+            );
+
+            userRepo.save(staff);
         }
 
-        return updated;
+        NotificationLog n = new NotificationLog();
+
+        n.setMessage(
+                "Complaint '" +
+                c.getTitle() +
+                "' resolved by " +
+                c.getAssignedStaffName()
+        );
+
+        n.setRole("ADMIN");
+
+        n.setCreatedAt(
+                java.time.LocalDateTime.now()
+                        .toString()
+        );
+
+        notificationRepo.save(n);
     }
+
+    return updated;
+}
 }

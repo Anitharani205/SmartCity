@@ -1,33 +1,28 @@
 import React, { useEffect, useState } from "react";
 import API from "../services/api";
+import Sidebar from "./components/Sidebar";   // ✅ IMPORT SIDEBAR
 
 export default function BookingHistory() {
 
   const [services, setServices] = useState([]);
 
-  // LOAD SERVICES
   const loadServices = async () => {
 
     try {
 
-      const email =
-        localStorage.getItem("email");
+      const email = localStorage.getItem("email");
 
       const res = await API.get(
         `/services/citizen/${email}`
       );
 
-      console.log("SERVICE HISTORY:", res.data);
-
       setServices(res.data);
 
     } catch (err) {
-
       console.log(err);
     }
   };
 
-  // AUTO REFRESH
   useEffect(() => {
 
     loadServices();
@@ -40,7 +35,6 @@ export default function BookingHistory() {
 
   }, []);
 
-  // FILTERS
   const pendingServices = services.filter(
     (s) => s.status !== "Resolved"
   );
@@ -50,128 +44,175 @@ export default function BookingHistory() {
   );
 
   return (
-    <div className="p-6 bg-gray-100 min-h-screen">
 
-      <h1 className="text-3xl font-bold mb-8">
-        Service Booking History
-      </h1>
+    <div className="bg-gray-100 min-h-screen">
 
-      {/* PENDING */}
-      <h2 className="text-2xl font-semibold mb-4">
-        Pending Services
-      </h2>
+      {/* ✅ SIDEBAR */}
+      <Sidebar />
 
-      <div className="space-y-4 mb-10">
+      {/* ✅ CONTENT */}
+      <div className="ml-64 p-8">
 
-        {pendingServices.length === 0 ? (
+        {/* HEADER */}
+        <div className="mb-10">
 
-          <div className="bg-white p-5 rounded shadow">
-            No Pending Services
-          </div>
+          <h1 className="text-4xl font-bold text-gray-800">
+            Service Booking History
+          </h1>
 
-        ) : (
+          <p className="text-gray-500 mt-2">
+            Track your booked municipal services
+          </p>
 
-          pendingServices.map((s) => (
+        </div>
 
-            <div
-              key={s.id || s._id}
-              className="bg-white p-5 rounded shadow"
-            >
+        {/* PENDING */}
+        <h2 className="text-2xl font-semibold mb-5 text-yellow-600">
+          Pending Services
+        </h2>
 
-              <h3 className="text-xl font-bold mb-2">
-                {s.service}
-              </h3>
+        <div className="space-y-5 mb-12">
 
-              <p>
-                <strong>Location:</strong>
-                {" "} {s.location}
-              </p>
+          {pendingServices.length === 0 ? (
 
-              <p>
-                <strong>Status:</strong>
-                {" "} {s.status}
-              </p>
-
-              <p>
-                <strong>Date:</strong>
-                {" "} {s.date}
-              </p>
-
+            <div className="bg-white p-6 rounded-xl shadow">
+              No Pending Services
             </div>
-          ))
-        )}
 
-      </div>
+          ) : (
 
-      {/* RESOLVED */}
-      <h2 className="text-2xl font-semibold mb-4">
-        Resolved Services
-      </h2>
+            pendingServices.map((s) => (
 
-      <div className="space-y-4">
+              <div
+                key={s.id || s._id}
+                className="bg-white p-6 rounded-2xl shadow"
+              >
 
-        {resolvedServices.length === 0 ? (
+                <div className="flex justify-between mb-4">
 
-          <div className="bg-white p-5 rounded shadow">
-            No Resolved Services
-          </div>
+                  <div>
+                    <h3 className="text-2xl font-bold">
+                      {s.service}
+                    </h3>
 
-        ) : (
+                    <p className="text-gray-500">
+                      Date: {s.date}
+                    </p>
+                  </div>
 
-          resolvedServices.map((s) => (
-
-            <div
-              key={s.id || s._id}
-              className="bg-green-50 p-5 rounded shadow"
-            >
-
-              <h3 className="text-xl font-bold mb-2">
-                {s.service}
-              </h3>
-
-              <p>
-                <strong>Location:</strong>
-                {" "} {s.location}
-              </p>
-
-              <p>
-                <strong>Status:</strong>
-                {" "} {s.status}
-              </p>
-
-              <p>
-                <strong>Date:</strong>
-                {" "} {s.date}
-              </p>
-
-              {/* NOTE */}
-              {s.progressNote && (
-
-                <div className="bg-white p-3 rounded mt-4">
-
-                  <strong>Staff Note:</strong>
-
-                  <p>{s.progressNote}</p>
+                  <span className="bg-yellow-100 text-yellow-700 px-4 py-2 rounded-full text-sm">
+                    {s.status}
+                  </span>
 
                 </div>
-              )}
 
-              {/* PROOF */}
-              {s.proofImage && (
+                <p><strong>Address:</strong> {s.address}</p>
 
-                <a
-                  href={s.proofImage}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="text-blue-600 underline block mt-3"
-                >
-                  View Proof
-                </a>
-              )}
+                <p>
+                  <strong>Assigned Staff:</strong>{" "}
+                  {s.assignedStaffName || "Not Assigned"}
+                </p>
 
+                {s.mapLocation && (
+                  <a
+                    href={s.mapLocation}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-green-600 underline"
+                  >
+                    Open Map Location
+                  </a>
+                )}
+
+              </div>
+            ))
+          )}
+
+        </div>
+
+        {/* RESOLVED */}
+        <h2 className="text-2xl font-semibold mb-5 text-green-600">
+          Resolved Services
+        </h2>
+
+        <div className="space-y-5">
+
+          {resolvedServices.length === 0 ? (
+
+            <div className="bg-white p-6 rounded-xl shadow">
+              No Resolved Services
             </div>
-          ))
-        )}
+
+          ) : (
+
+            resolvedServices.map((s) => (
+
+              <div
+                key={s.id || s._id}
+                className="bg-green-50 p-6 rounded-2xl shadow"
+              >
+
+                <div className="flex justify-between mb-4">
+
+                  <div>
+                    <h3 className="text-2xl font-bold">
+                      {s.service}
+                    </h3>
+
+                    <p className="text-gray-500">
+                      Date: {s.date}
+                    </p>
+                  </div>
+
+                  <span className="bg-green-100 text-green-700 px-4 py-2 rounded-full text-sm">
+                    Resolved
+                  </span>
+
+                </div>
+
+                <p><strong>Address:</strong> {s.address}</p>
+
+                <p>
+                  <strong>Completed By:</strong>{" "}
+                  {s.assignedStaffName}
+                </p>
+
+                {s.mapLocation && (
+                  <a
+                    href={s.mapLocation}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-green-600 underline block mb-3"
+                  >
+                    Open Map Location
+                  </a>
+                )}
+
+                {s.progressNote && (
+                  <div className="bg-white p-4 rounded-lg mt-5">
+                    <strong>Staff Note:</strong>
+                    <p className="mt-2 text-gray-700">
+                      {s.progressNote}
+                    </p>
+                  </div>
+                )}
+
+                {s.proofImage && (
+                  <a
+                    href={s.proofImage}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-blue-600 underline block mt-4"
+                  >
+                    View Proof
+                  </a>
+                )}
+
+              </div>
+            ))
+          )}
+
+        </div>
 
       </div>
 

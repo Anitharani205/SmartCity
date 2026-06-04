@@ -1,5 +1,3 @@
-
-
 import React from "react";
 import AdminSidebar from "./components/AdminSidebar";
 
@@ -25,7 +23,7 @@ import {
   Legend
 } from "recharts";
 
-export default function AnalyticsDashboard() {
+export default function Analytics() {
 
  
   const resolutionTrend = [
@@ -53,7 +51,6 @@ export default function AnalyticsDashboard() {
     { month: "May", complaints: 720 },
     { month: "Jun", complaints: 680 }
   ];
-
 
 
   const COLORS = [
@@ -121,7 +118,6 @@ export default function AnalyticsDashboard() {
         </div>
 
         <div className="grid grid-cols-2 gap-6 mb-8">
-
 
           <div className="bg-white p-6 rounded-xl shadow">
 

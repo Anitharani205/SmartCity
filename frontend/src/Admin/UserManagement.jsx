@@ -1,112 +1,66 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import API from "../services/api";
 import AdminSidebar from "./components/AdminSidebar";
 
-const usersData = [
-  {
-    name: "Gayathiri",
-    email: "gayathiri@example.gov",
-    role: "Staff",
-    status: "Active",
-    img: "https://randomuser.me/api/portraits/women/44.jpg"
-  },
-  {
-    name: "Emily",
-    email: "emily.davis@citizen.net",
-    role: "Citizen",
-    status: "Pending",
-    img: "https://randomuser.me/api/portraits/women/65.jpg"
-  },
-  {
-    name: "Kaviya",
-    email: "kaviya@cityzen.io",
-    role: "Admin",
-    status: "Active",
-    img: "https://randomuser.me/api/portraits/men/32.jpg"
-  },
-  {
-    name: "James",
-    email: "jwilson@provider.com",
-    role: "Citizen",
-    status: "Blocked",
-    img: "https://randomuser.me/api/portraits/men/40.jpg"
-  },
-  {
-    name: "Dhanuja",
-    email: "dhanuja@staff.gov",
-    role: "Staff",
-    status: "Active",
-    img: "https://randomuser.me/api/portraits/women/21.jpg"
-  },
-  {
-    name: "Robert",
-    email: "robert@metro.gov",
-    role: "Citizen",
-    status: "Pending",
-    img: "https://randomuser.me/api/portraits/men/50.jpg"
-  },
-  {
-    name: "Sophia",
-    email: "sophia@city.net",
-    role: "Admin",
-    status: "Active",
-    img: "https://randomuser.me/api/portraits/women/33.jpg"
-  }
-];
-
 export default function UserManagement() {
-
   const navigate = useNavigate();
 
-  const [search, setSearch] = useState("");
-  const [roleFilter, setRoleFilter] =
-    useState("All Roles");
+  const [users, setUsers] = useState([]);
 
-  // PAGINATION
+  const [search, setSearch] = useState("");
+
+  const [roleFilter, setRoleFilter] =
+    useState("All");
+
   const [currentPage, setCurrentPage] =
     useState(1);
 
-  const itemsPerPage = 4;
+  const itemsPerPage = 5;
 
-  const [users, setUsers] = useState(() => {
+  useEffect(() => {
 
-    const saved =
-      JSON.parse(
-        localStorage.getItem("users")
-      );
+    loadUsers();
 
-    return saved
-      ? [...usersData, ...saved]
-      : usersData;
-  });
+  }, []);
 
+  const loadUsers = async () => {
+
+    try {
+
+      const res =
+        await API.get("/users");
+
+      setUsers(res.data);
+
+    } catch (err) {
+
+      console.log(err);
+
+      alert("Failed to load users");
+    }
+  };
+
+ 
   const filteredUsers = users.filter((u) => {
 
-    const text =
-      `${u.name} ${u.email} ${u.role} ${u.status}`
+    const searchText =
+      `${u.name} ${u.email} ${u.role}`
         .toLowerCase();
 
-    if (
-      !text.includes(search.toLowerCase())
-    )
-      return false;
+    const matchesSearch =
+      searchText.includes(
+        search.toLowerCase()
+      );
 
-    if (
-      roleFilter !== "All Roles" &&
-      u.role !== roleFilter
-    ) {
-      return false;
-    }
+    const matchesRole =
+      roleFilter === "All" ||
+      u.role === roleFilter;
 
-    return true;
+    return matchesSearch && matchesRole;
   });
 
-  // RESET PAGE WHEN FILTER/SEARCH CHANGES
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [search, roleFilter]);
-
-  // PAGINATION LOGIC
+  
   const totalPages = Math.ceil(
     filteredUsers.length / itemsPerPage
   );
@@ -120,319 +74,406 @@ export default function UserManagement() {
       startIndex + itemsPerPage
     );
 
-  // EDIT
-  const handleEdit = (user) => {
-    alert(`Edit ${user.name}`);
-  };
-
-  // BLOCK / ACTIVE
-  const handleToggleStatus = (index) => {
-
-    const updated = [...users];
-
-    updated[index].status =
-      updated[index].status === "Blocked"
-        ? "Active"
-        : "Blocked";
-
-    setUsers(updated);
-
-    localStorage.setItem(
-      "users",
-      JSON.stringify(updated)
-    );
-  };
-
-  // DELETE
-  const handleDelete = (index) => {
+  const deleteUser = async (id) => {
 
     const confirmDelete =
       window.confirm(
-        "Are you sure you want to delete this user?"
+        "Delete this user?"
       );
 
     if (!confirmDelete) return;
 
-    const updated =
-      users.filter((_, i) => i !== index);
+    try {
 
-    setUsers(updated);
+      await API.delete(`/users/${id}`);
 
-    localStorage.setItem(
-      "users",
-      JSON.stringify(updated)
-    );
+      alert("User Deleted");
 
-    // FIX PAGINATION AFTER DELETE
-    const newTotalPages = Math.ceil(
-      updated.length / itemsPerPage
-    );
+      loadUsers();
 
-    if (currentPage > newTotalPages) {
-      setCurrentPage(newTotalPages || 1);
+    } catch (err) {
+
+      console.log(err);
+
+      alert("Delete Failed");
     }
   };
 
+ 
+  const toggleStatus = async (id) => {
+
+    try {
+
+      await API.put(
+        `/users/toggle/${id}`
+      );
+
+      loadUsers();
+
+    } catch (err) {
+
+      console.log(err);
+
+      alert("Status Update Failed");
+    }
+  };
+const updateDepartment = async (
+  id,
+  department
+) => {
+
+  try {
+
+    await API.put(
+      `/users/department/${id}`,
+      { department }
+    );
+
+    loadUsers();
+
+  } catch (err) {
+
+    console.log(err);
+
+    alert("Department Update Failed");
+  }
+};
   return (
 
-    <div className="flex h-screen bg-gray-100">
+    <div className="flex bg-gray-100 min-h-screen">
 
-      <AdminSidebar />
+      <div className="fixed left-0 top-0 h-screen w-64 bg-white shadow-lg z-50">
 
-      <div className="flex-1 p-8 overflow-auto">
+        <AdminSidebar />
 
-        {/* HEADER */}
-        <div className="flex justify-between items-center mb-6">
+      </div>
 
-          <div>
+      
+      <div className="flex-1 ml-64 p-8">
 
-            <h2 className="text-2xl font-semibold">
-              User Management
-            </h2>
+        
+        <div className="flex justify-between items-center mb-8">
 
-            <p className="text-gray-500 text-sm">
-              Manage and monitor city-wide user accounts and permissions.
-            </p>
+  <div>
 
-          </div>
+    <h1 className="text-4xl font-bold text-gray-800">
+      User Management
+    </h1>
 
-          <button
-            className="bg-blue-600 text-white px-4 py-2 rounded-md"
-            onClick={() =>
-              navigate("/create-user")
-            }
-          >
-            Add new User
-          </button>
+    <p className="text-gray-500 mt-2">
+      Manage registered users
+    </p>
 
-        </div>
+  </div>
 
-        {/* STATS */}
-        <div className="grid grid-cols-3 gap-6 mb-6">
+  <button
+    onClick={() => navigate("/new-user")}
+    className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-3 rounded-lg shadow"
+  >
+    + Add New User
+  </button>
 
-          <div className="bg-white p-5 rounded-xl shadow">
+</div>
+
+       
+        <div className="grid grid-cols-3 gap-6 mb-8">
+
+          <div className="bg-white rounded-2xl p-6 shadow">
+
             <p className="text-gray-500">
               Total Users
             </p>
 
-            <h3 className="text-2xl font-bold">
+            <h2 className="text-3xl font-bold mt-2">
               {users.length}
-            </h3>
-          </div>
-
-          <div className="bg-white p-5 rounded-xl shadow">
-
-            <p className="text-gray-500">
-              Active Now
-            </p>
-
-            <h3 className="text-2xl font-bold">
-
-              {
-                users.filter(
-                  u => u.status === "Active"
-                ).length
-              }
-
-            </h3>
+            </h2>
 
           </div>
 
-          <div className="bg-white p-5 rounded-xl shadow">
+          <div className="bg-white rounded-2xl p-6 shadow">
 
             <p className="text-gray-500">
-              Pending Verifications
+              Citizens
             </p>
 
-            <h3 className="text-2xl font-bold">
+            <h2 className="text-3xl font-bold mt-2 text-blue-600">
 
               {
                 users.filter(
-                  u => u.status === "Pending"
+                  u => u.role === "CITIZEN"
                 ).length
               }
 
-            </h3>
+            </h2>
+
+          </div>
+
+          <div className="bg-white rounded-2xl p-6 shadow">
+
+            <p className="text-gray-500">
+              Municipal Staff
+            </p>
+
+            <h2 className="text-3xl font-bold mt-2 text-green-600">
+
+              {
+                users.filter(
+                  u => u.role === "MUNICIPAL"
+                ).length
+              }
+
+            </h2>
 
           </div>
 
         </div>
 
-        {/* TABLE SECTION */}
-        <div className="bg-white p-5 rounded-xl shadow mb-6">
+       
+        <div className="bg-white rounded-2xl shadow-lg p-6">
 
-          {/* SEARCH */}
-          <div className="flex justify-between mb-4">
+         
+          <div className="flex justify-between items-center mb-6">
 
             <input
-              placeholder="Search by name, email, or user ID..."
-              className="border px-4 py-2 rounded-md w-1/2"
+              type="text"
+              placeholder="Search users..."
               value={search}
               onChange={(e) =>
                 setSearch(e.target.value)
               }
+              className="border border-gray-300 rounded-lg px-4 py-2 w-[350px] focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
 
-            <div className="flex gap-3">
+            <select
+              value={roleFilter}
+              onChange={(e) =>
+                setRoleFilter(e.target.value)
+              }
+              className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
 
-              <button className="border px-4 py-2 rounded-md">
-                Filter
-              </button>
+              <option value="All">
+                All Roles
+              </option>
 
-              <button className="border px-4 py-2 rounded-md">
-                Export
-              </button>
+              <option value="CITIZEN">
+                Citizen
+              </option>
 
-            </div>
+              <option value="MUNICIPAL">
+                Municipal
+              </option>
 
-          </div>
+              <option value="ADMIN">
+                Admin
+              </option>
 
-          {/* ROLE FILTER */}
-          <div className="flex gap-6 text-gray-500 text-sm mb-4">
-
-            {[
-              "All Roles",
-              "Citizen",
-              "Staff",
-              "Admin"
-            ].map(role => (
-
-              <span
-                key={role}
-                onClick={() =>
-                  setRoleFilter(role)
-                }
-                className={`cursor-pointer pb-1 ${
-                  roleFilter === role
-                    ? "text-blue-600 font-semibold border-b-2 border-blue-600"
-                    : ""
-                }`}
-              >
-                {role}
-              </span>
-
-            ))}
+            </select>
 
           </div>
 
-          {/* TABLE */}
-          <table className="w-full text-sm">
+          <div className="overflow-x-auto">
 
-            <thead className="text-gray-500 border-b">
+            <table className="w-full">
 
-              <tr>
-                <th className="text-left py-3">
-                  User
-                </th>
+              <thead className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white">
 
-                <th className="text-left">
-                  Email
-                </th>
+                <tr>
 
-                <th>Role</th>
+                  <th className="p-4 text-left">
+                    Name
+                  </th>
 
-                <th>Status</th>
+                  <th className="p-4 text-left">
+                    Email
+                  </th>
 
-                <th>Actions</th>
-              </tr>
+                  <th className="p-4 text-left">
+                    Aadhaar
+                  </th>
 
-            </thead>
+                  <th className="p-4 text-left">
+                    Role
+                  </th>
 
-            <tbody>
+                  <th className="p-4 text-left">
+  Status
+</th>
 
-              {currentUsers.map((user, index) => (
+<th className="p-4 text-left">
+  Department
+</th>
 
-                <tr
-                  key={index}
-                  className="border-b"
-                >
-
-                  <td className="flex items-center gap-3 py-3">
-
-                    <img
-                      src={user.img}
-                      className="w-8 h-8 rounded-full"
-                      alt=""
-                    />
-
-                    {user.name}
-
-                  </td>
-
-                  <td>{user.email}</td>
-
-                  <td className="text-blue-600 font-semibold">
-                    {user.role}
-                  </td>
-
-                  <td>
-
-                    <span
-                      className={`px-2 py-1 rounded text-xs
-                      ${
-                        user.status === "Active" &&
-                        "bg-green-100 text-green-600"
-                      }
-                      ${
-                        user.status === "Pending" &&
-                        "bg-yellow-100 text-yellow-600"
-                      }
-                      ${
-                        user.status === "Blocked" &&
-                        "bg-red-100 text-red-600"
-                      }
-                    `}
-                    >
-                      {user.status}
-                    </span>
-
-                  </td>
-
-                  {/* ACTIONS */}
-                  <td className="flex gap-3 items-center text-gray-600">
-
-                    <span
-                      onClick={() =>
-                        handleEdit(user)
-                      }
-                      className="cursor-pointer"
-                    >
-                      ✏️
-                    </span>
-
-                    <span
-                      onClick={() =>
-                        handleToggleStatus(index)
-                      }
-                      className="cursor-pointer"
-                    >
-                      🔒
-                    </span>
-
-                    <span
-                      onClick={() =>
-                        handleDelete(index)
-                      }
-                      className="cursor-pointer text-red-600"
-                    >
-                      🗑️
-                    </span>
-
-                  </td>
+<th className="p-4 text-center">
+  Actions
+</th>
 
                 </tr>
 
-              ))}
+              </thead>
 
-            </tbody>
+              <tbody>
 
-          </table>
+                {currentUsers.map((u) => (
 
-          {/* PAGINATION */}
+                  <tr
+                    key={u.id}
+                    className="border-b hover:bg-gray-50 transition"
+                  >
 
-          <div className="flex justify-between items-center mt-4">
+                    {/* NAME */}
+                    <td className="p-4 font-semibold text-gray-800">
 
-            <p className="text-sm text-gray-500">
+                      {u.name}
+
+                    </td>
+
+                
+                    <td className="p-4 text-gray-700">
+
+                      {u.email}
+
+                    </td>
+
+               
+                    <td className="p-4 text-gray-700">
+
+                      {u.aadhaar}
+
+                    </td>
+
+                
+                    <td className="p-4">
+
+                      <span className={`px-3 py-1 rounded-full text-sm font-medium
+                      
+                      ${u.role === "ADMIN"
+                        ? "bg-purple-100 text-purple-700"
+                        : u.role === "MUNICIPAL"
+                        ? "bg-green-100 text-green-700"
+                        : "bg-blue-100 text-blue-700"
+                      }
+                      
+                      `}>
+
+                        {u.role}
+
+                      </span>
+
+                    </td>
+
+                  
+                    <td className="p-4">
+
+                      <span className={`px-3 py-1 rounded-full text-sm font-medium
+                      
+                      ${u.status === "Blocked"
+                        ? "bg-red-100 text-red-700"
+                        : "bg-green-100 text-green-700"
+                      }
+                      
+                      `}>
+
+                        {u.status || "Active"}
+
+                      </span>
+
+                    </td>
+<td className="p-4">
+
+  {u.role === "MUNICIPAL" ? (
+
+    <select
+      value={u.department || ""}
+      onChange={(e) =>
+        updateDepartment(
+          u.id,
+          e.target.value
+        )
+      }
+      className="border rounded px-2 py-1"
+    >
+
+      <option value="">
+        Select
+      </option>
+
+      <option value="Water">
+        Water
+      </option>
+
+      <option value="Electrical">
+        Electrical
+      </option>
+
+      <option value="Road">
+        Road
+      </option>
+
+      <option value="Drainage">
+        Drainage
+      </option>
+
+      <option value="Sanitation">
+        Sanitation
+      </option>
+
+    </select>
+
+  ) : (
+
+    <span>-</span>
+
+  )}
+
+</td>
+                 
+                    <td className="p-4">
+
+                      <div className="flex justify-center gap-3">
+
+                      
+                        <button
+                          onClick={() =>
+                            toggleStatus(u.id)
+                          }
+                          className="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg text-sm"
+                        >
+
+                          {u.status === "Blocked"
+                            ? "Unblock"
+                            : "Block"}
+
+                        </button>
+
+                        
+                        <button
+                          onClick={() =>
+                            deleteUser(u.id)
+                          }
+                          className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm"
+                        >
+                          Delete
+                        </button>
+
+                      </div>
+
+                    </td>
+
+                  </tr>
+
+                ))}
+
+              </tbody>
+
+            </table>
+
+          </div>
+
+     
+          <div className="flex justify-between items-center mt-6">
+
+            <p className="text-gray-500 text-sm">
 
               Showing {currentUsers.length} of{" "}
               {filteredUsers.length} users
@@ -441,7 +482,6 @@ export default function UserManagement() {
 
             <div className="flex gap-2">
 
-              {/* PREV */}
               <button
                 disabled={currentPage === 1}
                 onClick={() =>
@@ -449,16 +489,11 @@ export default function UserManagement() {
                     currentPage - 1
                   )
                 }
-                className={`px-3 py-1 border rounded ${
-                  currentPage === 1
-                    ? "opacity-50 cursor-not-allowed"
-                    : ""
-                }`}
+                className="px-4 py-2 border rounded-lg disabled:opacity-50"
               >
                 Prev
               </button>
 
-              {/* PAGE NUMBERS */}
               {[...Array(totalPages)].map(
                 (_, index) => (
 
@@ -469,36 +504,33 @@ export default function UserManagement() {
                         index + 1
                       )
                     }
-                    className={`px-3 py-1 rounded ${
-                      currentPage ===
-                      index + 1
+                    className={`px-4 py-2 rounded-lg
+                      
+                      ${currentPage === index + 1
                         ? "bg-blue-600 text-white"
                         : "border"
-                    }`}
+                      }
+                      
+                      `}
                   >
+
                     {index + 1}
+
                   </button>
 
                 )
               )}
 
-              {/* NEXT */}
               <button
                 disabled={
-                  currentPage === totalPages ||
-                  totalPages === 0
+                  currentPage === totalPages
                 }
                 onClick={() =>
                   setCurrentPage(
                     currentPage + 1
                   )
                 }
-                className={`px-3 py-1 border rounded ${
-                  currentPage === totalPages ||
-                  totalPages === 0
-                    ? "opacity-50 cursor-not-allowed"
-                    : ""
-                }`}
+                className="px-4 py-2 border rounded-lg disabled:opacity-50"
               >
                 Next
               </button>
