@@ -24,16 +24,19 @@ function Sidebar() {
     { name: "Home", icon: <Home size={18} />, path: "/citizen" },
     { name: "Report", icon: <FileText size={18} />, path: "/report" },
     { name: "ComplaintHistory", icon: <Bell size={18} />, path: "/complainthistory" },
-    { name: "Alerts", icon: <AlertTriangle size={18} />, path: "/alerts" },
+
+    
+    { name: "Notifications", icon: <Bell size={18} />, path: "/notification" },
+
+    { name: "Alerts", icon: <AlertTriangle size={18} />, path: "/citizen-alerts" },
     { name: "Services", icon: <Wrench size={18} />, path: "/services" },
-    { name: "Booking Status", icon: <Calendar size={18} />, path: "/booking-status" },
     { name: "Booking History", icon: <History size={18} />, path: "/booking-history" }
   ];
 
   return (
     <div className="w-64 bg-white border-r flex flex-col justify-between h-screen fixed left-0 top-0 overflow-y-auto">
 
-      {/* Top */}
+     
       <div>
 
         <div className="flex items-center gap-3 p-6">
@@ -67,7 +70,7 @@ function Sidebar() {
 
       </div>
 
-      {/* Bottom */}
+      
       <div className="p-4 space-y-3">
 
         <div className="flex items-center gap-3 bg-gray-100 p-3 rounded-lg">

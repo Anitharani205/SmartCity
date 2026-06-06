@@ -7,15 +7,13 @@ import SignUp from "./SignUp";
 
 import Dashboard from "./Citizen/Dashboard";
 import Services from "./Citizen/Services";
-import Alerts from "./Citizen/Alerts";
+import CitizenAlerts from "./citizen/CitizenAlerts";
 import BookingHistory from "./Citizen/BookingHistory";
-import BookingStatus from "./Citizen/BookingStatus";
 import ComplaintHistory from "./Citizen/ComplaintHistory";
 import Report from "./Citizen/Report";
-
+import CitizenNotification from "./Citizen/CitizenNotification";
 import MunicipalDashboard from "./Municipal/MunicipalDashboard";
-import Request from "./Municipal/Request";
-import DetailPage from "./Municipal/DetailPage";
+
 import ReceiveAssignedTask from "./Municipal/ReceiveAssignedTask";
 import Task from "./Municipal/Task";
 
@@ -26,7 +24,10 @@ import NewUser from "./Admin/NewUser";
 import AdminServices from "./Admin/AdminServices";
 import UserManagement from "./Admin/UserManagement";
 import CreateUser from "./Admin/NewUser";
-import ManagingAlerts from "./Admin/ManagingAlerts";
+
+import Alerts from "./admin/Alerts";
+
+import CreateAlert from "./admin/CreateAlert";
 import Analytics from "./Admin/Analytics";
 import AuditLogs from "./Admin/AuditLogs";
 import AdminNotification from "./Admin/AdminNotification";
@@ -44,15 +45,15 @@ function App() {
 
         <Route path="/citizen" element={<Dashboard />} />
         <Route path="/services" element={<Services />} />
-        <Route path="/alerts" element={<Alerts />} />
+   <Route path="/citizen-alerts" element={<CitizenAlerts />} />
         <Route path="/booking-history" element={<BookingHistory />} />
-        <Route path="/booking-status" element={<BookingStatus />} />
+       
         <Route path="/complainthistory" element={<ComplaintHistory />} />
         <Route path="/report" element={<Report />} />
+        <Route path="/notification" element={<CitizenNotification />} />
 
         <Route path="/municipal" element={<MunicipalDashboard />} />
-        <Route path="/request" element={<Request />} />
-        <Route path="/detail-page" element={<DetailPage />} />
+        
         <Route path="/assigned-task" element={<ReceiveAssignedTask />} />
         <Route path="/task" element={<Task />}/>
    
@@ -63,7 +64,8 @@ function App() {
         <Route path="/adminservices" element={<AdminServices />} />
         <Route path="/usermanagement" element={<UserManagement />} />
         <Route path="/create-user" element={<CreateUser />} />
-        <Route path="/managingalerts" element={<ManagingAlerts />} />
+         <Route path="/alerts" element={<Alerts />} />
+        <Route path="/create-alert" element={<CreateAlert />} />
         <Route path="/analytics" element={<Analytics />} />
         <Route path="/auditlogs" element={<AuditLogs />} />
         <Route path="/admin-notification" element={<AdminNotification />} />

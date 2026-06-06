@@ -72,7 +72,7 @@ export default function Report() {
             }
           />
 
-          {/* Category Dropdown */}
+          
           <select
             value={form.category}
             className="border p-3 w-full rounded"

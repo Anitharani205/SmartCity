@@ -42,31 +42,38 @@ public List<User> getStaffByCategory(
 
     String department;
 
-    switch (category) {
+   switch (category) {
 
-        case "Water Issue":
-            department = "Water";
-            break;
+    case "Water Issue":
+    case "Plumbing":
+        department = "Water";
+        break;
 
-        case "Electricity Issue":
-            department = "Electrical";
-            break;
+    case "Electricity Issue":
+    case "Electrical":
+    case "Appliance Repair":
+    case "AC Service":
+        department = "Electrical";
+        break;
 
-        case "Road Issue":
-            department = "Road";
-            break;
+    case "Road Issue":
+        department = "Road";
+        break;
 
-        case "Garbage Issue":
-            department = "Sanitation";
-            break;
+    case "Drainage Issue":
+        department = "Drainage";
+        break;
 
-        case "Drainage Issue":
-            department = "Drainage";
-            break;
+    case "Garbage Issue":
+    case "Cleaning":
+    case "Gardening":
+    case "Pest Control":
+        department = "Sanitation";
+        break;
 
-        default:
-            department = "General";
-    }
+    default:
+        department = "General";
+}
 
     return userRepo
             .findByRoleAndDepartmentOrderByActiveTasksAsc(

@@ -103,7 +103,7 @@ export default function Services() {
           </option>
 
           <option value="Cleaning">
-            Cleaning
+            Sanitation
           </option>
 
           <option value="Appliance Repair">
@@ -127,7 +127,6 @@ export default function Services() {
           </option>
         </select>
 
-        {/* Service Description */}
         <input
           type="text"
           placeholder="Describe Required Service"

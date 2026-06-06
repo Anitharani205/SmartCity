@@ -3,8 +3,10 @@ import API from "../services/api";
 import Sidebar from "./components/Sidebar";
 
 export default function ComplaintHistory() {
-
   const [complaints, setComplaints] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const itemsPerPage = 5;
 
   const loadComplaints = async () => {
     try {
@@ -26,6 +28,7 @@ export default function ComplaintHistory() {
     return () => clearInterval(interval);
   }, []);
 
+  // ================= FILTER =================
   const pendingComplaints = complaints.filter(
     (c) => c.status !== "Resolved"
   );
@@ -34,79 +37,84 @@ export default function ComplaintHistory() {
     (c) => c.status === "Resolved"
   );
 
-  return (
-    <div>
+  const allComplaints = [...pendingComplaints, ...resolvedComplaints];
 
-      {/* ✅ FIXED SIDEBAR */}
+  // ================= PAGINATION =================
+  const indexOfLast = currentPage * itemsPerPage;
+  const indexOfFirst = indexOfLast - itemsPerPage;
+
+  const currentComplaints = allComplaints.slice(
+    indexOfFirst,
+    indexOfLast
+  );
+
+  const totalPages = 5; // fixed 5 pages UI
+
+  return (
+    <div className="flex">
+
       <Sidebar />
 
-      {/* ✅ CONTENT SHIFTED RIGHT */}
-      <div className="ml-64 p-8 bg-gray-100 min-h-screen">
+      <div className="ml-64 p-8 bg-gray-100 min-h-screen w-full">
 
         <h1 className="text-4xl font-bold mb-6">
           Complaint History
         </h1>
 
-        {/* Pending */}
+        {/* ================= PENDING ================= */}
         <h2 className="text-2xl text-red-600 mb-4">
           Pending Complaints
         </h2>
 
-        {pendingComplaints.length === 0 ? (
-          <div className="bg-white p-4 rounded shadow">
-            No Pending Complaints
+        {pendingComplaints.map((c) => (
+          <div key={c._id} className="bg-white p-6 rounded shadow mb-4">
+            <h3 className="text-xl font-bold">{c.title}</h3>
+            <p>{c.category}</p>
+            <p>Priority: {c.priority}</p>
+            <p>Status: {c.status}</p>
           </div>
-        ) : (
-          pendingComplaints.map((c) => (
-            <div key={c._id} className="bg-white p-6 rounded shadow mb-4">
+        ))}
 
-              <div className="flex justify-between">
-                <h3 className="text-xl font-bold">{c.title}</h3>
-                <span className="bg-red-100 text-red-600 px-3 py-1 rounded">
-                  {c.status}
-                </span>
-              </div>
-
-              <p>{c.category}</p>
-              <p><b>Priority:</b> {c.priority}</p>
-              <p><b>Address:</b> {c.address}</p>
-              <p><b>Staff:</b> {c.assignedStaffName || "Not Assigned"}</p>
-
-            </div>
-          ))
-        )}
-
-        {/* Resolved */}
+        {/* ================= RESOLVED ================= */}
         <h2 className="text-2xl text-green-600 mt-8 mb-4">
           Resolved Complaints
         </h2>
 
-        {resolvedComplaints.length === 0 ? (
-          <div className="bg-white p-4 rounded shadow">
-            No Resolved Complaints
+        {resolvedComplaints.map((c) => (
+          <div key={c._id} className="bg-green-50 p-6 rounded shadow mb-4">
+            <h3 className="text-xl font-bold">{c.title}</h3>
+            <p>{c.category}</p>
+            <p>Priority: {c.priority}</p>
+            <p>Status: Resolved</p>
           </div>
-        ) : (
-          resolvedComplaints.map((c) => (
-            <div key={c._id} className="bg-green-50 p-6 rounded shadow mb-4">
+        ))}
 
-              <div className="flex justify-between">
-                <h3 className="text-xl font-bold">{c.title}</h3>
-                <span className="bg-green-100 text-green-600 px-3 py-1 rounded">
-                  Resolved
-                </span>
-              </div>
+        {/* ================= PAGINATION (NO NUMBERS) ================= */}
+        <div className="flex justify-end items-center mt-10 gap-4">
 
-              <p>{c.category}</p>
-              <p><b>Priority:</b> {c.priority}</p>
-              <p><b>Address:</b> {c.address}</p>
-              <p><b>Resolved By:</b> {c.assignedStaffName}</p>
+          <button
+            disabled={currentPage === 1}
+            onClick={() => setCurrentPage((p) => p - 1)}
+            className="px-4 py-2 bg-gray-300 rounded disabled:opacity-50"
+          >
+            Prev
+          </button>
 
-            </div>
-          ))
-        )}
+          <div className="text-gray-700 font-medium">
+            Page {currentPage} of {totalPages}
+          </div>
+
+          <button
+            disabled={currentPage === totalPages}
+            onClick={() => setCurrentPage((p) => p + 1)}
+            className="px-4 py-2 bg-red-600 text-white rounded disabled:opacity-50"
+          >
+            Next
+          </button>
+
+        </div>
 
       </div>
-
     </div>
   );
 }

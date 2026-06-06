@@ -11,4 +11,5 @@ public interface ServiceRepository
     List<ServiceRequest> findByAssignedStaffEmail(String email);
 
     List<ServiceRequest> findByCitizen(String citizen);
+     long countByStatus(String status);
 }

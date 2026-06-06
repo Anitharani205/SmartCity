@@ -33,7 +33,7 @@ function Login() {
 
       alert("Login Successful");
 
-      // ROLE BASED NAVIGATION
+     
 
       if (email.endsWith("@citizen.com")) {
 
@@ -64,11 +64,11 @@ function Login() {
 
     <div className="min-h-screen bg-gradient-to-br from-sky-100 via-white to-blue-100 flex justify-center items-center px-4 py-10">
 
-      {/* MAIN CONTAINER */}
+  
 
       <div className="w-full max-w-6xl bg-white rounded-3xl overflow-hidden shadow-2xl flex flex-col md:flex-row">
 
-        {/* LEFT IMAGE SECTION */}
+       
 
         <div className="md:w-1/2 relative">
 
@@ -78,7 +78,7 @@ function Login() {
             className="w-full h-full object-cover"
           />
 
-          {/* DARK OVERLAY */}
+      
 
           <div className="absolute inset-0 bg-black/35 flex flex-col justify-center items-center px-8 text-center">
 
@@ -94,13 +94,13 @@ function Login() {
 
         </div>
 
-        {/* RIGHT LOGIN SECTION */}
+       
 
         <div className="md:w-1/2 bg-white flex justify-center items-center p-10">
 
           <div className="w-full max-w-md">
 
-            {/* TITLE */}
+           
 
             <h2 className="text-4xl font-bold text-gray-800 text-center mb-2">
               Login
@@ -110,7 +110,7 @@ function Login() {
               Login to access your dashboard
             </p>
 
-            {/* EMAIL */}
+            
 
             <div className="mb-6">
 
@@ -128,7 +128,7 @@ function Login() {
 
             </div>
 
-            {/* PASSWORD */}
+            
 
             <div className="mb-8">
 
@@ -146,7 +146,7 @@ function Login() {
 
             </div>
 
-            {/* LOGIN BUTTON */}
+            
 
             <button
               onClick={handleLogin}
@@ -155,7 +155,7 @@ function Login() {
               Login
             </button>
 
-            {/* SIGNUP */}
+          
 
             <p className="text-center text-gray-600 mt-8">
 

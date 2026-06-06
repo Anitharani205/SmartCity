@@ -29,7 +29,7 @@ public class ServiceRequest {
     private String progressNote;
     private String proofImage;
 
-   
+  
 
     public String getId() {
         return id;
@@ -136,4 +136,5 @@ public class ServiceRequest {
     public void setProofImage(String proofImage) {
         this.proofImage = proofImage;
     }
+  
 }

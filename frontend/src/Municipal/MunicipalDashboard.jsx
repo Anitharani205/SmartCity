@@ -1,211 +1,257 @@
+import React, { useEffect, useState } from "react";
 import MunicipalSidebar from "./components/MunicipalSidebar";
+import API from "../services/api";
+
 import {
-  Search,
-  Folder,
-  Clock,
-  CheckCircle,
-  Wrench,
-  AlertTriangle,
-  Trash,
-} from "lucide-react";
+  PieChart,
+  Pie,
+  Cell,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
 
-function Navbar() {
+export default function MunicipalDashboard() {
+
+  const [complaints, setComplaints] = useState([]);
+  const [services, setServices] = useState([]);
+
+  const staffEmail = localStorage.getItem("email");
+
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  const loadData = async () => {
+    try {
+      const c = await API.get(`/complaints/staff/${staffEmail}`);
+      const s = await API.get(`/services/staff/${staffEmail}`);
+
+      setComplaints(c.data);
+      setServices(s.data);
+    } catch (err) {
+      console.log("Error loading dashboard:", err);
+    }
+  };
+
+  
+  const pieData = [
+    { name: "Complaints", value: complaints.length },
+    { name: "Services", value: services.length },
+  ];
+
+  const COLORS = ["#ef4444", "#3b82f6"];
+
+  
+  const getBadge = (status) => {
+    const base = "px-2 py-1 text-xs rounded-full font-medium";
+
+    switch (status) {
+      case "Resolved":
+        return base + " bg-green-100 text-green-600";
+      case "Pending":
+        return base + " bg-yellow-100 text-yellow-700";
+      case "In Progress":
+        return base + " bg-blue-100 text-blue-600";
+      default:
+        return base + " bg-gray-100 text-gray-600";
+    }
+  };
+
   return (
-    <div className="flex items-center justify-between mb-6">
-      <div className="flex items-center bg-gray-100 px-4 py-2 rounded-lg w-96">
-        <Search className="mr-2" size={18} />
-        <input
-          className="bg-transparent outline-none w-full"
-          placeholder="Search complaints, tasks, or citizens..."
-        />
-      </div>
+    <div className="flex bg-gray-100 min-h-screen">
 
-      <div className="flex items-center gap-4">
-        <span className="bg-blue-100 text-blue-600 px-4 py-2 rounded-full text-sm">
-          DISTRICT 4 | SHIFT: MORNING
-        </span>
-        ⚙️ ✉️
-      </div>
-    </div>
-  );
-}
-
-function Stats() {
-  return (
-    <div className="grid grid-cols-3 gap-6 mb-6">
-      <div className="bg-white p-6 rounded-xl shadow">
-        <div className="flex justify-between">
-          <p className="text-gray-500">Open Complaints</p>
-          <Folder className="text-blue-500" size={22} />
-        </div>
-        <h1 className="text-3xl font-bold mt-3">12</h1>
-        <p className="text-red-500 text-sm">+2</p>
-      </div>
-
-      <div className="bg-white p-6 rounded-xl shadow">
-        <div className="flex justify-between">
-          <p className="text-gray-500">In Progress</p>
-          <Clock className="text-yellow-500" size={22} />
-        </div>
-        <h1 className="text-3xl font-bold mt-3">08</h1>
-        <p className="text-gray-500 text-sm">Active current</p>
-      </div>
-
-      <div className="bg-white p-6 rounded-xl shadow">
-        <div className="flex justify-between">
-          <p className="text-gray-500">Resolved</p>
-          <CheckCircle className="text-green-500" size={22} />
-        </div>
-        <h1 className="text-3xl font-bold mt-3">45</h1>
-        <p className="text-green-500 text-sm">This Month</p>
-      </div>
-    </div>
-  );
-}
-
-function PendingUtility() {
-  return (
-    <div className="bg-blue-50 border border-blue-200 p-6 rounded-xl flex justify-between items-center mb-6">
-      <div className="flex items-center gap-4">
-        <div className="bg-blue-500 text-white p-3 rounded-full">
-          <Wrench size={20} />
-        </div>
-
-        <div>
-          <p className="font-semibold">
-            Pending Utility Services
-            <span className="ml-2 text-xs bg-blue-500 text-white px-2 py-1 rounded">
-              NEW
-            </span>
-          </p>
-
-          <p className="text-sm text-gray-600">
-            You have 4 new water connection requests requiring approval.
-          </p>
-        </div>
-      </div>
-
-      <button className="bg-blue-600 text-white px-6 py-2 rounded-lg">
-        Review Requests
-      </button>
-    </div>
-  );
-}
-
-function PriorityActions() {
-  return (
-    <div>
-      <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
-        <AlertTriangle className="text-red-500" size={20} />
-        Priority Actions
-      </h2>
-
-      <div className="space-y-4">
-
-     
-        <div className="bg-white p-5 rounded-xl shadow flex justify-between">
-          <div className="flex gap-4">
-            <AlertTriangle className="text-red-500" />
-
-            <div>
-              <p className="text-red-500 text-xs font-semibold">
-                HIGH PRIORITY
-              </p>
-
-              <h3 className="font-bold">Main St. Water Leak</h3>
-
-              <p className="text-gray-500 text-sm">
-                Large rupture near intersection of Main & 4th.
-              </p>
-            </div>
-          </div>
-
-          <button className="border px-4 py-2 rounded-lg">
-            Manage
-          </button>
-        </div>
-
-        {/* In Progress */}
-        <div className="bg-white p-5 rounded-xl shadow flex justify-between">
-          <div className="flex gap-4">
-            💡
-
-            <div>
-              <p className="text-yellow-600 text-xs font-semibold">
-                IN PROGRESS
-              </p>
-
-              <h3 className="font-bold">Broken Streetlight #452</h3>
-
-              <p className="text-gray-500 text-sm">
-                Crew dispatched for bulb replacement.
-              </p>
-            </div>
-          </div>
-
-          <button className="border px-4 py-2 rounded-lg">
-            Manage
-          </button>
-        </div>
-
-    
-        <div className="bg-white p-5 rounded-xl shadow flex justify-between">
-          <div className="flex gap-4">
-            <Trash size={20} />
-
-            <div>
-              <p className="text-red-500 text-xs font-semibold">
-                OVERDUE
-              </p>
-
-              <h3 className="font-bold">Waste Collection Delay</h3>
-
-              <p className="text-gray-500 text-sm">
-                Missed pickup due to truck maintenance.
-              </p>
-            </div>
-          </div>
-
-          <button className="border px-4 py-2 rounded-lg">
-            Manage
-          </button>
-        </div>
-
-      </div>
-    </div>
-  );
-}
-
-function MunicipalDashboard() {
-  return (
-    <div className="bg-gray-50 min-h-screen">
-
- 
-      <div className="fixed top-0 left-0 w-64 h-screen">
+      
+      <div className="w-64 fixed h-full">
         <MunicipalSidebar />
       </div>
 
-      <div className="ml-64 h-screen overflow-y-auto p-8">
+      <div className="ml-64 p-6 w-full space-y-6">
 
-        <Navbar />
+      
+        <div>
+          <h1 className="text-2xl font-bold">
+            Municipal Staff Dashboard
+          </h1>
 
-        <h1 className="text-2xl font-bold mb-1">
-          Municipal Staff Dashboard
-        </h1>
+          <p className="text-gray-500">
+            Assigned work overview for {staffEmail}
+          </p>
+        </div>
 
-        <p className="text-gray-500 mb-6">
-          Good morning, Sarah. Here's your overview for District 4 today.
-        </p>
+      
+        <div className="grid grid-cols-4 gap-4">
 
-        <Stats />
+          <StatCard title="Complaints" value={complaints.length} />
+          <StatCard title="Services" value={services.length} />
 
-        <PendingUtility />
+          <StatCard
+            title="Pending"
+            value={
+              complaints.filter(c => c.status === "Pending").length +
+              services.filter(s => s.status === "Pending").length
+            }
+          />
 
-        <PriorityActions />
+          <StatCard
+            title="Resolved"
+            value={
+              complaints.filter(c => c.status === "Resolved").length +
+              services.filter(s => s.status === "Resolved").length
+            }
+          />
+
+        </div>
+
+       
+        <div className="bg-white p-6 rounded-2xl shadow">
+
+          <h2 className="font-semibold text-lg mb-4">
+            Work Distribution
+          </h2>
+
+          <ResponsiveContainer width="100%" height={320}>
+            <PieChart>
+
+              <Pie
+                data={pieData}
+                dataKey="value"
+                outerRadius={110}
+                innerRadius={65}
+                paddingAngle={6}
+              >
+                {pieData.map((_, i) => (
+                  <Cell
+                    key={i}
+                    fill={COLORS[i]}
+                    stroke="#fff"
+                    strokeWidth={2}
+                  />
+                ))}
+              </Pie>
+
+              <Tooltip />
+
+            </PieChart>
+          </ResponsiveContainer>
+
+          
+          <div className="flex justify-center gap-8 mt-4">
+
+            {pieData.map((d, i) => (
+              <div key={i} className="flex items-center gap-2">
+
+                <div
+                  className="w-3 h-3 rounded-full"
+                  style={{ background: COLORS[i] }}
+                />
+
+                <span className="text-sm font-medium">
+                  {d.name}
+                </span>
+
+                <span className="text-xs text-gray-500">
+                  ({d.value})
+                </span>
+
+              </div>
+            ))}
+
+          </div>
+
+        </div>
+
+        
+        <div className="grid grid-cols-2 gap-6">
+
+        
+          <div className="bg-white p-5 rounded-2xl shadow">
+
+            <h2 className="font-semibold mb-4 text-lg">
+              Assigned Complaints
+            </h2>
+
+            <table className="w-full text-sm">
+
+              <thead>
+                <tr className="text-gray-500 border-b">
+                  <th className="text-left py-2">Title</th>
+                  <th className="text-center">Status</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                {complaints.map((c) => (
+                  <tr key={c.id} className="border-b hover:bg-gray-50">
+
+                    <td className="py-3 font-medium">
+                      {c.title}
+                    </td>
+
+                    <td className="text-center">
+                      <span className={getBadge(c.status)}>
+                        {c.status}
+                      </span>
+                    </td>
+
+                  </tr>
+                ))}
+              </tbody>
+
+            </table>
+
+          </div>
+
+          
+          <div className="bg-white p-5 rounded-2xl shadow">
+
+            <h2 className="font-semibold mb-4 text-lg">
+              Assigned Services
+            </h2>
+
+            <table className="w-full text-sm">
+
+              <thead>
+                <tr className="text-gray-500 border-b">
+                  <th className="text-left py-2">Service</th>
+                  <th className="text-center">Status</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                {services.map((s) => (
+                  <tr key={s.id} className="border-b hover:bg-gray-50">
+
+                    <td className="py-3 font-medium">
+                      {s.service}
+                    </td>
+
+                    <td className="text-center">
+                      <span className={getBadge(s.status)}>
+                        {s.status}
+                      </span>
+                    </td>
+
+                  </tr>
+                ))}
+              </tbody>
+
+            </table>
+
+          </div>
+
+        </div>
 
       </div>
     </div>
   );
 }
 
-export default MunicipalDashboard;
+
+function StatCard({ title, value }) {
+  return (
+    <div className="bg-white p-5 rounded-xl shadow">
+      <p className="text-gray-500 text-sm">{title}</p>
+      <h2 className="text-2xl font-bold">{value}</h2>
+    </div>
+  );
+}

@@ -11,4 +11,5 @@ public interface ComplaintRepository
     List<Complaint> findByAssignedStaffEmail(String email);
 
     List<Complaint> findByCitizen(String citizen);
+    long countByStatus(String status); 
 }

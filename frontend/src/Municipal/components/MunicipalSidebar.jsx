@@ -23,11 +23,7 @@ function MunicipalSidebar() {
       icon: <Home size={18} />,
       path: "/municipal",
     },
-    {
-      name: "Requests",
-      icon: <FileText size={18} />,
-      path: "/request",
-    },
+ 
     {
       name: "Assigned Tasks",
       icon: <Bell size={18} />,

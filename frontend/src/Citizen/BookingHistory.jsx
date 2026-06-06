@@ -1,30 +1,24 @@
 import React, { useEffect, useState } from "react";
 import API from "../services/api";
-import Sidebar from "./components/Sidebar";   // ✅ IMPORT SIDEBAR
+import Sidebar from "./components/Sidebar";
 
 export default function BookingHistory() {
-
   const [services, setServices] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const itemsPerPage = 5;
 
   const loadServices = async () => {
-
     try {
-
       const email = localStorage.getItem("email");
-
-      const res = await API.get(
-        `/services/citizen/${email}`
-      );
-
+      const res = await API.get(`/services/citizen/${email}`);
       setServices(res.data);
-
     } catch (err) {
       console.log(err);
     }
   };
 
   useEffect(() => {
-
     loadServices();
 
     const interval = setInterval(() => {
@@ -32,190 +26,85 @@ export default function BookingHistory() {
     }, 5000);
 
     return () => clearInterval(interval);
-
   }, []);
 
-  const pendingServices = services.filter(
-    (s) => s.status !== "Resolved"
-  );
+  // ================= FILTER =================
+  const pendingServices = services.filter((s) => s.status !== "Resolved");
+  const resolvedServices = services.filter((s) => s.status === "Resolved");
 
-  const resolvedServices = services.filter(
-    (s) => s.status === "Resolved"
-  );
+  const allServices = [...pendingServices, ...resolvedServices];
+
+  // ================= PAGINATION =================
+  const indexOfLast = currentPage * itemsPerPage;
+  const indexOfFirst = indexOfLast - itemsPerPage;
+
+  const currentServices = allServices.slice(indexOfFirst, indexOfLast);
+
+  const totalPages = 5; // fixed
 
   return (
+    <div className="bg-gray-100 min-h-screen flex">
 
-    <div className="bg-gray-100 min-h-screen">
-
-      {/* ✅ SIDEBAR */}
       <Sidebar />
 
-      {/* ✅ CONTENT */}
-      <div className="ml-64 p-8">
+      <div className="ml-64 p-8 w-full h-screen overflow-y-auto">
 
-        {/* HEADER */}
-        <div className="mb-10">
+        <h1 className="text-4xl font-bold mb-10">
+          Service Booking History
+        </h1>
 
-          <h1 className="text-4xl font-bold text-gray-800">
-            Service Booking History
-          </h1>
-
-          <p className="text-gray-500 mt-2">
-            Track your booked municipal services
-          </p>
-
-        </div>
-
-        {/* PENDING */}
+        {/* ================= PENDING ================= */}
         <h2 className="text-2xl font-semibold mb-5 text-yellow-600">
           Pending Services
         </h2>
 
-        <div className="space-y-5 mb-12">
+        {pendingServices.map((s) => (
+          <div key={s.id || s._id} className="bg-white p-6 rounded-xl shadow mb-4">
+            <h3 className="text-xl font-bold">{s.service}</h3>
+            <p>Date: {s.date}</p>
+            <p>Status: {s.status}</p>
+          </div>
+        ))}
 
-          {pendingServices.length === 0 ? (
-
-            <div className="bg-white p-6 rounded-xl shadow">
-              No Pending Services
-            </div>
-
-          ) : (
-
-            pendingServices.map((s) => (
-
-              <div
-                key={s.id || s._id}
-                className="bg-white p-6 rounded-2xl shadow"
-              >
-
-                <div className="flex justify-between mb-4">
-
-                  <div>
-                    <h3 className="text-2xl font-bold">
-                      {s.service}
-                    </h3>
-
-                    <p className="text-gray-500">
-                      Date: {s.date}
-                    </p>
-                  </div>
-
-                  <span className="bg-yellow-100 text-yellow-700 px-4 py-2 rounded-full text-sm">
-                    {s.status}
-                  </span>
-
-                </div>
-
-                <p><strong>Address:</strong> {s.address}</p>
-
-                <p>
-                  <strong>Assigned Staff:</strong>{" "}
-                  {s.assignedStaffName || "Not Assigned"}
-                </p>
-
-                {s.mapLocation && (
-                  <a
-                    href={s.mapLocation}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="text-green-600 underline"
-                  >
-                    Open Map Location
-                  </a>
-                )}
-
-              </div>
-            ))
-          )}
-
-        </div>
-
-        {/* RESOLVED */}
-        <h2 className="text-2xl font-semibold mb-5 text-green-600">
+        {/* ================= RESOLVED ================= */}
+        <h2 className="text-2xl font-semibold mt-10 mb-5 text-green-600">
           Resolved Services
         </h2>
 
-        <div className="space-y-5">
+        {resolvedServices.map((s) => (
+          <div key={s.id || s._id} className="bg-green-50 p-6 rounded-xl shadow mb-4">
+            <h3 className="text-xl font-bold">{s.service}</h3>
+            <p>Date: {s.date}</p>
+            <p>Status: Resolved</p>
+          </div>
+        ))}
 
-          {resolvedServices.length === 0 ? (
+        {/* ================= PAGINATION (NO NUMBERS) ================= */}
+        <div className="flex justify-end items-center mt-10 gap-4">
 
-            <div className="bg-white p-6 rounded-xl shadow">
-              No Resolved Services
-            </div>
+          <button
+            disabled={currentPage === 1}
+            onClick={() => setCurrentPage((p) => p - 1)}
+            className="px-4 py-2 bg-gray-300 rounded disabled:opacity-50"
+          >
+            Prev
+          </button>
 
-          ) : (
+          <div className="text-gray-700 font-medium">
+            Page {currentPage} of {totalPages}
+          </div>
 
-            resolvedServices.map((s) => (
-
-              <div
-                key={s.id || s._id}
-                className="bg-green-50 p-6 rounded-2xl shadow"
-              >
-
-                <div className="flex justify-between mb-4">
-
-                  <div>
-                    <h3 className="text-2xl font-bold">
-                      {s.service}
-                    </h3>
-
-                    <p className="text-gray-500">
-                      Date: {s.date}
-                    </p>
-                  </div>
-
-                  <span className="bg-green-100 text-green-700 px-4 py-2 rounded-full text-sm">
-                    Resolved
-                  </span>
-
-                </div>
-
-                <p><strong>Address:</strong> {s.address}</p>
-
-                <p>
-                  <strong>Completed By:</strong>{" "}
-                  {s.assignedStaffName}
-                </p>
-
-                {s.mapLocation && (
-                  <a
-                    href={s.mapLocation}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="text-green-600 underline block mb-3"
-                  >
-                    Open Map Location
-                  </a>
-                )}
-
-                {s.progressNote && (
-                  <div className="bg-white p-4 rounded-lg mt-5">
-                    <strong>Staff Note:</strong>
-                    <p className="mt-2 text-gray-700">
-                      {s.progressNote}
-                    </p>
-                  </div>
-                )}
-
-                {s.proofImage && (
-                  <a
-                    href={s.proofImage}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="text-blue-600 underline block mt-4"
-                  >
-                    View Proof
-                  </a>
-                )}
-
-              </div>
-            ))
-          )}
+          <button
+            disabled={currentPage === totalPages}
+            onClick={() => setCurrentPage((p) => p + 1)}
+            className="px-4 py-2 bg-blue-600 text-white rounded disabled:opacity-50"
+          >
+            Next
+          </button>
 
         </div>
 
       </div>
-
     </div>
   );
 }

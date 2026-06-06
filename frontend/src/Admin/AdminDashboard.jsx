@@ -1,9 +1,6 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import API from "../services/api";
 import AdminSidebar from "./components/AdminSidebar";
-import {
-  Bell,
-  Settings
-} from "lucide-react";
 
 import {
   LineChart,
@@ -18,273 +15,253 @@ import {
 
 export default function AdminDashboard() {
 
-  const chartData = [
-    { day: "Mon", value: 20 },
-    { day: "Tue", value: 15 },
-    { day: "Wed", value: 45 },
-    { day: "Thu", value: 60 },
-    { day: "Fri", value: 25 },
-    { day: "Sat", value: 80 },
-    { day: "Sun", value: 55 }
-  ];
+  
+  const [complaintStats, setComplaintStats] = useState({});
+  const [complaintPie, setComplaintPie] = useState([]);
+  const [complaintLine, setComplaintLine] = useState([]);
 
-  const pieData = [
-    { name: "Waste Mgmt", value: 40 },
-    { name: "Public Safety", value: 25 },
-    { name: "Health", value: 15 },
-    { name: "Utilities", value: 20 }
-  ];
+  
+  const [serviceStats, setServiceStats] = useState({});
+  const [servicePie, setServicePie] = useState([]);
+  const [serviceLine, setServiceLine] = useState([]);
 
-  const COLORS = ["#2563eb", "#f97316", "#8b5cf6", "#10b981"];
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  const loadData = async () => {
+    try {
+
+     
+      const s = await API.get("/analytics/stats");
+      const d = await API.get("/analytics/department");
+      const m = await API.get("/analytics/monthly");
+
+      setComplaintStats(s.data);
+
+      setComplaintPie(
+        Object.entries(d.data).map(([k, v]) => ({
+          name: k,
+          value: v
+        }))
+      );
+
+      setComplaintLine(
+        Object.entries(m.data).map(([k, v]) => ({
+          name: k,
+          value: v
+        }))
+      );
+
+   
+      const ss = await API.get("/analytics/service-stats");
+      const sd = await API.get("/analytics/service-department");
+      const sm = await API.get("/analytics/service-monthly");
+
+      setServiceStats(ss.data);
+
+      setServicePie(
+        Object.entries(sd.data).map(([k, v]) => ({
+          name: k,
+          value: v
+        }))
+      );
+
+      setServiceLine(
+        Object.entries(sm.data).map(([k, v]) => ({
+          name: k,
+          value: v
+        }))
+      );
+
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+ 
+  const COLORS = [
+    "#3B82F6",
+    "#22C55E",
+    "#F59E0B",
+    "#EF4444",
+    "#8B5CF6",
+    "#14B8A6",
+    "#F97316",
+    "#EC4899"
+  ];
 
   return (
     <div className="flex h-screen bg-gray-100">
+
       <AdminSidebar />
 
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 p-6 space-y-6 overflow-auto">
 
-        {/* Top Navbar */}
-        <div className="bg-white border-b p-4 flex justify-between items-center">
+    
+        <h1 className="text-2xl font-bold">
+          Admin Dashboard
+        </h1>
 
-          <input
-            className="bg-gray-100 px-4 py-2 rounded w-96 outline-none"
-            placeholder="Search for reports, citizens, or tickets..."
-          />
+        <div className="grid grid-cols-4 gap-4">
 
-          <div className="flex gap-4 items-center">
-            <Bell />
-            <Settings />
-
-            <button className="bg-blue-600 text-white px-4 py-2 rounded">
-              + Create New Alert
-            </button>
-          </div>
+          <Card title="Complaints" value={complaintStats.total} />
+          <Card title="Resolved Complaints" value={complaintStats.resolved} />
+          <Card title="Services" value={serviceStats.total} />
+          <Card title="Resolved Services" value={serviceStats.resolved} />
 
         </div>
 
-        <div className="p-6 space-y-6">
-
-         
-          <div>
-            <h2 className="text-2xl font-bold">
-              Admin Dashboard Overview
-            </h2>
-
-            <p className="text-gray-500">
-              Monday, 23 March 2026
-            </p>
-          </div>
-
-         
-          <div className="grid grid-cols-4 gap-4">
-
-            <Card
-              title="Total Complaints"
-              value="1,284"
-              change="+12%"
-            />
-
-            <Card
-              title="Active Requests"
-              value="456"
-              change="-5%"
-            />
-
-            <Card
-              title="City Alerts"
-              value="12"
-              change="+2%"
-            />
-
-            <Card
-              title="Avg. Resolution Time"
-              value="2.4 Days"
-              change="-10%"
-            />
-
-          </div>
+      
+        <div className="grid grid-cols-2 gap-6">
 
         
-          <div className="grid grid-cols-3 gap-6">
+          <ChartBox title="Complaint Distribution">
 
-            <div className="col-span-2 bg-white p-6 rounded-xl shadow-sm">
-
-              <h3 className="font-semibold mb-4">
-                Complaint Trends
-              </h3>
-
-              <ResponsiveContainer width="100%" height={250}>
-                <LineChart data={chartData}>
-                  <XAxis dataKey="day" />
-                  <Tooltip />
-
-                  <Line
-                    type="monotone"
-                    dataKey="value"
-                    stroke="#2563eb"
-                    strokeWidth={3}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-
-            </div>
-
-          
-            <div className="bg-white p-6 rounded-xl shadow-sm">
-
-              <h3 className="font-semibold mb-4">
-                Service Distribution
-              </h3>
-
-              <ResponsiveContainer width="100%" height={250}>
-                <PieChart>
-
-                  <Pie
-                    data={pieData}
-                    innerRadius={60}
-                    outerRadius={90}
-                    dataKey="value"
-                    paddingAngle={3}
-                  >
-                    {pieData.map((entry, index) => (
-                      <Cell
-                        key={index}
-                        fill={COLORS[index]}
-                      />
-                    ))}
-                  </Pie>
-
-                  <Tooltip />
-
-                </PieChart>
-              </ResponsiveContainer>
-
-             
-              <div className="mt-4 space-y-3">
-
-                {pieData.map((item, index) => (
-                  <div
+            <PieChart width={350} height={280}>
+              <Pie
+                data={complaintPie}
+                dataKey="value"
+                nameKey="name"
+                cx="50%"
+                cy="50%"
+                outerRadius={110}
+                innerRadius={60}
+                paddingAngle={5}
+                stroke="none"
+              >
+                {complaintPie.map((_, index) => (
+                  <Cell
                     key={index}
-                    className="flex items-center justify-between"
-                  >
-
-                    <div className="flex items-center gap-3">
-
-                      <div
-                        className="w-4 h-4 rounded-full"
-                        style={{
-                          backgroundColor: COLORS[index]
-                        }}
-                      ></div>
-
-                      <span className="text-sm text-gray-700">
-                        {item.name}
-                      </span>
-
-                    </div>
-
-                    <span className="text-sm font-medium text-gray-500">
-                      {item.value}%
-                    </span>
-
-                  </div>
+                    fill={COLORS[index % COLORS.length]}
+                  />
                 ))}
+              </Pie>
 
-              </div>
+              <Tooltip />
+            </PieChart>
 
-            </div>
+            <LegendList data={complaintPie} colors={COLORS} />
 
-          </div>
+          </ChartBox>
 
-         
-          <div className="bg-white rounded-xl shadow-sm p-6">
+       
+          <ChartBox title="Service Distribution">
 
-            <h3 className="font-semibold mb-4">
-              Recent Activities & Urgent Tasks
-            </h3>
+            <PieChart width={350} height={280}>
+              <Pie
+                data={servicePie}
+                dataKey="value"
+                nameKey="name"
+                cx="50%"
+                cy="50%"
+                outerRadius={110}
+                innerRadius={60}
+                paddingAngle={5}
+                stroke="none"
+              >
+                {servicePie.map((_, index) => (
+                  <Cell
+                    key={index}
+                    fill={COLORS[index % COLORS.length]}
+                  />
+                ))}
+              </Pie>
 
-            <table className="w-full text-left">
+              <Tooltip />
+            </PieChart>
 
-              <thead className="text-gray-500 text-sm">
+            <LegendList data={servicePie} colors={COLORS} />
 
-                <tr>
-                  <th className="py-2">Citizen</th>
-                  <th>Issue Description</th>
-                  <th>Category</th>
-                  <th>Priority</th>
-                  <th>Status</th>
-                </tr>
+          </ChartBox>
 
-              </thead>
+        </div>
 
-              <tbody>
+        <div className="grid grid-cols-2 gap-6">
 
-                <tr className="border-t">
+          <ChartBox title="Complaint Trends">
 
-                  <td className="py-3">
-                    Sarah Miller
-                  </td>
+            <ResponsiveContainer width="100%" height={250}>
+              <LineChart data={complaintLine}>
+                <XAxis dataKey="name" />
+                <Tooltip />
+                <Line dataKey="value" stroke="#3B82F6" strokeWidth={3} />
+              </LineChart>
+            </ResponsiveContainer>
 
-                  <td>
-                    Main water pipe burst in Sector 4B
-                  </td>
+          </ChartBox>
 
-                  <td>
-                    Utilities
-                  </td>
+          <ChartBox title="Service Trends">
 
-                  <td className="text-red-500 font-semibold">
-                    Critical
-                  </td>
+            <ResponsiveContainer width="100%" height={250}>
+              <LineChart data={serviceLine}>
+                <XAxis dataKey="name" />
+                <Tooltip />
+                <Line dataKey="value" stroke="#22C55E" strokeWidth={3} />
+              </LineChart>
+            </ResponsiveContainer>
 
-                  <td className="text-orange-500 font-semibold">
-                    Pending
-                  </td>
-
-                </tr>
-
-              </tbody>
-
-            </table>
-
-          </div>
+          </ChartBox>
 
         </div>
 
       </div>
-
     </div>
   );
 }
 
-function Card({ title, value, change }) {
 
-  const positive = change.includes("+");
-
+function Card({ title, value }) {
   return (
-    <div className="bg-white p-5 rounded-xl shadow-sm">
+    <div className="bg-white p-4 rounded shadow">
+      <p className="text-gray-500">{title}</p>
+      <h2 className="text-2xl font-bold">{value || 0}</h2>
+    </div>
+  );
+}
 
-      <p className="text-gray-500">
-        {title}
-      </p>
 
-      <div className="flex justify-between items-center mt-2">
+function ChartBox({ title, children }) {
+  return (
+    <div className="bg-white p-4 rounded shadow">
+      <h3 className="font-bold mb-3">{title}</h3>
+      {children}
+    </div>
+  );
+}
 
-        <h2 className="text-2xl font-bold">
-          {value}
-        </h2>
 
-        <span
-          className={
-            positive
-              ? "text-green-500 font-semibold"
-              : "text-red-500 font-semibold"
-          }
+function LegendList({ data, colors }) {
+  return (
+    <div className="mt-4 grid grid-cols-2 gap-2 text-sm">
+
+      {data.map((item, index) => (
+        <div
+          key={index}
+          className="flex items-center justify-between"
         >
-          {change}
-        </span>
 
-      </div>
+          <div className="flex items-center gap-2">
+
+            <div
+              className="w-3 h-3 rounded-full"
+              style={{
+                backgroundColor: colors[index % colors.length]
+              }}
+            />
+
+            <span className="text-gray-700">
+              {item.name}
+            </span>
+
+          </div>
+
+          <span className="font-semibold text-gray-500">
+            {item.value}
+          </span>
+
+        </div>
+      ))}
 
     </div>
   );

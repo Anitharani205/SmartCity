@@ -1,13 +1,16 @@
 package com.example.backend.service;
+
 import com.example.backend.entity.User;
-import com.example.backend.repository.UserRepository;
 import com.example.backend.entity.Complaint;
 import com.example.backend.entity.NotificationLog;
+
 import com.example.backend.repository.ComplaintRepository;
 import com.example.backend.repository.NotificationRepository;
+import com.example.backend.repository.UserRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import com.example.backend.service.AuditLogService;
 
 import java.util.List;
 
@@ -19,121 +22,149 @@ public class ComplaintService {
 
     @Autowired
     private NotificationRepository notificationRepo;
+
     @Autowired
-private UserRepository userRepo;
+    private UserRepository userRepo;
+
+    @Autowired
+private AuditLogService auditLogService;
 
     public List<Complaint> getAll() {
         return repo.findAll();
     }
 
     public Complaint save(Complaint c) {
-        return repo.save(c);
-    }
+
+    Complaint saved = repo.save(c);
+
+    auditLogService.saveLog(
+            "Citizen",
+            "CREATE_COMPLAINT",
+            saved.getTitle(),
+            "Complaint created"
+    );
+
+    return saved;
+}
+
     public void deleteComplaint(String id) {
 
-    Complaint c = repo.findById(id)
-            .orElseThrow(() -> new RuntimeException("Complaint not found"));
+        Complaint c = repo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Complaint not found"));
 
-    if (!"Resolved".equals(c.getStatus())) {
-        throw new RuntimeException("Only resolved complaints can be deleted");
+        if (!"Resolved".equals(c.getStatus())) {
+            throw new RuntimeException("Only resolved complaints can be deleted");
+        }
+
+        repo.deleteById(id);
+        auditLogService.saveLog(
+        "Admin",
+        "DELETE_COMPLAINT",
+        c.getTitle(),
+        "Resolved complaint deleted"
+);
     }
-
-    repo.deleteById(id);
-}
 
     public List<Complaint> getByStaff(String email) {
         return repo.findByAssignedStaffEmail(email);
     }
+
     public List<Complaint> getCitizenComplaints(String citizen) {
-    return repo.findByCitizen(citizen);
-}
-   
-   public Complaint assignTask(String id, Complaint req) {
+        return repo.findByCitizen(citizen);
+    }
+    
 
-    Complaint c = repo.findById(id).orElseThrow();
+    public Complaint assignTask(String id, Complaint req) {
 
-    c.setAssignedStaffName(req.getAssignedStaffName());
-    c.setAssignedStaffEmail(req.getAssignedStaffEmail());
-    c.setStatus("Assigned");
+        Complaint c = repo.findById(id).orElseThrow();
 
-    User staff =
-            userRepo.findByEmail(
-                    req.getAssignedStaffEmail()
-            );
+        c.setAssignedStaffName(req.getAssignedStaffName());
+        c.setAssignedStaffEmail(req.getAssignedStaffEmail());
+        c.setStatus("Assigned");
 
-    if (staff != null) {
+        User staff = userRepo.findByEmail(req.getAssignedStaffEmail());
 
-        Integer tasks =
-                staff.getActiveTasks() == null
-                        ? 0
-                        : staff.getActiveTasks();
+        if (staff != null) {
+            Integer tasks = staff.getActiveTasks() == null ? 0 : staff.getActiveTasks();
+            staff.setActiveTasks(tasks + 1);
+            userRepo.save(staff);
+        }
 
-        staff.setActiveTasks(tasks + 1);
+       Complaint updated = repo.save(c);
 
-        userRepo.save(staff);
+auditLogService.saveLog(
+        "Admin",
+        "ASSIGN_COMPLAINT",
+        c.getTitle(),
+        "Assigned to " + c.getAssignedStaffName()
+);
+
+return updated;
     }
 
-    return repo.save(c);
-}
     public Complaint acceptTask(String id, Complaint req) {
+
         Complaint c = repo.findById(id).orElseThrow();
 
         c.setStatus("Accepted");
         c.setAssignedStaffEmail(req.getAssignedStaffEmail());
 
-        return repo.save(c);
+        Complaint updated = repo.save(c);
+
+auditLogService.saveLog(
+        c.getAssignedStaffName(),
+        "ACCEPT_TASK",
+        c.getTitle(),
+        "Task accepted"
+);
+
+return updated;
     }
 
-    
+   
     public Complaint updateStatus(String id, Complaint req) {
 
     Complaint c = repo.findById(id).orElseThrow();
 
+    // update fields
     c.setStatus(req.getStatus());
     c.setProgressNote(req.getProgressNote());
     c.setProofImage(req.getProofImage());
 
     Complaint updated = repo.save(c);
 
-    if ("Resolved".equals(req.getStatus())) {
+    // log
+    auditLogService.saveLog(
+        c.getAssignedStaffName(),
+        "UPDATE_STATUS",
+        c.getTitle(),
+        "Status changed to " + c.getStatus()
+    );
 
-        User staff =
-                userRepo.findByEmail(
-                        c.getAssignedStaffEmail()
-                );
+    // ================= ADMIN NOTIFICATION =================
+    NotificationLog admin = new NotificationLog();
+    admin.setMessage(
+        "Complaint '" + c.getTitle() +
+        "' updated by staff. Status: " + c.getStatus()
+    );
+    admin.setRole("ADMIN");
+    admin.setCreatedAt(java.time.LocalDateTime.now().toString());
+    admin.setProofImage(req.getProofImage());
 
-        if (staff != null) {
+    notificationRepo.save(admin);
 
-            Integer tasks =
-                    staff.getActiveTasks() == null
-                            ? 0
-                            : staff.getActiveTasks();
+    // ================= CITIZEN NOTIFICATION =================
+    NotificationLog citizen = new NotificationLog();
+    citizen.setMessage(
+        "Your complaint '" + c.getTitle() +
+        "' status updated to " + c.getStatus()
+    );
+    citizen.setRole("CITIZEN");
+    citizen.setCitizenEmail(c.getCitizen());
+    citizen.setCreatedAt(java.time.LocalDateTime.now().toString());
+    citizen.setProofImage(req.getProofImage());
 
-            staff.setActiveTasks(
-                    Math.max(0, tasks - 1)
-            );
-
-            userRepo.save(staff);
-        }
-
-        NotificationLog n = new NotificationLog();
-
-        n.setMessage(
-                "Complaint '" +
-                c.getTitle() +
-                "' resolved by " +
-                c.getAssignedStaffName()
-        );
-
-        n.setRole("ADMIN");
-
-        n.setCreatedAt(
-                java.time.LocalDateTime.now()
-                        .toString()
-        );
-
-        notificationRepo.save(n);
-    }
+    notificationRepo.save(citizen);
 
     return updated;
 }

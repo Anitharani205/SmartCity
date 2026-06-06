@@ -53,7 +53,7 @@ Aadhaar aadhaar = aadhaarRepo
                     .body(Map.of("message", "Email Already Exists"));
         }
 
-        // role based on email
+        
         String email = user.getEmail();
 
       if (email.endsWith("@citizen.com")) {
@@ -64,7 +64,7 @@ Aadhaar aadhaar = aadhaarRepo
 
     user.setRole(Role.MUNICIPAL);
 
-    // assign later from Admin page
+    
     user.setDepartment(null);
 
     user.setActiveTasks(0);
@@ -101,7 +101,7 @@ return ResponseEntity.ok(
 );
 }
 
-    // LOGIN
+  
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest req) {
 

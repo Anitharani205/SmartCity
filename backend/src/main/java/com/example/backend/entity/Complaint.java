@@ -1,5 +1,5 @@
 package com.example.backend.entity;
-
+import java.time.LocalDateTime;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -29,7 +29,8 @@ public class Complaint {
     private String progressNote;
     private String proofImage;
 
-    
+    private LocalDateTime createdAt = LocalDateTime.now();
+   
 
     public String getId() {
         return id;
@@ -138,4 +139,12 @@ public class Complaint {
     public void setProofImage(String proofImage) {
         this.proofImage = proofImage;
     }
+    public LocalDateTime getCreatedAt() {
+    return createdAt;
+}
+
+public void setCreatedAt(LocalDateTime createdAt) {
+    this.createdAt = createdAt;
+}
+
 }

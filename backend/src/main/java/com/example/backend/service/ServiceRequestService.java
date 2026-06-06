@@ -15,28 +15,38 @@ public class ServiceRequestService {
 
     @Autowired
     private ServiceRepository repo;
-
+    
+    @Autowired
+private AuditLogService auditLogService;
     @Autowired
     private NotificationRepository notificationRepo;
 
-  
     public List<ServiceRequest> getAll() {
         return repo.findAll();
     }
 
-  
     public ServiceRequest save(ServiceRequest s) {
-        return repo.save(s);
-    }
 
-   
+    ServiceRequest saved = repo.save(s);
+
+    auditLogService.saveLog(
+            "Citizen",
+            "CREATE_SERVICE",
+            saved.getService(),
+            "Service request created"
+    );
+
+    return saved;
+}
+
     public List<ServiceRequest> getByStaff(String email) {
         return repo.findByAssignedStaffEmail(email);
     }
 
     public List<ServiceRequest> getCitizenServices(String citizen) {
-    return repo.findByCitizen(citizen);
-}
+        return repo.findByCitizen(citizen);
+    }
+
     public ServiceRequest assign(String id, ServiceRequest req) {
 
         ServiceRequest s = repo.findById(id)
@@ -47,10 +57,18 @@ public class ServiceRequestService {
         s.setAssignedStaffEmail(req.getAssignedStaffEmail());
         s.setStatus("Assigned");
 
-        return repo.save(s);
+       ServiceRequest updated = repo.save(s);
+
+auditLogService.saveLog(
+        "Admin",
+        "ASSIGN_SERVICE",
+        s.getService(),
+        "Assigned to " + s.getAssignedStaffName()
+);
+
+return updated;
     }
 
-   
     public ServiceRequest update(String id, ServiceRequest req) {
 
         ServiceRequest s = repo.findById(id)
@@ -70,26 +88,43 @@ public class ServiceRequestService {
         }
 
         ServiceRequest updated = repo.save(s);
+        auditLogService.saveLog(
+        s.getAssignedStaffName(),
+        "UPDATE_SERVICE_STATUS",
+        s.getService(),
+        "Status changed to " + s.getStatus()
+);
 
         
-        if ("Resolved".equalsIgnoreCase(s.getStatus())) {
+     if ("Resolved".equalsIgnoreCase(s.getStatus())) {
 
-            NotificationLog n = new NotificationLog();
+    NotificationLog admin = new NotificationLog();
+    admin.setMessage(
+        "Service '" + s.getService() +
+        "' completed by " + s.getAssignedStaffName()
+    );
+    admin.setRole("ADMIN");
+    admin.setCreatedAt(java.time.LocalDateTime.now().toString());
 
-            n.setMessage(
-                    "Service '" + s.getService()
-                            + "' completed by "
-                            + s.getAssignedStaffName()
-            );
+    // ✅ PROOF IMAGE
+    admin.setProofImage(req.getProofImage());
 
-            n.setRole("ADMIN");
+    notificationRepo.save(admin);
 
-            n.setCreatedAt(
-                    java.time.LocalDateTime.now().toString()
-            );
+    NotificationLog citizen = new NotificationLog();
+    citizen.setMessage(
+        "Your service request '" + s.getService() +
+        "' has been completed successfully"
+    );
+    citizen.setRole("CITIZEN");
+    citizen.setCitizenEmail(s.getCitizen());
+    citizen.setCreatedAt(java.time.LocalDateTime.now().toString());
 
-            notificationRepo.save(n);
-        }
+    // ✅ PROOF IMAGE
+    citizen.setProofImage(req.getProofImage());
+
+    notificationRepo.save(citizen);
+}
 
         return updated;
     }

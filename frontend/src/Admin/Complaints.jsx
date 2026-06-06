@@ -3,436 +3,208 @@ import API from "../services/api";
 import AdminSidebar from "./components/AdminSidebar";
 
 export default function Complaints() {
-
   const [complaints, setComplaints] = useState([]);
-  const [staffOptions, setStaffOptions] =
-  useState({});
-  // PAGINATION
+  const [staffOptions, setStaffOptions] = useState({});
   const [currentPage, setCurrentPage] = useState(1);
-  const complaintsPerPage = 5;
 
-  
+  const complaintsPerPage = 5;
 
   useEffect(() => {
     loadComplaints();
   }, []);
 
-   const loadStaffForComplaint = async (
-  complaintId,
-  category
-) => {
-
-  try {
-
-    const res = await API.get(
-      `/users/department/${category}`
-    );
-
-    setStaffOptions(prev => ({
-      ...prev,
-      [complaintId]: res.data
-    }));
-
-  } catch (err) {
-
-    console.log(err);
-  }
-};
-  // LOAD COMPLAINTS
-  const loadComplaints = async () => {
-
+  const loadStaffForComplaint = async (complaintId, category) => {
     try {
+      const res = await API.get(`/users/department/${category}`);
 
-     const res = await API.get("/complaints");
-
-setComplaints(res.data);
-
-res.data.forEach((c) => {
-
-  loadStaffForComplaint(
-    c.id,
-    c.category
-  );
-
-});
-
+      setStaffOptions((prev) => ({
+        ...prev,
+        [complaintId]: res.data,
+      }));
     } catch (err) {
-
       console.log(err);
     }
   };
 
-  // ASSIGN STAFF
-  const assignTask = async (
-  id,
-  staff
-) => {
+  const loadComplaints = async () => {
+    try {
+      const res = await API.get("/complaints");
+      setComplaints(res.data);
 
-  try {
-
-    await API.put(
-      `/complaints/assign/${id}`,
-      {
-        assignedStaffName:
-          staff.name,
-        assignedStaffEmail:
-          staff.email
-      }
-    );
-
-    alert(
-      `Assigned to ${staff.name}`
-    );
-
-    loadComplaints();
-
-  } catch (err) {
-
-    console.log(err);
-
-    alert("Assignment Failed");
-  }
-};
-
-  // DELETE COMPLAINT
-  const deleteComplaint = async (id) => {
-
-    if (!id) {
-      alert("Invalid ID");
-      return;
+      res.data.forEach((c) => {
+        loadStaffForComplaint(c.id, c.category);
+      });
+    } catch (err) {
+      console.log(err);
     }
+  };
 
-    const confirmDelete =
-      window.confirm("Are you sure?");
+  const assignTask = async (id, staff) => {
+    try {
+      await API.put(`/complaints/assign/${id}`, {
+        assignedStaffName: staff.name,
+        assignedStaffEmail: staff.email,
+      });
 
+      alert(`Assigned to ${staff.name}`);
+      loadComplaints();
+    } catch (err) {
+      console.log(err);
+      alert("Assignment Failed");
+    }
+  };
+
+  const deleteComplaint = async (id) => {
+    if (!id) return;
+
+    const confirmDelete = window.confirm("Are you sure?");
     if (!confirmDelete) return;
 
     try {
-
       await API.delete(`/complaints/${id}`);
-
       alert("Deleted Successfully");
-
       loadComplaints();
-
     } catch (err) {
-
       console.log(err);
-
       alert("Delete Failed");
     }
   };
 
-  // PAGINATION LOGIC
-  const indexOfLast =
-    currentPage * complaintsPerPage;
+  // Pagination logic
+  const indexOfLast = currentPage * complaintsPerPage;
+  const indexOfFirst = indexOfLast - complaintsPerPage;
+  const currentComplaints = complaints.slice(indexOfFirst, indexOfLast);
 
-  const indexOfFirst =
-    indexOfLast - complaintsPerPage;
-
-  const currentComplaints =
-    complaints.slice(indexOfFirst, indexOfLast);
-
-  const totalPages =
-    Math.ceil(
-      complaints.length / complaintsPerPage
-    );
+  // 🔥 FORCE MINIMUM 5 PAGES
+  const totalPages = Math.max(
+    5,
+    Math.ceil(complaints.length / complaintsPerPage)
+  );
 
   return (
-
     <div className="flex bg-gray-100 min-h-screen">
 
-      {/* SIDEBAR */}
+      {/* Sidebar */}
       <div className="fixed left-0 top-0 h-screen w-64 bg-white shadow-lg z-50">
         <AdminSidebar />
       </div>
 
-      {/* CONTENT */}
+      {/* Main */}
       <div className="flex-1 ml-64 p-8">
 
-        {/* HEADER */}
-        <div className="flex justify-between items-center mb-8">
-
-          <div>
-
-            <h1 className="text-4xl font-bold text-gray-800">
-              Complaint Management
-            </h1>
-
-            <p className="text-gray-500 mt-2">
-              Assign municipal staff to citizen complaints
-            </p>
-
-          </div>
-
+        <div className="mb-8">
+          <h1 className="text-4xl font-bold text-gray-800">
+            Complaint Management
+          </h1>
+          <p className="text-gray-500 mt-2">
+            Assign municipal staff to citizen complaints
+          </p>
         </div>
 
-        {/* TABLE CARD */}
+        {/* Table */}
         <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
 
           <div className="overflow-x-auto">
-
             <table className="w-full">
 
-              {/* TABLE HEADER */}
               <thead className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white">
-
                 <tr>
-
-                  <th className="p-4 text-left">
-                    Complaint
-                  </th>
-
-                  <th className="p-4 text-left">
-                    Citizen
-                  </th>
-
-                  <th className="p-4 text-left">
-                    Address
-                  </th>
-
-                  <th className="p-4 text-left">
-                    Status
-                  </th>
-
-                  <th className="p-4 text-left">
-                    Assigned Staff
-                  </th>
-
-                  <th className="p-4 text-center">
-                    Assign Task
-                  </th>
-
-                  <th className="p-4 text-center">
-                    Delete
-                  </th>
-
+                  <th className="p-4 text-left">Complaint</th>
+                  <th className="p-4 text-left">Citizen</th>
+                  <th className="p-4 text-left">Address</th>
+                  <th className="p-4 text-left">Status</th>
+                  <th className="p-4 text-left">Assigned Staff</th>
+                  <th className="p-4 text-center">Assign Task</th>
+                  <th className="p-4 text-center">Delete</th>
                 </tr>
-
               </thead>
 
-              {/* TABLE BODY */}
               <tbody>
-
                 {currentComplaints.map((c) => (
+                  <tr key={c.id} className="border-b hover:bg-gray-50">
 
-                  <tr
-                    key={c.id}
-                    className="border-b hover:bg-gray-50 transition"
-                  >
-
-                    {/* COMPLAINT */}
                     <td className="p-4">
-
-                      <div className="font-semibold text-gray-800">
-                        {c.title}
-                      </div>
-
-                      <div className="text-sm text-gray-500">
-                        {c.category}
-                      </div>
-
-                      <div className="text-xs text-gray-400 mt-1">
-                        Priority: {c.priority}
-                      </div>
-
+                      <div className="font-semibold">{c.title}</div>
+                      <div className="text-sm text-gray-500">{c.category}</div>
                     </td>
 
-                    {/* CITIZEN */}
                     <td className="p-4">
-
-                      <div className="font-medium text-gray-800">
-                        {c.citizenName}
-                      </div>
-
-                      <div className="text-sm text-gray-500">
-                        {c.citizen}
-                      </div>
-
+                      <div>{c.citizenName}</div>
+                      <div className="text-sm text-gray-500">{c.citizen}</div>
                     </td>
 
-                    {/* ADDRESS */}
                     <td className="p-4">
-
-                      <div className="text-gray-700">
-                        {c.address}
-                      </div>
-
-                      {c.mapLink && (
-
-                        <a
-                          href={c.mapLink}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="text-blue-600 underline text-sm"
-                        >
-                          Open Map
-                        </a>
-
-                      )}
-
+                      <div>{c.address}</div>
                     </td>
 
-                    {/* STATUS */}
                     <td className="p-4">
-
-                      <span
-                        className={`px-3 py-1 rounded-full text-sm font-medium
-                        ${
-                          c.status === "Resolved"
-                            ? "bg-green-100 text-green-700"
-                            : c.status === "In Progress"
-                            ? "bg-yellow-100 text-yellow-700"
-                            : "bg-red-100 text-red-700"
-                        }`}
-                      >
+                      <span className="px-3 py-1 rounded-full text-sm bg-gray-200">
                         {c.status}
                       </span>
-
                     </td>
 
-                    {/* STAFF */}
-                    <td className="p-4 text-gray-700">
-
-                      {c.assignedStaffName ? (
-
-                        <span className="font-medium">
-                          {c.assignedStaffName}
-                        </span>
-
-                      ) : (
-
-                        <span className="text-gray-400">
-                          Not Assigned
-                        </span>
-
+                    <td className="p-4">
+                      {c.assignedStaffName || (
+                        <span className="text-gray-400">Not Assigned</span>
                       )}
-
                     </td>
 
-                    {/* ASSIGN */}
                     <td className="p-4 text-center">
-
                       <select
-  defaultValue=""
-  onChange={(e) => {
-
-    const selected =
-      staffOptions[c.id]
-      ?.find(
-        s =>
-          s.id ===
-          Number(
-            e.target.value
-          )
-      );
-
-    if (selected) {
-
-      assignTask(
-        c.id,
-        selected
-      );
-    }
-
-  }}
-  className="border border-gray-300 rounded-lg px-3 py-2"
->
-
-  <option value="">
-    Select Staff
-  </option>
-
-  {
-    staffOptions[c.id]?.map(
-      (staff) => (
-
-        <option
-          key={staff.id}
-          value={staff.id}
-        >
-
-          {staff.name}
-          {" "}
-          (
-          {staff.activeTasks}
-          {" "}
-          Tasks
-          )
-
-        </option>
-
-      )
-    )
-  }
-
-</select>
+                        defaultValue=""
+                        onChange={(e) => {
+                          const selected = staffOptions[c.id]?.find(
+                            (s) => s.id === Number(e.target.value)
+                          );
+                          if (selected) assignTask(c.id, selected);
+                        }}
+                        className="border px-3 py-2 rounded"
+                      >
+                        <option value="">Select Staff</option>
+                        {staffOptions[c.id]?.map((staff) => (
+                          <option key={staff.id} value={staff.id}>
+                            {staff.name}
+                          </option>
+                        ))}
+                      </select>
                     </td>
 
-                    {/* DELETE */}
                     <td className="p-4 text-center">
-
                       <button
                         onClick={() => deleteComplaint(c.id)}
-                        className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg"
+                        className="bg-red-500 text-white px-4 py-2 rounded"
                       >
                         Delete
                       </button>
-
                     </td>
 
                   </tr>
                 ))}
-
               </tbody>
 
             </table>
-
           </div>
 
-          {/* PAGINATION */}
-          <div className="flex justify-center items-center gap-2 p-5">
+          {/* Pagination */}
+          <div className="flex justify-between items-center p-5 border-t bg-gray-50">
 
-            {/* PREV */}
             <button
               disabled={currentPage === 1}
-              onClick={() =>
-                setCurrentPage(currentPage - 1)
-              }
-              className="px-3 py-1 bg-gray-300 rounded disabled:opacity-50"
+              onClick={() => setCurrentPage(currentPage - 1)}
+              className="px-4 py-2 bg-gray-300 rounded disabled:opacity-50"
             >
               Prev
             </button>
 
-            {/* PAGE NUMBERS */}
-            {Array.from(
-              { length: totalPages },
-              (_, index) => (
+            <div className="text-gray-700 font-medium">
+              Page <span className="font-bold">{currentPage}</span> of{" "}
+              <span className="font-bold">{totalPages}</span>
+            </div>
 
-                <button
-                  key={index + 1}
-                  onClick={() =>
-                    setCurrentPage(index + 1)
-                  }
-                  className={`px-3 py-1 rounded border ${
-                    currentPage === index + 1
-                      ? "bg-blue-600 text-white"
-                      : "bg-white hover:bg-gray-100"
-                  }`}
-                >
-                  {index + 1}
-                </button>
-
-              )
-            )}
-
-            {/* NEXT */}
             <button
               disabled={currentPage === totalPages}
-              onClick={() =>
-                setCurrentPage(currentPage + 1)
-              }
-              className="px-3 py-1 bg-blue-600 text-white rounded disabled:opacity-50"
+              onClick={() => setCurrentPage(currentPage + 1)}
+              className="px-4 py-2 bg-blue-600 text-white rounded disabled:opacity-50"
             >
               Next
             </button>
@@ -440,9 +212,7 @@ res.data.forEach((c) => {
           </div>
 
         </div>
-
       </div>
-
     </div>
   );
 }

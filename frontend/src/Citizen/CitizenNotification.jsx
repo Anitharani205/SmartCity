@@ -1,28 +1,30 @@
 import { useEffect, useState } from "react";
 import API from "../services/api";
-import AdminSidebar from "./components/AdminSidebar";
+import Sidebar from "./components/Sidebar";
 
-export default function AdminNotification() {
+export default function CitizenNotification() {
   const [notifications, setNotifications] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
 
   const notificationsPerPage = 5;
 
   useEffect(() => {
+    const email = localStorage.getItem("email");
+    console.log("Logged Citizen Email =", email);
     loadNotifications();
   }, []);
 
   const loadNotifications = async () => {
     try {
-      const res = await API.get("/notifications/admin");
+      const email = localStorage.getItem("email");
+      const res = await API.get(`/notifications/citizen/${email}`);
       setNotifications(res.data);
     } catch (err) {
-      console.log("Error loading notifications", err);
+      console.log("Notification Error", err);
     }
   };
 
-  const totalPages = 10;
-
+  // ================= PAGINATION =================
   const indexOfLast = currentPage * notificationsPerPage;
   const indexOfFirst = indexOfLast - notificationsPerPage;
 
@@ -31,44 +33,35 @@ export default function AdminNotification() {
     indexOfLast
   );
 
-  useEffect(() => {
-    if (currentPage > totalPages) {
-      setCurrentPage(1);
-    }
-  }, [currentPage, totalPages]);
+  const totalPages = Math.ceil(
+    notifications.length / notificationsPerPage
+  );
 
   return (
-    <div className="flex h-screen bg-gray-100">
+    <div className="flex bg-gray-100 min-h-screen">
 
-      {/* ✅ FIXED SIDEBAR (NO SCROLL) */}
-      <div className="w-64 h-screen fixed left-0 top-0 bg-white shadow-md">
-        <AdminSidebar />
-      </div>
+      <Sidebar />
 
-      {/* ✅ ONLY CONTENT SCROLLS */}
-      <div className="flex-1 ml-64 p-8 overflow-y-auto h-screen">
+      <div className="flex-1 ml-64 p-8">
 
         <h1 className="text-3xl font-bold mb-6">
-          Admin Notifications
+          Citizen Notifications
         </h1>
 
         {notifications.length === 0 ? (
-          <p className="text-gray-500">
+          <div className="bg-white p-6 rounded-xl shadow">
             No notifications yet
-          </p>
+          </div>
         ) : (
           <>
-            {/* Notifications List */}
             <div className="space-y-4">
 
               {currentNotifications.map((n) => (
                 <div
                   key={n.id}
-                  className="bg-white p-4 rounded-xl shadow border-l-4 border-blue-500"
+                  className="bg-white p-4 rounded-xl shadow border-l-4 border-green-500"
                 >
-                  <p className="text-gray-800 font-medium">
-                    {n.message}
-                  </p>
+                  <p className="font-medium">{n.message}</p>
 
                   {n.proofImage && (
                     <div className="mt-3">
@@ -85,15 +78,15 @@ export default function AdminNotification() {
                         href={n.proofImage}
                         target="_blank"
                         rel="noreferrer"
-                        className="text-blue-600 text-sm underline ml-2"
+                        className="text-green-600 text-sm underline ml-2"
                       >
-                        View Full Image
+                        View Proof
                       </a>
                     </div>
                   )}
 
                   <div className="flex justify-between mt-2 text-sm text-gray-500">
-                    <span>Role: {n.role}</span>
+                    <span>{n.role}</span>
                     <span>{n.createdAt}</span>
                   </div>
                 </div>
@@ -101,31 +94,30 @@ export default function AdminNotification() {
 
             </div>
 
-            {/* Pagination */}
-            <div className="flex justify-center gap-3 mt-6">
+            {/* ================= PAGINATION (NO NUMBERS) ================= */}
+            <div className="flex justify-end items-center mt-10 gap-4">
 
               <button
                 disabled={currentPage === 1}
-                onClick={() => setCurrentPage(currentPage - 1)}
-                className="bg-gray-300 px-4 py-2 rounded disabled:opacity-50"
+                onClick={() => setCurrentPage((p) => p - 1)}
+                className="px-4 py-2 bg-gray-300 rounded disabled:opacity-50"
               >
                 Prev
               </button>
 
-              <span className="font-semibold">
-                Page {currentPage} of {totalPages}
-              </span>
+              <div className="text-gray-700 font-medium">
+                Page {currentPage} of {totalPages || 1}
+              </div>
 
               <button
                 disabled={currentPage === totalPages}
-                onClick={() => setCurrentPage(currentPage + 1)}
-                className="bg-blue-600 text-white px-4 py-2 rounded disabled:opacity-50"
+                onClick={() => setCurrentPage((p) => p + 1)}
+                className="px-4 py-2 bg-green-600 text-white rounded disabled:opacity-50"
               >
                 Next
               </button>
 
             </div>
-
           </>
         )}
 
