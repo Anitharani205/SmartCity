@@ -34,6 +34,11 @@ function MunicipalSidebar() {
       icon: <ClipboardList size={18} />,
       path: "/task",
     },
+    {
+      name:"Notification",
+      icon:<ClipboardList size={18}/>,
+      path:"/staff-notification",
+    },
   ];
 
   const logout = () => {

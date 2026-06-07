@@ -10,4 +10,6 @@ public interface NotificationRepository extends MongoRepository<NotificationLog,
     List<NotificationLog> findByCitizenEmail(String citizenEmail);
 
     List<NotificationLog> findByRole(String role);
+    List<NotificationLog>
+findByStaffEmail(String staffEmail);
 }

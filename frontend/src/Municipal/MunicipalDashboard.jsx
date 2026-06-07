@@ -33,7 +33,6 @@ export default function MunicipalDashboard() {
     }
   };
 
-  
   const pieData = [
     { name: "Complaints", value: complaints.length },
     { name: "Services", value: services.length },
@@ -41,17 +40,22 @@ export default function MunicipalDashboard() {
 
   const COLORS = ["#ef4444", "#3b82f6"];
 
-  
   const getBadge = (status) => {
     const base = "px-2 py-1 text-xs rounded-full font-medium";
 
     switch (status) {
       case "Resolved":
         return base + " bg-green-100 text-green-600";
+      case "APPROVED":
+        return base + " bg-green-100 text-green-600";
+      case "Rejected":
+        return base + " bg-red-100 text-red-600";
       case "Pending":
         return base + " bg-yellow-100 text-yellow-700";
       case "In Progress":
         return base + " bg-blue-100 text-blue-600";
+      case "Assigned":
+        return base + " bg-purple-100 text-purple-600";
       default:
         return base + " bg-gray-100 text-gray-600";
     }
@@ -60,14 +64,12 @@ export default function MunicipalDashboard() {
   return (
     <div className="flex bg-gray-100 min-h-screen">
 
-      
       <div className="w-64 fixed h-full">
         <MunicipalSidebar />
       </div>
 
       <div className="ml-64 p-6 w-full space-y-6">
 
-      
         <div>
           <h1 className="text-2xl font-bold">
             Municipal Staff Dashboard
@@ -78,31 +80,40 @@ export default function MunicipalDashboard() {
           </p>
         </div>
 
-      
+        {/* ================= STATS ================= */}
         <div className="grid grid-cols-4 gap-4">
 
           <StatCard title="Complaints" value={complaints.length} />
           <StatCard title="Services" value={services.length} />
+{/* Pending */}
+<StatCard
+  title="Pending"
+  value={
+    complaints.filter(
+  c => c.status?.toLowerCase() !== "closed" && c.status !== "APPROVED"
+).length +
+services.filter(
+  s => s.status?.toLowerCase() !== "closed" && s.status !== "APPROVED"
+).length
+  }
+/>
 
-          <StatCard
-            title="Pending"
-            value={
-              complaints.filter(c => c.status === "Pending").length +
-              services.filter(s => s.status === "Pending").length
-            }
-          />
-
-          <StatCard
-            title="Resolved"
-            value={
-              complaints.filter(c => c.status === "Resolved").length +
-              services.filter(s => s.status === "Resolved").length
-            }
-          />
+{/* Resolved */}
+<StatCard
+  title="Resolved"
+  value={
+   complaints.filter(
+  c => c.status?.toLowerCase() === "closed" || c.status === "APPROVED"
+).length +
+services.filter(
+  s => s.status?.toLowerCase() === "closed" || s.status === "APPROVED"
+).length
+  }
+/>
 
         </div>
 
-       
+        {/* ================= PIE CHART ================= */}
         <div className="bg-white p-6 rounded-2xl shadow">
 
           <h2 className="font-semibold text-lg mb-4">
@@ -134,7 +145,6 @@ export default function MunicipalDashboard() {
             </PieChart>
           </ResponsiveContainer>
 
-          
           <div className="flex justify-center gap-8 mt-4">
 
             {pieData.map((d, i) => (
@@ -160,10 +170,10 @@ export default function MunicipalDashboard() {
 
         </div>
 
-        
+        {/* ================= TABLES ================= */}
         <div className="grid grid-cols-2 gap-6">
 
-        
+          {/* Complaints */}
           <div className="bg-white p-5 rounded-2xl shadow">
 
             <h2 className="font-semibold mb-4 text-lg">
@@ -201,7 +211,7 @@ export default function MunicipalDashboard() {
 
           </div>
 
-          
+          {/* Services */}
           <div className="bg-white p-5 rounded-2xl shadow">
 
             <h2 className="font-semibold mb-4 text-lg">
@@ -245,7 +255,6 @@ export default function MunicipalDashboard() {
     </div>
   );
 }
-
 
 function StatCard({ title, value }) {
   return (

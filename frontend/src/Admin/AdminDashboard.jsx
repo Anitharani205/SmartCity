@@ -14,13 +14,10 @@ import {
 } from "recharts";
 
 export default function AdminDashboard() {
-
-  
   const [complaintStats, setComplaintStats] = useState({});
   const [complaintPie, setComplaintPie] = useState([]);
   const [complaintLine, setComplaintLine] = useState([]);
 
-  
   const [serviceStats, setServiceStats] = useState({});
   const [servicePie, setServicePie] = useState([]);
   const [serviceLine, setServiceLine] = useState([]);
@@ -31,13 +28,16 @@ export default function AdminDashboard() {
 
   const loadData = async () => {
     try {
-
-     
       const s = await API.get("/analytics/stats");
       const d = await API.get("/analytics/department");
       const m = await API.get("/analytics/monthly");
 
+      const ss = await API.get("/analytics/service-stats");
+      const sd = await API.get("/analytics/service-department");
+      const sm = await API.get("/analytics/service-monthly");
+
       setComplaintStats(s.data);
+      setServiceStats(ss.data);
 
       setComplaintPie(
         Object.entries(d.data).map(([k, v]) => ({
@@ -53,13 +53,6 @@ export default function AdminDashboard() {
         }))
       );
 
-   
-      const ss = await API.get("/analytics/service-stats");
-      const sd = await API.get("/analytics/service-department");
-      const sm = await API.get("/analytics/service-monthly");
-
-      setServiceStats(ss.data);
-
       setServicePie(
         Object.entries(sd.data).map(([k, v]) => ({
           name: k,
@@ -73,13 +66,18 @@ export default function AdminDashboard() {
           value: v
         }))
       );
-
     } catch (err) {
       console.log(err);
     }
   };
 
- 
+  // ✅ FIX: safe numeric fallback (NO UI CHANGE)
+  const resolvedComplaints =
+    Number(complaintStats.closed || 0);
+
+  const resolvedServices =
+    Number(serviceStats.approved|| 0);
+
   const COLORS = [
     "#3B82F6",
     "#22C55E",
@@ -93,12 +91,10 @@ export default function AdminDashboard() {
 
   return (
     <div className="flex h-screen bg-gray-100">
-
       <AdminSidebar />
 
       <div className="flex-1 p-6 space-y-6 overflow-auto">
 
-    
         <h1 className="text-2xl font-bold">
           Admin Dashboard
         </h1>
@@ -106,18 +102,24 @@ export default function AdminDashboard() {
         <div className="grid grid-cols-4 gap-4">
 
           <Card title="Complaints" value={complaintStats.total} />
-          <Card title="Resolved Complaints" value={complaintStats.resolved} />
+
+          <Card
+            title="Resolved Complaints"
+            value={resolvedComplaints}
+          />
+
           <Card title="Services" value={serviceStats.total} />
-          <Card title="Resolved Services" value={serviceStats.resolved} />
+
+          <Card
+            title="Resolved Services"
+            value={resolvedServices}
+          />
 
         </div>
 
-      
         <div className="grid grid-cols-2 gap-6">
 
-        
           <ChartBox title="Complaint Distribution">
-
             <PieChart width={350} height={280}>
               <Pie
                 data={complaintPie}
@@ -137,17 +139,13 @@ export default function AdminDashboard() {
                   />
                 ))}
               </Pie>
-
               <Tooltip />
             </PieChart>
 
             <LegendList data={complaintPie} colors={COLORS} />
-
           </ChartBox>
 
-       
           <ChartBox title="Service Distribution">
-
             <PieChart width={350} height={280}>
               <Pie
                 data={servicePie}
@@ -167,12 +165,10 @@ export default function AdminDashboard() {
                   />
                 ))}
               </Pie>
-
               <Tooltip />
             </PieChart>
 
             <LegendList data={servicePie} colors={COLORS} />
-
           </ChartBox>
 
         </div>
@@ -180,7 +176,6 @@ export default function AdminDashboard() {
         <div className="grid grid-cols-2 gap-6">
 
           <ChartBox title="Complaint Trends">
-
             <ResponsiveContainer width="100%" height={250}>
               <LineChart data={complaintLine}>
                 <XAxis dataKey="name" />
@@ -188,11 +183,9 @@ export default function AdminDashboard() {
                 <Line dataKey="value" stroke="#3B82F6" strokeWidth={3} />
               </LineChart>
             </ResponsiveContainer>
-
           </ChartBox>
 
           <ChartBox title="Service Trends">
-
             <ResponsiveContainer width="100%" height={250}>
               <LineChart data={serviceLine}>
                 <XAxis dataKey="name" />
@@ -200,7 +193,6 @@ export default function AdminDashboard() {
                 <Line dataKey="value" stroke="#22C55E" strokeWidth={3} />
               </LineChart>
             </ResponsiveContainer>
-
           </ChartBox>
 
         </div>
@@ -210,7 +202,7 @@ export default function AdminDashboard() {
   );
 }
 
-
+/* ================= CARD ================= */
 function Card({ title, value }) {
   return (
     <div className="bg-white p-4 rounded shadow">
@@ -220,7 +212,7 @@ function Card({ title, value }) {
   );
 }
 
-
+/* ================= CHART BOX ================= */
 function ChartBox({ title, children }) {
   return (
     <div className="bg-white p-4 rounded shadow">
@@ -230,30 +222,20 @@ function ChartBox({ title, children }) {
   );
 }
 
-
+/* ================= LEGEND ================= */
 function LegendList({ data, colors }) {
   return (
     <div className="mt-4 grid grid-cols-2 gap-2 text-sm">
 
       {data.map((item, index) => (
-        <div
-          key={index}
-          className="flex items-center justify-between"
-        >
+        <div key={index} className="flex items-center justify-between">
 
           <div className="flex items-center gap-2">
-
             <div
               className="w-3 h-3 rounded-full"
-              style={{
-                backgroundColor: colors[index % colors.length]
-              }}
+              style={{ backgroundColor: colors[index % colors.length] }}
             />
-
-            <span className="text-gray-700">
-              {item.name}
-            </span>
-
+            <span className="text-gray-700">{item.name}</span>
           </div>
 
           <span className="font-semibold text-gray-500">

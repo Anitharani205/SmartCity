@@ -14,7 +14,7 @@ export default function BookingHistory() {
       const res = await API.get(`/services/citizen/${email}`);
       setServices(res.data);
     } catch (err) {
-      console.log(err);
+      console.log("Error loading services:", err);
     }
   };
 
@@ -29,59 +29,110 @@ export default function BookingHistory() {
   }, []);
 
   // ================= FILTER =================
-  const pendingServices = services.filter((s) => s.status !== "Resolved");
-  const resolvedServices = services.filter((s) => s.status === "Resolved");
+  // ONLY APPROVED SERVICES ARE RESOLVED
 
-  const allServices = [...pendingServices, ...resolvedServices];
+  const resolvedServices = services.filter(
+    (s) => String(s.status).toUpperCase() === "APPROVED"
+  );
+
+  const pendingServices = services.filter(
+    (s) => String(s.status).toUpperCase() !== "APPROVED"
+  );
 
   // ================= PAGINATION =================
+
+  const allServices = [
+    ...pendingServices,
+    ...resolvedServices
+  ];
+
+  const totalPages =
+    Math.ceil(allServices.length / itemsPerPage) || 1;
+
   const indexOfLast = currentPage * itemsPerPage;
   const indexOfFirst = indexOfLast - itemsPerPage;
 
-  const currentServices = allServices.slice(indexOfFirst, indexOfLast);
-
-  const totalPages = 5; // fixed
+  const currentServices = allServices.slice(
+    indexOfFirst,
+    indexOfLast
+  );
 
   return (
     <div className="bg-gray-100 min-h-screen flex">
-
       <Sidebar />
 
       <div className="ml-64 p-8 w-full h-screen overflow-y-auto">
-
         <h1 className="text-4xl font-bold mb-10">
           Service Booking History
         </h1>
 
-        {/* ================= PENDING ================= */}
+        {/* ================= PENDING SERVICES ================= */}
+
         <h2 className="text-2xl font-semibold mb-5 text-yellow-600">
           Pending Services
         </h2>
 
-        {pendingServices.map((s) => (
-          <div key={s.id || s._id} className="bg-white p-6 rounded-xl shadow mb-4">
-            <h3 className="text-xl font-bold">{s.service}</h3>
-            <p>Date: {s.date}</p>
-            <p>Status: {s.status}</p>
+        {pendingServices.length === 0 ? (
+          <div className="bg-white p-6 rounded-xl shadow mb-4">
+            No pending services found.
           </div>
-        ))}
+        ) : (
+          pendingServices.map((s) => (
+            <div
+              key={s.id || s._id}
+              className="bg-white p-6 rounded-xl shadow mb-4"
+            >
+              <h3 className="text-xl font-bold">
+                {s.service}
+              </h3>
 
-        {/* ================= RESOLVED ================= */}
+              <p>Date: {s.date}</p>
+
+              <p>
+                Status:{" "}
+                <span className="font-semibold text-yellow-600">
+                  {s.status}
+                </span>
+              </p>
+            </div>
+          ))
+        )}
+
+        {/* ================= RESOLVED SERVICES ================= */}
+
         <h2 className="text-2xl font-semibold mt-10 mb-5 text-green-600">
           Resolved Services
         </h2>
 
-        {resolvedServices.map((s) => (
-          <div key={s.id || s._id} className="bg-green-50 p-6 rounded-xl shadow mb-4">
-            <h3 className="text-xl font-bold">{s.service}</h3>
-            <p>Date: {s.date}</p>
-            <p>Status: Resolved</p>
+        {resolvedServices.length === 0 ? (
+          <div className="bg-white p-6 rounded-xl shadow mb-4">
+            No resolved services found.
           </div>
-        ))}
+        ) : (
+          resolvedServices.map((s) => (
+            <div
+              key={s.id || s._id}
+              className="bg-green-50 border border-green-300 p-6 rounded-xl shadow mb-4"
+            >
+              <h3 className="text-xl font-bold">
+                {s.service}
+              </h3>
 
-        {/* ================= PAGINATION (NO NUMBERS) ================= */}
+              <p>Date: {s.date}</p>
+
+              <p>
+                Status:{" "}
+                <span className="font-semibold text-green-700">
+                  {s.status}
+                </span>
+              </p>
+            </div>
+          ))
+        )}
+
+        {/* ================= PAGINATION ================= */}
+
         <div className="flex justify-end items-center mt-10 gap-4">
-
           <button
             disabled={currentPage === 1}
             onClick={() => setCurrentPage((p) => p - 1)}
@@ -101,9 +152,7 @@ export default function BookingHistory() {
           >
             Next
           </button>
-
         </div>
-
       </div>
     </div>
   );

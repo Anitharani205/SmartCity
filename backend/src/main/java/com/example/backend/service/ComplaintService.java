@@ -76,31 +76,33 @@ private AuditLogService auditLogService;
 
     public Complaint assignTask(String id, Complaint req) {
 
-        Complaint c = repo.findById(id).orElseThrow();
+    Complaint c = repo.findById(id)
+            .orElseThrow(() -> new RuntimeException("Complaint not found"));
 
-        c.setAssignedStaffName(req.getAssignedStaffName());
-        c.setAssignedStaffEmail(req.getAssignedStaffEmail());
-        c.setStatus("Assigned");
+    c.setAssignedStaffName(req.getAssignedStaffName());
+    c.setAssignedStaffEmail(req.getAssignedStaffEmail());
+    c.setStatus("ASSIGNED");
 
-        User staff = userRepo.findByEmail(req.getAssignedStaffEmail());
+    User staff = userRepo.findByEmail(req.getAssignedStaffEmail());
 
-        if (staff != null) {
-            Integer tasks = staff.getActiveTasks() == null ? 0 : staff.getActiveTasks();
-            staff.setActiveTasks(tasks + 1);
-            userRepo.save(staff);
-        }
-
-       Complaint updated = repo.save(c);
-
-auditLogService.saveLog(
-        "Admin",
-        "ASSIGN_COMPLAINT",
-        c.getTitle(),
-        "Assigned to " + c.getAssignedStaffName()
-);
-
-return updated;
+    if (staff != null) {
+        Integer tasks = staff.getActiveTasks() == null ? 0 : staff.getActiveTasks();
+        staff.setActiveTasks(tasks + 1);
+        userRepo.save(staff);
     }
+
+    Complaint updated = repo.save(c);
+
+    // ADMIN LOG
+    auditLogService.saveLog(
+            "ADMIN",
+            "ASSIGN_COMPLAINT",
+            c.getTitle(),
+            "Assigned to " + c.getAssignedStaffName()
+    );
+
+    return updated;
+}
 
     public Complaint acceptTask(String id, Complaint req) {
 
@@ -120,49 +122,90 @@ auditLogService.saveLog(
 
 return updated;
     }
+    public Complaint citizenFeedback(String id, Complaint req) {
+
+    Complaint c = repo.findById(id)
+            .orElseThrow(() -> new RuntimeException("Complaint not found"));
+
+    c.setCitizenApproval(req.getCitizenApproval());
+    c.setCitizenFeedback(req.getCitizenFeedback());
+
+    // ================= APPROVE =================
+    if ("APPROVED".equalsIgnoreCase(req.getCitizenApproval())) {
+
+        c.setStatus("CLOSED");
+
+        // STAFF NOTIFICATION
+        NotificationLog staff = new NotificationLog();
+        staff.setRole("STAFF");
+        staff.setStaffEmail(c.getAssignedStaffEmail());
+        staff.setMessage("Citizen is satisfied. Complaint '" + c.getTitle() + "' is CLOSED.");
+        staff.setComplaintId(c.getId());
+        staff.setCreatedAt(java.time.LocalDateTime.now().toString());
+
+        notificationRepo.save(staff);
+    }
+
+    // ================= REJECT =================
+    if ("REJECTED".equalsIgnoreCase(req.getCitizenApproval())) {
+
+        c.setStatus("REOPENED");
+
+        // ADMIN NOTIFICATION
+        NotificationLog admin = new NotificationLog();
+        admin.setRole("ADMIN");
+        admin.setMessage("Citizen rejected complaint '" + c.getTitle() + "'. Needs reassignment.");
+        admin.setComplaintId(c.getId());
+        admin.setCreatedAt(java.time.LocalDateTime.now().toString());
+
+        notificationRepo.save(admin);
+
+        // OPTIONAL: reset staff assignment (recycle)
+        c.setAssignedStaffEmail(null);
+        c.setAssignedStaffName(null);
+    }
+
+    return repo.save(c);
+}
 
    
-    public Complaint updateStatus(String id, Complaint req) {
+  public Complaint updateStatus(String id, Complaint req) {
 
-    Complaint c = repo.findById(id).orElseThrow();
+    Complaint c = repo.findById(id)
+            .orElseThrow(() -> new RuntimeException("Complaint not found"));
 
-    // update fields
-    c.setStatus(req.getStatus());
-    c.setProgressNote(req.getProgressNote());
-    c.setProofImage(req.getProofImage());
+    String oldStatus = c.getStatus();
+
+    if (req.getStatus() != null) {
+        c.setStatus(req.getStatus());
+    }
+
+    if (req.getProgressNote() != null) {
+        c.setProgressNote(req.getProgressNote());
+    }
+
+    if (req.getProofImage() != null) {
+        c.setProofImage(req.getProofImage());
+    }
 
     Complaint updated = repo.save(c);
 
-    // log
-    auditLogService.saveLog(
-        c.getAssignedStaffName(),
-        "UPDATE_STATUS",
-        c.getTitle(),
-        "Status changed to " + c.getStatus()
-    );
-
     // ================= ADMIN NOTIFICATION =================
     NotificationLog admin = new NotificationLog();
-    admin.setMessage(
-        "Complaint '" + c.getTitle() +
-        "' updated by staff. Status: " + c.getStatus()
-    );
     admin.setRole("ADMIN");
+    admin.setMessage("Complaint '" + c.getTitle() + "' updated by staff. Status: " + c.getStatus());
+    admin.setComplaintId(c.getId());
     admin.setCreatedAt(java.time.LocalDateTime.now().toString());
-    admin.setProofImage(req.getProofImage());
 
     notificationRepo.save(admin);
 
     // ================= CITIZEN NOTIFICATION =================
     NotificationLog citizen = new NotificationLog();
-    citizen.setMessage(
-        "Your complaint '" + c.getTitle() +
-        "' status updated to " + c.getStatus()
-    );
     citizen.setRole("CITIZEN");
     citizen.setCitizenEmail(c.getCitizen());
+    citizen.setMessage("Your complaint '" + c.getTitle() + "' is now " + c.getStatus());
+    citizen.setComplaintId(c.getId());
     citizen.setCreatedAt(java.time.LocalDateTime.now().toString());
-    citizen.setProofImage(req.getProofImage());
 
     notificationRepo.save(citizen);
 

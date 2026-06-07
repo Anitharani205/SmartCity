@@ -1,9 +1,11 @@
 package com.example.backend.service;
 
+import com.example.backend.entity.User;
 import com.example.backend.entity.NotificationLog;
 import com.example.backend.entity.ServiceRequest;
 import com.example.backend.repository.NotificationRepository;
 import com.example.backend.repository.ServiceRepository;
+import com.example.backend.repository.UserRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,29 +17,23 @@ public class ServiceRequestService {
 
     @Autowired
     private ServiceRepository repo;
-    
+
     @Autowired
-private AuditLogService auditLogService;
+    private AuditLogService auditLogService;
+
     @Autowired
     private NotificationRepository notificationRepo;
+
+    @Autowired
+    private UserRepository userRepo;
 
     public List<ServiceRequest> getAll() {
         return repo.findAll();
     }
 
     public ServiceRequest save(ServiceRequest s) {
-
-    ServiceRequest saved = repo.save(s);
-
-    auditLogService.saveLog(
-            "Citizen",
-            "CREATE_SERVICE",
-            saved.getService(),
-            "Service request created"
-    );
-
-    return saved;
-}
+        return repo.save(s);
+    }
 
     public List<ServiceRequest> getByStaff(String email) {
         return repo.findByAssignedStaffEmail(email);
@@ -47,33 +43,33 @@ private AuditLogService auditLogService;
         return repo.findByCitizen(citizen);
     }
 
-    public ServiceRequest assign(String id, ServiceRequest req) {
-
-        ServiceRequest s = repo.findById(id)
-                .orElseThrow(() ->
-                        new RuntimeException("Service not found"));
-
-        s.setAssignedStaffName(req.getAssignedStaffName());
-        s.setAssignedStaffEmail(req.getAssignedStaffEmail());
-        s.setStatus("Assigned");
-
-       ServiceRequest updated = repo.save(s);
-
-auditLogService.saveLog(
-        "Admin",
-        "ASSIGN_SERVICE",
-        s.getService(),
-        "Assigned to " + s.getAssignedStaffName()
-);
-
-return updated;
+    public void deleteService(String id) {
+        repo.deleteById(id);
     }
 
+    // =========================
+    // ASSIGN SERVICE
+    // =========================
+    public ServiceRequest assign(String id, ServiceRequest req) {
+
+    ServiceRequest s = repo.findById(id)
+            .orElseThrow(() -> new RuntimeException("Service not found"));
+
+    s.setAssignedStaffName(req.getAssignedStaffName());
+    s.setAssignedStaffEmail(req.getAssignedStaffEmail());
+    s.setStatus("Assigned");
+
+    return repo.save(s);
+}
+    // =========================
+    // STAFF UPDATE (FIXED NOTIFICATION)
+    // =========================
     public ServiceRequest update(String id, ServiceRequest req) {
 
         ServiceRequest s = repo.findById(id)
-                .orElseThrow(() ->
-                        new RuntimeException("Service not found"));
+                .orElseThrow(() -> new RuntimeException("Service not found"));
+
+        String oldStatus = s.getStatus();
 
         if (req.getStatus() != null) {
             s.setStatus(req.getStatus());
@@ -88,43 +84,100 @@ return updated;
         }
 
         ServiceRequest updated = repo.save(s);
+
+        // =========================
+        // NOTIFICATION WHEN RESOLVED
+        // =========================
+        String newStatus = req.getStatus();
+
+        if (newStatus != null &&
+                newStatus.equalsIgnoreCase("Resolved") &&
+                !"Resolved".equalsIgnoreCase(oldStatus)) {
+
+            // CITIZEN NOTIFICATION
+            NotificationLog citizen = new NotificationLog();
+            citizen.setMessage("Your service '" + s.getService() + "' is completed");
+            citizen.setRole("CITIZEN");
+            citizen.setCitizenEmail(s.getCitizen());
+            citizen.setServiceId(s.getId());
+            citizen.setCreatedAt(java.time.LocalDateTime.now().toString());
+            citizen.setProofImage(s.getProofImage());
+
+            notificationRepo.save(citizen);
+
+            // DECREASE STAFF TASK COUNT
+            if (s.getAssignedStaffEmail() != null) {
+                User staff = userRepo.findByEmail(s.getAssignedStaffEmail());
+                if (staff != null && staff.getActiveTasks() != null && staff.getActiveTasks() > 0) {
+                    staff.setActiveTasks(staff.getActiveTasks() - 1);
+                    userRepo.save(staff);
+                }
+            }
+        }
+
+        return updated;
+    }
+
+    // =========================
+    // CITIZEN FEEDBACK
+    // =========================
+    public ServiceRequest feedback(String id, ServiceRequest req) {
+
+        ServiceRequest s = repo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Service not found"));
+
+        if (req.getStatus() != null) {
+            s.setStatus(req.getStatus());
+        }
+
+        if (req.getProgressNote() != null) {
+            s.setProgressNote(req.getProgressNote());
+        }
+
+        ServiceRequest updated = repo.save(s);
+
         auditLogService.saveLog(
-        s.getAssignedStaffName(),
-        "UPDATE_SERVICE_STATUS",
-        s.getService(),
-        "Status changed to " + s.getStatus()
-);
+                "Citizen",
+                "SERVICE_FEEDBACK",
+                s.getService(),
+                "Citizen marked as " + s.getStatus()
+        );
 
-        
-     if ("Resolved".equalsIgnoreCase(s.getStatus())) {
+        if ("APPROVED".equalsIgnoreCase(s.getStatus())
+                || "REJECTED".equalsIgnoreCase(s.getStatus())) {
 
-    NotificationLog admin = new NotificationLog();
-    admin.setMessage(
-        "Service '" + s.getService() +
-        "' completed by " + s.getAssignedStaffName()
-    );
-    admin.setRole("ADMIN");
-    admin.setCreatedAt(java.time.LocalDateTime.now().toString());
+            String msg = "Citizen " + s.getCitizen()
+                    + " " + s.getStatus()
+                    + " service: " + s.getService();
 
-    // ✅ PROOF IMAGE
-    admin.setProofImage(req.getProofImage());
+            if (s.getAssignedStaffEmail() != null) {
+                NotificationLog staff = new NotificationLog();
+                staff.setMessage(msg);
+                staff.setRole("STAFF");
+                staff.setStaffEmail(s.getAssignedStaffEmail());
+                staff.setServiceId(s.getId());
+                staff.setCreatedAt(java.time.LocalDateTime.now().toString());
 
-    notificationRepo.save(admin);
+                notificationRepo.save(staff);
+            }
 
-    NotificationLog citizen = new NotificationLog();
-    citizen.setMessage(
-        "Your service request '" + s.getService() +
-        "' has been completed successfully"
-    );
-    citizen.setRole("CITIZEN");
-    citizen.setCitizenEmail(s.getCitizen());
-    citizen.setCreatedAt(java.time.LocalDateTime.now().toString());
+            NotificationLog admin = new NotificationLog();
+            admin.setMessage(msg);
+            admin.setRole("ADMIN");
+            admin.setServiceId(s.getId());
+            admin.setCreatedAt(java.time.LocalDateTime.now().toString());
 
-    // ✅ PROOF IMAGE
-    citizen.setProofImage(req.getProofImage());
+            notificationRepo.save(admin);
 
-    notificationRepo.save(citizen);
-}
+            NotificationLog citizen = new NotificationLog();
+            citizen.setMessage("You " + s.getStatus() + " service: " + s.getService());
+            citizen.setRole("CITIZEN");
+            citizen.setCitizenEmail(s.getCitizen());
+            citizen.setServiceId(s.getId());
+            citizen.setCreatedAt(java.time.LocalDateTime.now().toString());
+
+            notificationRepo.save(citizen);
+        }
 
         return updated;
     }

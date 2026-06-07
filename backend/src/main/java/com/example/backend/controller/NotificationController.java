@@ -28,7 +28,12 @@ public class NotificationController {
     public List<NotificationLog> getCitizenNotifications(@PathVariable String email) {
         return repo.findByCitizenEmail(email);
     }
-
+   @GetMapping("/staff/{email}")
+public List<NotificationLog> getStaffNotifications(
+        @PathVariable String email
+) {
+    return repo.findByStaffEmail(email);
+}
     
     @PostMapping("/create")
     public NotificationLog create(@RequestBody NotificationLog log) {

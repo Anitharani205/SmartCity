@@ -28,18 +28,21 @@ export default function ComplaintHistory() {
     return () => clearInterval(interval);
   }, []);
 
-  // ================= FILTER =================
-  const pendingComplaints = complaints.filter(
-    (c) => c.status !== "Resolved"
-  );
+  // ONLY "Closed" COMPLAINTS GO TO RESOLVED
+ const pendingComplaints = complaints.filter(
+  (c) => c.status?.toLowerCase() !== "closed"
+);
 
-  const resolvedComplaints = complaints.filter(
-    (c) => c.status === "Resolved"
-  );
+const resolvedComplaints = complaints.filter(
+  (c) => c.status?.toLowerCase() === "closed"
+);
 
-  const allComplaints = [...pendingComplaints, ...resolvedComplaints];
+  // Pagination
+  const allComplaints = [
+    ...pendingComplaints,
+    ...resolvedComplaints
+  ];
 
-  // ================= PAGINATION =================
   const indexOfLast = currentPage * itemsPerPage;
   const indexOfFirst = indexOfLast - itemsPerPage;
 
@@ -48,50 +51,103 @@ export default function ComplaintHistory() {
     indexOfLast
   );
 
-  const totalPages = 5; // fixed 5 pages UI
+  const totalPages = Math.ceil(
+    allComplaints.length / itemsPerPage
+  );
 
   return (
     <div className="flex">
-
       <Sidebar />
 
       <div className="ml-64 p-8 bg-gray-100 min-h-screen w-full">
-
         <h1 className="text-4xl font-bold mb-6">
           Complaint History
         </h1>
 
-        {/* ================= PENDING ================= */}
+        {/* PENDING COMPLAINTS */}
         <h2 className="text-2xl text-red-600 mb-4">
           Pending Complaints
         </h2>
 
-        {pendingComplaints.map((c) => (
-          <div key={c._id} className="bg-white p-6 rounded shadow mb-4">
-            <h3 className="text-xl font-bold">{c.title}</h3>
-            <p>{c.category}</p>
-            <p>Priority: {c.priority}</p>
-            <p>Status: {c.status}</p>
+        {pendingComplaints.length === 0 ? (
+          <div className="bg-white p-6 rounded shadow mb-4">
+            No pending complaints found.
           </div>
-        ))}
+        ) : (
+          pendingComplaints.map((c) => (
+            <div
+              key={c.id}
+              className="bg-white p-6 rounded shadow mb-4"
+            >
+              <h3 className="text-xl font-bold">
+                {c.title}
+              </h3>
 
-        {/* ================= RESOLVED ================= */}
+              <p>
+                <strong>Category:</strong> {c.category}
+              </p>
+
+              <p>
+                <strong>Priority:</strong> {c.priority}
+              </p>
+
+              <p>
+                <strong>Status:</strong> {c.status}
+              </p>
+
+              {c.description && (
+                <p>
+                  <strong>Description:</strong>{" "}
+                  {c.description}
+                </p>
+              )}
+            </div>
+          ))
+        )}
+
+        {/* RESOLVED COMPLAINTS */}
         <h2 className="text-2xl text-green-600 mt-8 mb-4">
           Resolved Complaints
         </h2>
 
-        {resolvedComplaints.map((c) => (
-          <div key={c._id} className="bg-green-50 p-6 rounded shadow mb-4">
-            <h3 className="text-xl font-bold">{c.title}</h3>
-            <p>{c.category}</p>
-            <p>Priority: {c.priority}</p>
-            <p>Status: Resolved</p>
+        {resolvedComplaints.length === 0 ? (
+          <div className="bg-white p-6 rounded shadow">
+            No resolved complaints found.
           </div>
-        ))}
+        ) : (
+          resolvedComplaints.map((c) => (
+            <div
+              key={c.id}
+              className="bg-green-50 border border-green-300 p-6 rounded shadow mb-4"
+            >
+              <h3 className="text-xl font-bold">
+                {c.title}
+              </h3>
 
-        {/* ================= PAGINATION (NO NUMBERS) ================= */}
+              <p>
+                <strong>Category:</strong> {c.category}
+              </p>
+
+              <p>
+                <strong>Priority:</strong> {c.priority}
+              </p>
+
+              <p className="text-green-700 font-semibold">
+                <strong>Status:</strong> {c.status}
+              </p>
+
+              {c.description && (
+                <p>
+                  <strong>Description:</strong>{" "}
+                  {c.description}
+                </p>
+              )}
+            </div>
+          ))
+        )}
+
+        {/* PAGINATION */}
         <div className="flex justify-end items-center mt-10 gap-4">
-
           <button
             disabled={currentPage === 1}
             onClick={() => setCurrentPage((p) => p - 1)}
@@ -101,19 +157,19 @@ export default function ComplaintHistory() {
           </button>
 
           <div className="text-gray-700 font-medium">
-            Page {currentPage} of {totalPages}
+            Page {currentPage} of {totalPages || 1}
           </div>
 
           <button
-            disabled={currentPage === totalPages}
+            disabled={
+              currentPage === totalPages || totalPages === 0
+            }
             onClick={() => setCurrentPage((p) => p + 1)}
             className="px-4 py-2 bg-red-600 text-white rounded disabled:opacity-50"
           >
             Next
           </button>
-
         </div>
-
       </div>
     </div>
   );

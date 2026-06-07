@@ -30,7 +30,8 @@ function Sidebar() {
 
     { name: "Alerts", icon: <AlertTriangle size={18} />, path: "/citizen-alerts" },
     { name: "Services", icon: <Wrench size={18} />, path: "/services" },
-    { name: "Booking History", icon: <History size={18} />, path: "/booking-history" }
+    { name: "Booking History", icon: <History size={18} />, path: "/booking-history" },
+   
   ];
 
   return (

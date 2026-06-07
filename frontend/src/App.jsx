@@ -12,11 +12,14 @@ import BookingHistory from "./Citizen/BookingHistory";
 import ComplaintHistory from "./Citizen/ComplaintHistory";
 import Report from "./Citizen/Report";
 import CitizenNotification from "./Citizen/CitizenNotification";
+
+
+
 import MunicipalDashboard from "./Municipal/MunicipalDashboard";
 
 import ReceiveAssignedTask from "./Municipal/ReceiveAssignedTask";
 import Task from "./Municipal/Task";
-
+import StaffNotification from "./Municipal/StaffNotification";
 import AdminDashboard from "./Admin/AdminDashboard";
 import Complaints from "./Admin/Complaints";
 import ComplaintSummary from "./Admin/ComplaintSummary";
@@ -56,7 +59,10 @@ function App() {
         
         <Route path="/assigned-task" element={<ReceiveAssignedTask />} />
         <Route path="/task" element={<Task />}/>
-   
+   <Route
+  path="/staff-notification"
+  element={<StaffNotification />}
+/>
         <Route path="/admin" element={<AdminDashboard />} />
         <Route path="/complaintsservices" element={<Complaints />} />
         <Route path="/complaintsummary" element={<ComplaintSummary />} />

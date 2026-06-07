@@ -8,18 +8,19 @@ import {
   Cell,
   Tooltip,
   ResponsiveContainer,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
 } from "recharts";
 
 import {
   CheckCircle,
   Clock,
   Wrench,
-  Bell,
 } from "lucide-react";
-
 export default function CitizenDashboard() {
-
-
   const [complaintStats, setComplaintStats] = useState({});
   const [serviceStats, setServiceStats] = useState({});
   const [alerts, setAlerts] = useState([]);
@@ -31,20 +32,16 @@ export default function CitizenDashboard() {
     loadData();
   }, []);
 
-  
   const loadData = async () => {
     try {
-
       const email = localStorage.getItem("email");
 
-     
       const cStats = await API.get("/analytics/stats");
       const sStats = await API.get("/analytics/service-stats");
 
-     
-      const alertRes = await API.get(`/notifications/citizen/${email}`);
+      // ✅ FIXED: ONLY CITY ALERTS (NOT notifications)
+      const alertRes = await API.get("/api/alerts");
 
-     
       const complaintRes = await API.get(`/complaints/citizen/${email}`);
       const serviceRes = await API.get(`/services/citizen/${email}`);
 
@@ -54,87 +51,147 @@ export default function CitizenDashboard() {
       setAlerts(alertRes.data || []);
       setComplaints(complaintRes.data || []);
       setServices(serviceRes.data || []);
-
     } catch (err) {
       console.error("Dashboard Error:", err);
     }
   };
 
- 
-  const chartData = [
-    {
-      name: "Resolved",
-      value: complaintStats.resolved || 0
-    },
-    {
-      name: "Pending",
-      value: (complaintStats.total - complaintStats.resolved) || 0
-    }
-  ];
+  // FIX: resolved + closed
+ // COMPLAINT COUNTS
 
-  const COLORS = ["#22c55e", "#f59e0b"];
+const resolvedComplaintCount = complaints.filter(
+  (c) => String(c.status).toUpperCase() === "CLOSED"
+).length;
 
+const pendingComplaintCount = complaints.filter(
+  (c) => String(c.status).toUpperCase() !== "CLOSED"
+).length;
+
+// SERVICE COUNTS
+
+const resolvedServiceCount = services.filter(
+  (s) => String(s.status).toUpperCase() === "APPROVED"
+).length;
+
+const pendingServiceCount = services.filter(
+  (s) => String(s.status).toUpperCase() !== "APPROVED"
+).length;
+
+const chartData = [
+  {
+    name: "Resolved",
+    value: resolvedComplaintCount,
+  },
+  {
+    name: "Pending",
+    value: pendingComplaintCount,
+  },
+];
+
+const COLORS = ["#22c55e", "#f59e0b"];
+const complaintBarData = [
+  {
+    name: "Closed",
+    count: complaints.filter(
+      (c) => String(c.status).toUpperCase() === "CLOSED"
+    ).length,
+  },
+  {
+    name: "Pending",
+    count: complaints.filter(
+      (c) => String(c.status).toUpperCase() === "PENDING"
+    ).length,
+  },
+  {
+    name: "Assigned",
+    count: complaints.filter(
+      (c) => String(c.status).toUpperCase() === "ASSIGNED"
+    ).length,
+  },
+  {
+    name: "In Progress",
+    count: complaints.filter(
+      (c) => String(c.status).toUpperCase() === "IN_PROGRESS"
+    ).length,
+  },
+];
+
+const serviceBarData = [
+  {
+    name: "Approved",
+    count: services.filter(
+      (s) => String(s.status).toUpperCase() === "APPROVED"
+    ).length,
+  },
+  {
+    name: "Pending",
+    count: services.filter(
+      (s) => String(s.status).toUpperCase() === "PENDING"
+    ).length,
+  },
+  {
+    name: "Assigned",
+    count: services.filter(
+      (s) => String(s.status).toUpperCase() === "ASSIGNED"
+    ).length,
+  },
+  {
+    name: "Rejected",
+    count: services.filter(
+      (s) => String(s.status).toUpperCase() === "REJECTED"
+    ).length,
+  },
+];
   return (
     <div className="bg-gray-100 min-h-screen">
-
       <Sidebar />
 
       <div className="ml-64 p-8">
-
-    
         <h1 className="text-3xl font-bold mb-8">
           Citizen Dashboard 👋
         </h1>
 
+        {/* STATS */}
         <div className="grid grid-cols-4 gap-6 mb-8">
+         <StatCard
+  icon={<CheckCircle />}
+  title="Complaints Resolved"
+  value={resolvedComplaintCount}
+  color="green"
+/>
 
-          <StatCard
-            icon={<CheckCircle />}
-            title="Complaints Resolved"
-            value={complaintStats.resolved || 0}
-            color="green"
-          />
+<StatCard
+  icon={<Clock />}
+  title="Complaints Pending"
+  value={pendingComplaintCount}
+  color="blue"
+/>
 
-          <StatCard
-            icon={<Clock />}
-            title="Complaints Pending"
-            value={(complaintStats.total - complaintStats.resolved) || 0}
-            color="blue"
-          />
+<StatCard
+  icon={<CheckCircle />}
+  title="Services Resolved"
+  value={resolvedServiceCount}
+  color="green"
+/>
 
-          <StatCard
-            icon={<Wrench />}
-            title="Service Requests"
-            value={serviceStats.total || 0}
-            color="yellow"
-          />
-
-          <StatCard
-            icon={<Bell />}
-            title="Alerts"
-            value={alerts.length}
-            color="red"
-          />
-
+<StatCard
+  icon={<Wrench />}
+  title="Services Pending"
+  value={pendingServiceCount}
+  color="yellow"
+/>
         </div>
 
-     
+        {/* CHART + ALERTS */}
         <div className="grid grid-cols-3 gap-6 mb-8">
-
-        
           <div className="col-span-2 bg-white p-6 rounded-xl shadow">
-
             <h3 className="font-semibold mb-4">
               Complaint Status Overview
             </h3>
 
             <ResponsiveContainer width="100%" height={250}>
               <PieChart>
-                <Pie
-                  data={chartData}
-                  dataKey="value"
-                  outerRadius={90}
-                >
+                <Pie data={chartData} dataKey="value" outerRadius={90}>
                   {chartData.map((_, i) => (
                     <Cell key={i} fill={COLORS[i]} />
                   ))}
@@ -142,12 +199,10 @@ export default function CitizenDashboard() {
                 <Tooltip />
               </PieChart>
             </ResponsiveContainer>
-
           </div>
 
-        
+          {/* ✅ ONLY CITY ALERTS HERE */}
           <div className="bg-white p-6 rounded-xl shadow">
-
             <h3 className="font-semibold mb-4 text-red-600">
               City Alerts
             </h3>
@@ -164,64 +219,54 @@ export default function CitizenDashboard() {
                 </div>
               ))
             )}
-
           </div>
-
         </div>
 
-        
-        <div className="grid grid-cols-2 gap-6">
+        {/* RECENT */}
+      {/* ANALYTICS BAR CHARTS */}
+<div className="grid grid-cols-2 gap-6">
 
-         
-          <div className="bg-white p-6 rounded-xl shadow">
+  <div className="bg-white p-6 rounded-xl shadow">
+    <h3 className="font-semibold mb-4 text-blue-600">
+      Complaint Analysis
+    </h3>
 
-            <h3 className="font-semibold mb-4">
-              Recent Complaints
-            </h3>
+    <ResponsiveContainer width="100%" height={300}>
+      <BarChart data={complaintBarData}>
+        <CartesianGrid strokeDasharray="3 3" />
+        <XAxis dataKey="name" />
+        <YAxis />
+        <Tooltip />
+        <Bar dataKey="count" fill="#3b82f6" />
+      </BarChart>
+    </ResponsiveContainer>
+  </div>
 
-            {complaints.length === 0 ? (
-              <p className="text-gray-400">No complaints found</p>
-            ) : (
-              complaints.slice(0, 5).map((c, i) => (
-                <div key={i} className="border-b py-2 text-sm">
-                  <p className="font-medium">{c.title}</p>
-                  <p className="text-gray-500">{c.status}</p>
-                </div>
-              ))
-            )}
+  <div className="bg-white p-6 rounded-xl shadow">
+    <h3 className="font-semibold mb-4 text-green-600">
+      Service Analysis
+    </h3>
 
-          </div>
+    <ResponsiveContainer width="100%" height={300}>
+      <BarChart data={serviceBarData}>
+        <CartesianGrid strokeDasharray="3 3" />
+        <XAxis dataKey="name" />
+        <YAxis />
+        <Tooltip />
+        <Bar dataKey="count" fill="#22c55e" />
+      </BarChart>
+    </ResponsiveContainer>
+  </div>
 
-          
-          <div className="bg-white p-6 rounded-xl shadow">
-
-            <h3 className="font-semibold mb-4">
-              Recent Services
-            </h3>
-
-            {services.length === 0 ? (
-              <p className="text-gray-400">No services found</p>
-            ) : (
-              services.slice(0, 5).map((s, i) => (
-                <div key={i} className="border-b py-2 text-sm">
-                  <p className="font-medium">{s.service}</p>
-                  <p className="text-gray-500">{s.status}</p>
-                </div>
-              ))
-            )}
-
-          </div>
-
+</div>
         </div>
-
       </div>
-    </div>
+  
   );
 }
 
-
+/* STAT CARD */
 function StatCard({ icon, title, value, color }) {
-
   const colors = {
     green: "bg-green-100 text-green-600",
     blue: "bg-blue-100 text-blue-600",

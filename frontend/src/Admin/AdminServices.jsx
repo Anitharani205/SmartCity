@@ -31,21 +31,37 @@ export default function AdminServices() {
     }
   };
 
-  const assignService = async (id, staffName, staffEmail) => {
-    try {
-      await API.put(`/services/assign/${id}`, {
-        assignedStaffName: staffName,
-        assignedStaffEmail: staffEmail,
-      });
+ const assignService = async (id, staffName, staffEmail, category) => {
+  try {
+    await API.put(`/services/assign/${id}`, {
+      assignedStaffName: staffName,
+      assignedStaffEmail: staffEmail,
+    });
 
-      alert(`Assigned to ${staffName}`);
-      loadServices();
-    } catch (err) {
-      console.log(err);
-      alert("Assignment Failed");
-    }
-  };
+    await loadStaff(category); // refresh active task count
+    await loadServices();
 
+    alert(`Assigned to ${staffName}`);
+  } catch (err) {
+    console.log(err);
+    alert("Assignment Failed");
+  }
+};
+const deleteService = async (id) => {
+  console.log("Deleting:", id);
+
+  const confirmDelete = window.confirm("Delete this approved service?");
+  if (!confirmDelete) return;
+
+  try {
+    await API.delete(`/services/${id}`);
+    alert("Service Deleted");
+    loadServices();
+  } catch (err) {
+    console.log(err.response || err);
+    alert("Delete Failed");
+  }
+};
   // Pagination logic
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
@@ -93,6 +109,7 @@ export default function AdminServices() {
                   <th className="p-4 text-left">Status</th>
                   <th className="p-4 text-left">Assigned Staff</th>
                   <th className="p-4 text-center">Assign Service</th>
+                  <th className="p-4 text-center">Delete</th>
                 </tr>
               </thead>
 
@@ -174,6 +191,18 @@ export default function AdminServices() {
                         ))}
                       </select>
                     </td>
+                    <td className="p-4 text-center">
+
+  {b.status === "APPROVED" && (
+    <button
+      onClick={() => deleteService(b.id)}
+      className="bg-red-600 text-white px-4 py-2 rounded"
+    >
+      Delete
+    </button>
+  )}
+
+</td>
 
                   </tr>
                 ))}

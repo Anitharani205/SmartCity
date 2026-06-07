@@ -25,12 +25,17 @@ public class Complaint {
 
     private String assignedStaffName;
     private String assignedStaffEmail;
+    private Integer activeTasks = 0;
 
     private String progressNote;
     private String proofImage;
 
     private LocalDateTime createdAt = LocalDateTime.now();
-   
+
+    private String citizenFeedback;
+private String citizenApproval;
+   private Double latitude;
+private Double longitude;
 
     public String getId() {
         return id;
@@ -123,7 +128,13 @@ public class Complaint {
     public void setAssignedStaffEmail(String assignedStaffEmail) {
         this.assignedStaffEmail = assignedStaffEmail;
     }
+    public Integer getActiveTasks() {
+    return activeTasks;
+}
 
+public void setActiveTasks(Integer activeTasks) {
+    this.activeTasks = activeTasks;
+}
     public String getProgressNote() {
         return progressNote;
     }
@@ -146,5 +157,34 @@ public class Complaint {
 public void setCreatedAt(LocalDateTime createdAt) {
     this.createdAt = createdAt;
 }
+public String getCitizenFeedback() {
+    return citizenFeedback;
+}
 
+public void setCitizenFeedback(String citizenFeedback) {
+    this.citizenFeedback = citizenFeedback;
+}
+
+public String getCitizenApproval() {
+    return citizenApproval;
+}
+
+public void setCitizenApproval(String citizenApproval) {
+    this.citizenApproval = citizenApproval;
+}
+  public Double getLatitude() {
+    return latitude;
+}
+
+public void setLatitude(Double latitude) {
+    this.latitude = latitude;
+}
+
+public Double getLongitude() {
+    return longitude;
+}
+
+public void setLongitude(Double longitude) {
+    this.longitude = longitude;
+}
 }

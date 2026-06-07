@@ -16,6 +16,9 @@ public class NotificationLog {
 
     private String createdAt;
     private String proofImage;
+    private String complaintId;
+    private String serviceId;
+private String staffEmail;
 
     public String getId() { return id; }
 
@@ -36,5 +39,27 @@ public class NotificationLog {
 
 public void setProofImage(String proofImage) {
     this.proofImage = proofImage;
+}
+public String getComplaintId() {
+    return complaintId;
+}
+
+public void setComplaintId(String complaintId) {
+    this.complaintId = complaintId;
+}
+
+public String getStaffEmail() {
+    return staffEmail;
+}
+
+public void setStaffEmail(String staffEmail) {
+    this.staffEmail = staffEmail;
+}
+public String getServiceId() {
+    return serviceId;
+}
+
+public void setServiceId(String serviceId) {
+    this.serviceId = serviceId;
 }
 }

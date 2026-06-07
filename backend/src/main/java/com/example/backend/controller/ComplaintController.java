@@ -57,7 +57,13 @@ private NotificationRepository notificationRepo;
     public Complaint update(@PathVariable String id, @RequestBody Complaint req) {
         return service.updateStatus(id, req);
     }
-
+   @PutMapping("/feedback/{id}")
+public Complaint feedback(
+        @PathVariable String id,
+        @RequestBody Complaint req
+) {
+    return service.citizenFeedback(id, req);
+}
     
     @DeleteMapping("/{id}")
     public String deleteComplaint(@PathVariable String id) {

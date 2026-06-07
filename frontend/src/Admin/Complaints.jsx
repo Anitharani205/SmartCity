@@ -143,11 +143,13 @@ export default function Complaints() {
                       </span>
                     </td>
 
-                    <td className="p-4">
-                      {c.assignedStaffName || (
-                        <span className="text-gray-400">Not Assigned</span>
-                      )}
-                    </td>
+                   
+  <td className="p-4">
+  {c.assignedStaffName || (
+    <span className="text-gray-400">Not Assigned</span>
+  )}
+
+</td>
 
                     <td className="p-4 text-center">
                       <select
@@ -162,10 +164,11 @@ export default function Complaints() {
                       >
                         <option value="">Select Staff</option>
                         {staffOptions[c.id]?.map((staff) => (
-                          <option key={staff.id} value={staff.id}>
-                            {staff.name}
-                          </option>
-                        ))}
+<option key={staff.id} value={staff.id}>
+  {staff.name} - {staff.activeTasks || 0}
+</option>
+))}
+                        
                       </select>
                     </td>
 

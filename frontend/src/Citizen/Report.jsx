@@ -4,7 +4,6 @@ import { useNavigate } from "react-router-dom";
 import Sidebar from "./components/Sidebar";
 
 export default function Report() {
-
   const navigate = useNavigate();
 
   const [form, setForm] = useState({
@@ -13,15 +12,42 @@ export default function Report() {
     title: "",
     address: "",
     mapLink: "",
+    latitude: "",
+    longitude: "",
     priority: "Low"
   });
 
-  const handleSubmit = async (e) => {
+  const getCurrentLocation = () => {
+    if (!navigator.geolocation) {
+      alert("Geolocation is not supported by your browser");
+      return;
+    }
 
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const lat = position.coords.latitude;
+        const lng = position.coords.longitude;
+
+        setForm((prev) => ({
+          ...prev,
+          latitude: lat,
+          longitude: lng,
+          mapLink: `https://www.google.com/maps?q=${lat},${lng}`
+        }));
+
+        alert("Location captured successfully");
+      },
+      (error) => {
+        console.log(error);
+        alert("Unable to fetch location");
+      }
+    );
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
-
       await API.post("/complaints", {
         ...form,
         citizen: localStorage.getItem("email")
@@ -35,13 +61,13 @@ export default function Report() {
         title: "",
         address: "",
         mapLink: "",
+        latitude: "",
+        longitude: "",
         priority: "Low"
       });
 
       navigate("/citizen");
-
     } catch (err) {
-
       console.log(err);
       alert("Failed to submit complaint");
     }
@@ -49,11 +75,9 @@ export default function Report() {
 
   return (
     <div className="bg-gray-100 min-h-screen">
-
       <Sidebar />
 
       <div className="ml-64 p-6">
-
         <h2 className="text-2xl font-bold mb-6">
           Report Complaint
         </h2>
@@ -72,7 +96,6 @@ export default function Report() {
             }
           />
 
-          
           <select
             value={form.category}
             className="border p-3 w-full rounded"
@@ -83,45 +106,20 @@ export default function Report() {
               })
             }
           >
-            <option value="">
-              Select Complaint Category
-            </option>
-
-            <option value="Water Issue">
-              Water Issue
-            </option>
-
-            <option value="Road Issue">
-              Road Issue
-            </option>
-
-            <option value="Electricity Issue">
-              Electricity Issue
-            </option>
-
-            <option value="Garbage Issue">
-              Garbage Issue
-            </option>
-
-            <option value="Drainage Issue">
-              Drainage Issue
-            </option>
-
-            <option value="Traffic Issue">
-              Traffic Issue
-            </option>
-
+            <option value="">Select Complaint Category</option>
+            <option value="Water Issue">Water Issue</option>
+            <option value="Road Issue">Road Issue</option>
+            <option value="Electricity Issue">Electricity Issue</option>
+            <option value="Garbage Issue">Garbage Issue</option>
+            <option value="Drainage Issue">Drainage Issue</option>
+            <option value="Traffic Issue">Traffic Issue</option>
             <option value="Public Property Damage">
               Public Property Damage
             </option>
-
             <option value="Stray Animal Issue">
               Stray Animal Issue
             </option>
-
-            <option value="Other">
-              Other
-            </option>
+            <option value="Other">Other</option>
           </select>
 
           <input
@@ -139,8 +137,8 @@ export default function Report() {
           <textarea
             placeholder="Address"
             value={form.address}
-            className="border p-3 w-full rounded"
             rows="4"
+            className="border p-3 w-full rounded"
             onChange={(e) =>
               setForm({
                 ...form,
@@ -161,6 +159,30 @@ export default function Report() {
             }
           />
 
+          <button
+            type="button"
+            onClick={getCurrentLocation}
+            className="bg-green-600 text-white px-6 py-3 rounded"
+          >
+            Get Current Location
+          </button>
+
+          <input
+            type="text"
+            value={form.latitude}
+            readOnly
+            placeholder="Latitude"
+            className="border p-3 w-full rounded bg-gray-100"
+          />
+
+          <input
+            type="text"
+            value={form.longitude}
+            readOnly
+            placeholder="Longitude"
+            className="border p-3 w-full rounded bg-gray-100"
+          />
+
           <select
             value={form.priority}
             className="border p-3 w-full rounded"
@@ -176,14 +198,15 @@ export default function Report() {
             <option value="High">High</option>
           </select>
 
-          <button className="bg-blue-600 text-white px-6 py-3 rounded">
+          <button
+            type="submit"
+            className="bg-blue-600 text-white px-6 py-3 rounded"
+          >
             Submit Complaint
           </button>
 
         </form>
-
       </div>
-
     </div>
   );
 }
