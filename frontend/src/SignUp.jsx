@@ -6,13 +6,13 @@ function SignUp() {
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    aadhaar: "",
-    password: "",
-    confirmPassword: ""
-  });
-
+  name: "",
+  email: "",
+  aadhaar: "",
+  role: "",
+  password: "",
+  confirmPassword: ""
+});
   const handleChange = (e) => {
     setFormData({
       ...formData,
@@ -31,11 +31,12 @@ function SignUp() {
 
     try {
       const response = await API.post("/auth/register", {
-        name: formData.name,
-        email: formData.email,
-        aadhaar: formData.aadhaar,
-        password: formData.password
-      });
+  name: formData.name,
+  email: formData.email,
+  aadhaar: formData.aadhaar,
+  role: formData.role,
+  password: formData.password
+});
 
       console.log("SUCCESS RESPONSE:", response.data);
 
@@ -88,7 +89,17 @@ function SignUp() {
             onChange={handleChange}
             required
           />
-
+       <select
+  name="role"
+  value={formData.role}
+  onChange={handleChange}
+  className="w-full p-3 bg-gray-200"
+  required
+>
+  <option value="">Select Role</option>
+  <option value="CITIZEN">Citizen</option>
+  <option value="MUNICIPAL">Municipal</option>
+</select>
           <input
             type="password"
             name="password"

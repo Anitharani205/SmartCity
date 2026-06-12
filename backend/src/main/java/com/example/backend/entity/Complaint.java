@@ -10,6 +10,7 @@ public class Complaint {
     private String id;
 
     private String title;
+    private String description;
     private String category;
     private String priority;
 
@@ -18,7 +19,7 @@ public class Complaint {
     private String citizen;
     private String address;
     private String mapLink;
-
+private String image;
     private String location;
 
     private String status = "Pending";
@@ -48,6 +49,13 @@ private Double longitude;
     public void setTitle(String title) {
         this.title = title;
     }
+    public String getDescription() {
+    return description;
+}
+
+public void setDescription(String description) {
+    this.description = description;
+}
 
     public String getCategory() {
         return category;
@@ -186,5 +194,12 @@ public Double getLongitude() {
 
 public void setLongitude(Double longitude) {
     this.longitude = longitude;
+}
+public String getImage() {
+    return image;
+}
+
+public void setImage(String image) {
+    this.image = image;
 }
 }

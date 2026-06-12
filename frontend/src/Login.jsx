@@ -31,27 +31,21 @@ function Login() {
       localStorage.setItem("role", data.role);
       localStorage.setItem("email", email);
 
-      alert("Login Successful");
-
      
 
-      if (email.endsWith("@citizen.com")) {
+     
+if (data.role === "ADMIN") {
 
-        navigate("/citizen");
+  navigate("/admin");
 
-      } else if (email.endsWith("@municipal.com")) {
+} else if (data.role === "MUNICIPAL") {
 
-        navigate("/municipal");
+  navigate("/municipal");
 
-      } else if (email.endsWith("@admin.com")) {
+} else {
 
-        navigate("/admin");
-
-      } else {
-
-        navigate("/");
-      }
-
+  navigate("/citizen");
+}
     } catch (error) {
 
       console.log(error);

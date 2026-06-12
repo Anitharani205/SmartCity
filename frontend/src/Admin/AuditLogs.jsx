@@ -6,7 +6,7 @@ export default function AuditLogs() {
   const [logs, setLogs] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
 
-  const logsPerPage = 10; // ✅ CHANGED TO 10
+  const logsPerPage = 10; // 
 
   useEffect(() => {
     loadLogs();
@@ -21,7 +21,7 @@ export default function AuditLogs() {
     }
   };
 
-  // ================= PAGINATION =================
+  
   const indexOfLast = currentPage * logsPerPage;
   const indexOfFirst = indexOfLast - logsPerPage;
 
@@ -64,7 +64,6 @@ export default function AuditLogs() {
           </tbody>
         </table>
 
-        {/* ================= PAGINATION ================= */}
         <div className="flex justify-end items-center mt-6 gap-4">
 
           <button

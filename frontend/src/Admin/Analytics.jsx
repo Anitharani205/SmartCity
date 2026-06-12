@@ -2,16 +2,17 @@ import React, { useEffect, useState } from "react";
 import API from "../services/api";
 
 import {
-  LineChart,
-  Line,
-  PieChart,
-  Pie,
-  Cell,
+  ResponsiveContainer,
   XAxis,
   YAxis,
   Tooltip,
-  ResponsiveContainer,
-  Legend
+  PieChart,
+  Pie,
+  Cell,
+  Legend,
+  AreaChart,
+  Area,
+  CartesianGrid
 } from "recharts";
 
 import AdminSidebar from "./components/AdminSidebar";
@@ -19,7 +20,6 @@ import AdminSidebar from "./components/AdminSidebar";
 export default function Analytics() {
   const [stats, setStats] = useState({});
   const [monthly, setMonthly] = useState([]);
-
   const [serviceStats, setServiceStats] = useState({});
   const [serviceDept, setServiceDept] = useState([]);
 
@@ -29,27 +29,31 @@ export default function Analytics() {
 
   const loadData = async () => {
     try {
-      const s = await API.get("/analytics/stats");
-      const m = await API.get("/analytics/monthly");
+      const res = await API.get("/analytics/dashboard");
 
-      const ss = await API.get("/analytics/service-stats");
-      const sd = await API.get("/analytics/service-department");
-
-      setStats(s.data);
+      setStats({
+        total: res.data.totalComplaints,
+        closed: res.data.closedComplaints,
+        rate: res.data.complaintRate,
+      });
 
       setMonthly(
-        Object.entries(m.data || {}).map(([k, v]) => ({
+        Object.entries(res.data.monthlyComplaints || {}).map(([k, v]) => ({
           month: k,
-          value: v
+          value: v,
         }))
       );
 
-      setServiceStats(ss.data);
+      setServiceStats({
+        total: res.data.totalServices,
+        approved: res.data.approvedServices,
+        rate: res.data.serviceRate,
+      });
 
       setServiceDept(
-        Object.entries(sd.data || {}).map(([k, v]) => ({
+        Object.entries(res.data.serviceDepartment || {}).map(([k, v]) => ({
           name: k,
-          value: v
+          value: v,
         }))
       );
     } catch (err) {
@@ -58,132 +62,174 @@ export default function Analytics() {
   };
 
   const COLORS = [
-    "#ef4444",
-    "#22c55e",
-    "#f59e0b",
-    "#3b82f6",
-    "#8b5cf6",
-    "#14b8a6"
+    "#4F46E5",
+    "#22C55E",
+    "#F59E0B",
+    "#06B6D4",
+    "#A855F7",
+    "#EF4444",
   ];
 
-  // ✅ CLOSED complaints only
-  const totalResolvedComplaints =
-    Number(stats.closed || 0);
-
-  // ✅ APPROVED services only
-  const totalResolvedServices =
-    Number(serviceStats.approved || 0);
+  const resolvedComplaints = Number(stats.closed || 0);
+  const resolvedServices = Number(serviceStats.approved || 0);
 
   return (
-    <div className="flex h-screen bg-gray-100">
-      <AdminSidebar />
+    <div className="flex min-h-screen bg-gradient-to-br from-slate-100 via-blue-50 to-indigo-100">
 
-      <div className="flex-1 p-6 overflow-auto">
-        <h1 className="text-2xl font-bold mb-4">
-          Analytics
-        </h1>
+      {/* SIDEBAR */}
+      <div className="fixed left-0 top-0 h-screen w-64 bg-white shadow-2xl">
+        <AdminSidebar />
+      </div>
 
-        {/* ================= COMPLAINT ANALYTICS ================= */}
-        <div className="grid grid-cols-3 gap-4 mb-6">
-          <div className="bg-white p-4 shadow rounded">
-            <p className="text-gray-500">Total Complaints</p>
-            <h2 className="text-2xl font-bold">
-              {stats.total || 0}
-            </h2>
-          </div>
+      {/* MAIN */}
+      <div className="flex-1 ml-64 p-8 space-y-8">
 
-          <div className="bg-white p-4 shadow rounded">
-            <p className="text-gray-500">Resolved Complaints</p>
-            <h2 className="text-2xl font-bold text-green-600">
-              {totalResolvedComplaints}
-            </h2>
-          </div>
-
-          <div className="bg-white p-4 shadow rounded">
-            <p className="text-gray-500">Resolution Rate</p>
-            <h2 className="text-2xl font-bold text-blue-600">
-              {stats.rate ? stats.rate.toFixed(1) : 0}%
-            </h2>
-          </div>
+        {/* TOP HEADER HERO */}
+        <div className="bg-white rounded-3xl shadow-xl p-8 border-l-8 border-indigo-600">
+          <h1 className="text-3xl font-bold text-gray-800">
+            Analytics Dashboard
+          </h1>
+          <p className="text-gray-500 mt-2">
+            Real-time municipal performance insights
+          </p>
         </div>
 
-        {/* COMPLAINT TREND */}
-        <div className="bg-white p-4 rounded shadow mb-6">
-          <h2 className="text-lg font-semibold mb-4">
-            Complaint Trends
-          </h2>
+        {/* KPI STRIP */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
 
-          <ResponsiveContainer width="100%" height={300}>
-            <LineChart data={monthly}>
-              <XAxis dataKey="month" />
-              <YAxis />
-              <Tooltip />
-              <Line
-                type="monotone"
-                dataKey="value"
-                stroke="#3b82f6"
-                strokeWidth={3}
-              />
-            </LineChart>
-          </ResponsiveContainer>
+          <KPI title="Total Complaints" value={stats.total || 0} color="#4F46E5" />
+          <KPI title="Resolved Complaints" value={resolvedComplaints} color="#22C55E" />
+          <KPI title="Complaint Rate" value={(stats.rate || 0).toFixed(1) + "%"} color="#3B82F6" />
+          <KPI title="Total Services" value={serviceStats.total || 0} color="#F59E0B" />
+
         </div>
 
-        {/* ================= SERVICE ANALYTICS ================= */}
-        <div className="grid grid-cols-3 gap-4 mb-6">
-          <div className="bg-white p-4 shadow rounded">
-            <p className="text-gray-500">Total Services</p>
-            <h2 className="text-2xl font-bold">
-              {serviceStats.total || 0}
+        {/* LINE CHART SECTION */}
+        <div className="bg-white rounded-3xl shadow-xl p-6">
+
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-lg font-semibold text-gray-700">
+              Complaint Trend Analysis
             </h2>
+
+            <span className="px-3 py-1 text-xs rounded-full bg-indigo-100 text-indigo-600">
+              Monthly Insights
+            </span>
           </div>
 
-          <div className="bg-white p-4 shadow rounded">
-            <p className="text-gray-500">Resolved Services</p>
-            <h2 className="text-2xl font-bold text-green-600">
-              {totalResolvedServices}
-            </h2>
-          </div>
+          <ResponsiveContainer width="100%" height={400}>
+  <AreaChart data={monthly}>
+    
+    <defs>
+      <linearGradient id="complaintColor" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="5%" stopColor="#ef4444" stopOpacity={0.8}/>
+        <stop offset="95%" stopColor="#ef4444" stopOpacity={0}/>
+      </linearGradient>
+    </defs>
 
-          <div className="bg-white p-4 shadow rounded">
-            <p className="text-gray-500">Approval Rate</p>
-            <h2 className="text-2xl font-bold text-blue-600">
-              {serviceStats.rate
-                ? serviceStats.rate.toFixed(1)
-                : 0}
-              %
-            </h2>
-          </div>
+    <CartesianGrid strokeDasharray="3 3" />
+
+    <XAxis
+  dataKey="month"
+  tick={{ fontSize: 12 }}
+  angle={-30}
+  textAnchor="end"
+/>
+
+    <YAxis />
+
+    <Tooltip />
+
+   <Area
+  type="monotone"
+  dataKey="value"
+  stroke="#ef4444"
+  strokeWidth={4}
+  fill="url(#complaintColor)"
+  dot={{ r: 5, fill: "#ef4444" }}
+  activeDot={{ r: 8 }}
+/>
+
+  </AreaChart>
+</ResponsiveContainer>
+
         </div>
 
-        {/* SERVICE DISTRIBUTION */}
-        <div className="bg-white p-4 rounded shadow">
-          <h2 className="text-lg font-semibold mb-4">
-            Service Distribution by Department
-          </h2>
+        {/* SERVICE KPI STRIP */}
+        <div className="grid grid-cols-3 gap-6">
 
-          <ResponsiveContainer width="100%" height={350}>
+          <Mini title="Total Services" value={serviceStats.total || 0} />
+          <Mini title="Resolved Services" value={resolvedServices} />
+          <Mini title="Approval Rate" value={(serviceStats.rate || 0).toFixed(1) + "%"} />
+
+        </div>
+
+        {/* PIE CHART SECTION */}
+        <div className="bg-white rounded-3xl shadow-xl p-6">
+
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-lg font-semibold text-gray-700">
+              Service Department Distribution
+            </h2>
+
+            <span className="px-3 py-1 text-xs rounded-full bg-green-100 text-green-600">
+              Department Analytics
+            </span>
+          </div>
+
+          <ResponsiveContainer width="100%" height={400}>
             <PieChart>
-              <Pie
-                data={serviceDept}
-                dataKey="value"
-                nameKey="name"
-                outerRadius={120}
-                label
-              >
-                {serviceDept.map((_, index) => (
-                  <Cell
-                    key={index}
-                    fill={COLORS[index % COLORS.length]}
-                  />
-                ))}
-              </Pie>
+             <Pie
+  data={serviceDept}
+  dataKey="value"
+  nameKey="name"
+  innerRadius={80}
+  outerRadius={140}
+  paddingAngle={5}
+  label
+>
+  {serviceDept.map((_, i) => (
+    <Cell
+      key={i}
+      fill={COLORS[i % COLORS.length]}
+    />
+  ))}
+</Pie>
 
               <Tooltip />
               <Legend />
             </PieChart>
           </ResponsiveContainer>
+
         </div>
+
       </div>
+    </div>
+  );
+}
+
+/* ================= KPI CARD ================= */
+function KPI({ title, value, color }) {
+ 
+  return (
+    <div
+      className="bg-white p-6 rounded-2xl shadow-lg hover:shadow-2xl transition border-l-4"
+      style={{ borderColor: color }}
+    >
+      <p className="text-gray-500 text-sm">{title}</p>
+      <h2 className="text-3xl font-bold mt-2" style={{ color }}>
+        {value}
+      </h2>
+    </div>
+  );
+}
+
+/* ================= MINI CARD ================= */
+function Mini({ title, value }) {
+  return (
+    <div className="bg-gradient-to-r from-white to-slate-50 p-6 rounded-2xl shadow-md hover:shadow-lg transition">
+      <p className="text-gray-500 text-sm">{title}</p>
+      <h3 className="text-2xl font-bold text-gray-800 mt-1">{value}</h3>
     </div>
   );
 }

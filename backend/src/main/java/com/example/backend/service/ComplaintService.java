@@ -33,16 +33,12 @@ private AuditLogService auditLogService;
         return repo.findAll();
     }
 
-    public Complaint save(Complaint c) {
+   public Complaint save(Complaint c) {
+
+    System.out.println("TITLE = " + c.getTitle());
+    System.out.println("DESCRIPTION = " + c.getDescription());
 
     Complaint saved = repo.save(c);
-
-    auditLogService.saveLog(
-            "Citizen",
-            "CREATE_COMPLAINT",
-            saved.getTitle(),
-            "Complaint created"
-    );
 
     return saved;
 }
@@ -64,6 +60,9 @@ private AuditLogService auditLogService;
         "Resolved complaint deleted"
 );
     }
+    public Complaint getComplaintById(String id) {
+    return repo.findById(id).orElse(null);
+}
 
     public List<Complaint> getByStaff(String email) {
         return repo.findByAssignedStaffEmail(email);

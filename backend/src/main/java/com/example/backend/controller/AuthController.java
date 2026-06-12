@@ -52,31 +52,10 @@ Aadhaar aadhaar = aadhaarRepo
             return ResponseEntity.badRequest()
                     .body(Map.of("message", "Email Already Exists"));
         }
+if (user.getRole() == Role.MUNICIPAL) {
 
-        
-        String email = user.getEmail();
-
-      if (email.endsWith("@citizen.com")) {
-
-    user.setRole(Role.CITIZEN);
-
-} else if (email.endsWith("@municipal.com")) {
-
-    user.setRole(Role.MUNICIPAL);
-
-    
     user.setDepartment(null);
-
     user.setActiveTasks(0);
-
-} else if (email.endsWith("@admin.com")) {
-
-    user.setRole(Role.ADMIN);
-
-} else {
-
-    return ResponseEntity.badRequest()
-            .body(Map.of("message", "Invalid Email Domain"));
 }
 
        user.setPassword(encoder.encode(user.getPassword()));

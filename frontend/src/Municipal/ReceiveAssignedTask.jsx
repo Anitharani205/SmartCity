@@ -39,14 +39,14 @@ function ReceiveAssignedTask() {
     }
   };
 
-  // ================= PAGINATION =================
+  
   const indexOfLast = currentPage * itemsPerPage;
   const indexOfFirst = indexOfLast - itemsPerPage;
   const currentTasks = tasks.slice(indexOfFirst, indexOfLast);
 
   const totalPages = Math.ceil(tasks.length / itemsPerPage);
 
-  // 🔥 FORCE SHOW ONLY 5 PAGE NUMBERS (1–5 ONLY)
+  
   const maxPagesToShow = 5;
 
   const visiblePages = Array.from(
@@ -57,12 +57,11 @@ function ReceiveAssignedTask() {
   return (
     <div className="flex bg-gray-100 min-h-screen">
 
-      {/* Sidebar */}
       <div className="w-64 fixed left-0 top-0 h-screen bg-white shadow-md">
         <MunicipalSidebar />
       </div>
 
-      {/* Content */}
+      
       <div className="flex-1 ml-64 p-8 h-screen overflow-y-auto">
 
         <h1 className="text-3xl font-bold mb-8">
@@ -75,7 +74,7 @@ function ReceiveAssignedTask() {
           </div>
         ) : (
           <>
-            {/* TASK LIST */}
+           
             <div className="space-y-4">
               {currentTasks.map((task) => (
                 <div
@@ -90,7 +89,7 @@ function ReceiveAssignedTask() {
 
                   <p><strong>Type:</strong> {task.taskType}</p>
                   <p><strong>Citizen:</strong> {task.citizen}</p>
-                  <p><strong>Location:</strong> {task.location}</p>
+                  <p><strong>Location:</strong> {task.address}</p>
                   <p><strong>Status:</strong> {task.status}</p>
 
                   <button
@@ -105,7 +104,7 @@ function ReceiveAssignedTask() {
               ))}
             </div>
 
-            {/* ================= PAGINATION ================= */}
+         
             <div className="flex justify-end items-center mt-8 gap-3">
 
               <button
@@ -116,7 +115,7 @@ function ReceiveAssignedTask() {
                 Prev
               </button>
 
-              {/* ALWAYS SHOW ONLY 1–5 */}
+            
               {visiblePages.map((page) => (
                 <button
                   key={page}

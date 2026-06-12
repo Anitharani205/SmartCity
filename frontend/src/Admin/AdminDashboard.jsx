@@ -3,24 +3,21 @@ import API from "../services/api";
 import AdminSidebar from "./components/AdminSidebar";
 
 import {
-  LineChart,
-  Line,
+  BarChart,
+  Bar,
   XAxis,
+  YAxis,
   Tooltip,
   ResponsiveContainer,
   PieChart,
   Pie,
-  Cell
+  Cell,
+  Legend,
 } from "recharts";
 
 export default function AdminDashboard() {
   const [complaintStats, setComplaintStats] = useState({});
-  const [complaintPie, setComplaintPie] = useState([]);
-  const [complaintLine, setComplaintLine] = useState([]);
-
   const [serviceStats, setServiceStats] = useState({});
-  const [servicePie, setServicePie] = useState([]);
-  const [serviceLine, setServiceLine] = useState([]);
 
   useEffect(() => {
     loadData();
@@ -28,223 +25,221 @@ export default function AdminDashboard() {
 
   const loadData = async () => {
     try {
-      const s = await API.get("/analytics/stats");
-      const d = await API.get("/analytics/department");
-      const m = await API.get("/analytics/monthly");
+      const res = await API.get("/analytics/dashboard");
+      const data = res.data;
 
-      const ss = await API.get("/analytics/service-stats");
-      const sd = await API.get("/analytics/service-department");
-      const sm = await API.get("/analytics/service-monthly");
+      setComplaintStats({
+        total: data.totalComplaints,
+        closed: data.closedComplaints,
+      });
 
-      setComplaintStats(s.data);
-      setServiceStats(ss.data);
-
-      setComplaintPie(
-        Object.entries(d.data).map(([k, v]) => ({
-          name: k,
-          value: v
-        }))
-      );
-
-      setComplaintLine(
-        Object.entries(m.data).map(([k, v]) => ({
-          name: k,
-          value: v
-        }))
-      );
-
-      setServicePie(
-        Object.entries(sd.data).map(([k, v]) => ({
-          name: k,
-          value: v
-        }))
-      );
-
-      setServiceLine(
-        Object.entries(sm.data).map(([k, v]) => ({
-          name: k,
-          value: v
-        }))
-      );
+      setServiceStats({
+        total: data.totalServices,
+        approved: data.approvedServices,
+      });
     } catch (err) {
       console.log(err);
     }
   };
 
-  // ✅ FIX: safe numeric fallback (NO UI CHANGE)
-  const resolvedComplaints =
-    Number(complaintStats.closed || 0);
+  // 🌈 PREMIUM COLOR PALETTE (UNCHANGED)
+  const COLORS = {
+    primary: "#4F46E5",
+    cyan: "#06B6D4",
+    green: "#22C55E",
+    amber: "#F59E0B",
+    red: "#EF4444",
+    purple: "#A855F7",
+  };
 
-  const resolvedServices =
-    Number(serviceStats.approved|| 0);
-
-  const COLORS = [
-    "#3B82F6",
+  const pieColors = [
+    "#4F46E5",
     "#22C55E",
     "#F59E0B",
-    "#EF4444",
-    "#8B5CF6",
-    "#14B8A6",
-    "#F97316",
-    "#EC4899"
+    "#06B6D4",
+    "#A855F7",
+  ];
+
+  // =========================
+  // ✅ UPDATED PIE DATA (Total / Closed / Pending)
+  // =========================
+
+  const complaintPie = [
+    { name: "Total", value: complaintStats.total || 0 },
+    { name: "Closed", value: complaintStats.closed || 0 },
+    {
+      name: "Pending",
+      value:
+        (complaintStats.total || 0) -
+        (complaintStats.closed || 0),
+    },
+  ];
+
+  const servicePie = [
+    { name: "Total", value: serviceStats.total || 0 },
+    { name: "Approved", value: serviceStats.approved || 0 },
+    {
+      name: "Pending",
+      value:
+        (serviceStats.total || 0) -
+        (serviceStats.approved || 0),
+    },
+  ];
+
+  // BAR DATA (UNCHANGED)
+  const complaintBar = [
+    { name: "Total", value: complaintStats.total || 0 },
+    { name: "Closed", value: complaintStats.closed || 0 },
+    {
+      name: "Pending",
+      value:
+        (complaintStats.total || 0) -
+        (complaintStats.closed || 0),
+    },
+  ];
+
+  const serviceBar = [
+    { name: "Total", value: serviceStats.total || 0 },
+    { name: "Approved", value: serviceStats.approved || 0 },
+    {
+      name: "Pending",
+      value:
+        (serviceStats.total || 0) -
+        (serviceStats.approved || 0),
+    },
   ];
 
   return (
-    <div className="flex h-screen bg-gray-100">
-      <AdminSidebar />
+    <div className="bg-gradient-to-br from-slate-100 via-blue-50 to-indigo-100">
 
-      <div className="flex-1 p-6 space-y-6 overflow-auto">
+      {/* SIDEBAR */}
+      <div className="fixed top-0 left-0 h-screen w-64 z-50">
+        <AdminSidebar />
+      </div>
 
-        <h1 className="text-2xl font-bold">
-          Admin Dashboard
+      <div className="ml-64 h-screen overflow-y-auto p-6 space-y-6">
+
+        <h1 className="text-3xl font-bold text-gray-800">
+          Admin Dashboard 🚀
         </h1>
 
-        <div className="grid grid-cols-4 gap-4">
+        {/* CARDS */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
 
-          <Card title="Complaints" value={complaintStats.total} />
-
-          <Card
-            title="Resolved Complaints"
-            value={resolvedComplaints}
-          />
-
-          <Card title="Services" value={serviceStats.total} />
-
-          <Card
-            title="Resolved Services"
-            value={resolvedServices}
-          />
+          <Card title="Complaints" value={complaintStats.total} color={COLORS.primary} />
+          <Card title="Resolved Complaints" value={complaintStats.closed} color={COLORS.green} />
+          <Card title="Services" value={serviceStats.total} color={COLORS.cyan} />
+          <Card title="Resolved Services" value={serviceStats.approved} color={COLORS.green} />
 
         </div>
 
-        <div className="grid grid-cols-2 gap-6">
+        {/* CHARTS */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
+          {/* PIE - Complaints */}
           <ChartBox title="Complaint Distribution">
-            <PieChart width={350} height={280}>
-              <Pie
-                data={complaintPie}
-                dataKey="value"
-                nameKey="name"
-                cx="50%"
-                cy="50%"
-                outerRadius={110}
-                innerRadius={60}
-                paddingAngle={5}
-                stroke="none"
-              >
-                {complaintPie.map((_, index) => (
-                  <Cell
-                    key={index}
-                    fill={COLORS[index % COLORS.length]}
-                  />
-                ))}
-              </Pie>
-              <Tooltip />
-            </PieChart>
-
-            <LegendList data={complaintPie} colors={COLORS} />
+            <ResponsiveContainer width="100%" height={300}>
+              <PieChart>
+                <Pie data={complaintPie} dataKey="value" outerRadius={110}>
+                  {complaintPie.map((_, i) => (
+                    <Cell key={i} fill={pieColors[i % pieColors.length]} />
+                  ))}
+                </Pie>
+                <Tooltip />
+                <Legend />
+              </PieChart>
+            </ResponsiveContainer>
           </ChartBox>
 
+          {/* BAR - Complaints (REDUCED WIDTH ONLY) */}
+          <ChartBox title="Complaint Analysis">
+            <ResponsiveContainer width="75%" height={300}>
+              <BarChart data={complaintBar}>
+                <XAxis dataKey="name" />
+                <YAxis />
+                <Tooltip />
+                <Bar dataKey="value">
+                  {complaintBar.map((_, i) => (
+                    <Cell
+                      key={i}
+                      fill={
+                        i === 0
+                          ? COLORS.primary
+                          : i === 1
+                          ? COLORS.green
+                          : COLORS.amber
+                      }
+                    />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          </ChartBox>
+
+          {/* PIE - Services */}
           <ChartBox title="Service Distribution">
-            <PieChart width={350} height={280}>
-              <Pie
-                data={servicePie}
-                dataKey="value"
-                nameKey="name"
-                cx="50%"
-                cy="50%"
-                outerRadius={110}
-                innerRadius={60}
-                paddingAngle={5}
-                stroke="none"
-              >
-                {servicePie.map((_, index) => (
-                  <Cell
-                    key={index}
-                    fill={COLORS[index % COLORS.length]}
-                  />
-                ))}
-              </Pie>
-              <Tooltip />
-            </PieChart>
-
-            <LegendList data={servicePie} colors={COLORS} />
-          </ChartBox>
-
-        </div>
-
-        <div className="grid grid-cols-2 gap-6">
-
-          <ChartBox title="Complaint Trends">
-            <ResponsiveContainer width="100%" height={250}>
-              <LineChart data={complaintLine}>
-                <XAxis dataKey="name" />
+            <ResponsiveContainer width="100%" height={300}>
+              <PieChart>
+                <Pie data={servicePie} dataKey="value" outerRadius={110}>
+                  {servicePie.map((_, i) => (
+                    <Cell key={i} fill={pieColors[i % pieColors.length]} />
+                  ))}
+                </Pie>
                 <Tooltip />
-                <Line dataKey="value" stroke="#3B82F6" strokeWidth={3} />
-              </LineChart>
+                <Legend />
+              </PieChart>
             </ResponsiveContainer>
           </ChartBox>
 
-          <ChartBox title="Service Trends">
-            <ResponsiveContainer width="100%" height={250}>
-              <LineChart data={serviceLine}>
+          {/* BAR - Services (REDUCED WIDTH ONLY) */}
+          <ChartBox title="Service Analysis">
+            <ResponsiveContainer width="75%" height={300}>
+              <BarChart data={serviceBar}>
                 <XAxis dataKey="name" />
+                <YAxis />
                 <Tooltip />
-                <Line dataKey="value" stroke="#22C55E" strokeWidth={3} />
-              </LineChart>
+                <Bar dataKey="value">
+                  {serviceBar.map((_, i) => (
+                    <Cell
+                      key={i}
+                      fill={
+                        i === 0
+                          ? COLORS.cyan
+                          : i === 1
+                          ? COLORS.green
+                          : COLORS.amber
+                      }
+                    />
+                  ))}
+                </Bar>
+              </BarChart>
             </ResponsiveContainer>
           </ChartBox>
 
         </div>
-
       </div>
     </div>
   );
 }
 
-/* ================= CARD ================= */
-function Card({ title, value }) {
+function Card({ title, value, color }) {
   return (
-    <div className="bg-white p-4 rounded shadow">
-      <p className="text-gray-500">{title}</p>
-      <h2 className="text-2xl font-bold">{value || 0}</h2>
+    <div className="relative bg-white/70 backdrop-blur-md p-5 rounded-2xl shadow-md border border-white">
+      <div className="absolute top-0 left-0 w-full h-1 rounded-t-2xl" style={{ backgroundColor: color }} />
+      <p className="text-gray-500 text-sm">{title}</p>
+      <h2 className="text-3xl font-bold mt-1" style={{ color }}>
+        {value || 0}
+      </h2>
     </div>
   );
 }
 
-/* ================= CHART BOX ================= */
+
 function ChartBox({ title, children }) {
   return (
-    <div className="bg-white p-4 rounded shadow">
-      <h3 className="font-bold mb-3">{title}</h3>
+    <div className="bg-white/70 backdrop-blur-md p-4 rounded-2xl shadow-md border border-white">
+      <h3 className="font-semibold mb-3 text-gray-700">{title}</h3>
       {children}
-    </div>
-  );
-}
-
-/* ================= LEGEND ================= */
-function LegendList({ data, colors }) {
-  return (
-    <div className="mt-4 grid grid-cols-2 gap-2 text-sm">
-
-      {data.map((item, index) => (
-        <div key={index} className="flex items-center justify-between">
-
-          <div className="flex items-center gap-2">
-            <div
-              className="w-3 h-3 rounded-full"
-              style={{ backgroundColor: colors[index % colors.length] }}
-            />
-            <span className="text-gray-700">{item.name}</span>
-          </div>
-
-          <span className="font-semibold text-gray-500">
-            {item.value}
-          </span>
-
-        </div>
-      ))}
-
     </div>
   );
 }

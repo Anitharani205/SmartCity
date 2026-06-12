@@ -37,12 +37,17 @@ private NotificationRepository notificationRepo;
     public List<Complaint> getCitizenComplaints(@PathVariable String email) {
         return service.getCitizenComplaints(email);
     }
+    @GetMapping("/{id}")
+public Complaint getComplaintById(@PathVariable String id) {
+    return service.getComplaintById(id);
+}
 
     @PostMapping
     public Complaint create(@RequestBody Complaint c) {
         return service.save(c);
     }
 
+    
     @PutMapping("/assign/{id}")
     public Complaint assign(@PathVariable String id, @RequestBody Complaint req) {
         return service.assignTask(id, req);

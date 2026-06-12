@@ -1,35 +1,49 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import AdminSidebar from "./components/AdminSidebar";
 import API from "../services/api";
 
 export default function AdminServices() {
+   const navigate = useNavigate();
   const [bookings, setBookings] = useState([]);
-  const [staff, setStaff] = useState([]);
+ const [allStaff, setAllStaff] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
 
   const itemsPerPage = 5;
 
   useEffect(() => {
-    loadServices();
-  }, []);
+  loadServices();
+  loadAllStaff();
+}, []);
 
   const loadServices = async () => {
     try {
       const res = await API.get("/services");
+    
       setBookings(res.data);
+console.log(res.data);
     } catch (err) {
       console.log(err);
     }
   };
 
-  const loadStaff = async (category) => {
-    try {
-      const res = await API.get(`/users/department/${category}`);
-      setStaff(res.data);
-    } catch (err) {
-      console.log(err);
-    }
-  };
+ const loadAllStaff = async () => {
+  try {
+    const res = await API.get("/users");
+
+    console.log("ALL USERS =", res.data);
+
+    const municipalStaff = res.data.filter(
+      (u) => u.role === "MUNICIPAL"
+    );
+
+    console.log("MUNICIPAL STAFF =", municipalStaff);
+
+    setAllStaff(municipalStaff);
+  } catch (err) {
+    console.log(err);
+  }
+};
 
  const assignService = async (id, staffName, staffEmail, category) => {
   try {
@@ -38,7 +52,7 @@ export default function AdminServices() {
       assignedStaffEmail: staffEmail,
     });
 
-    await loadStaff(category); // refresh active task count
+   // refresh active task count
     await loadServices();
 
     alert(`Assigned to ${staffName}`);
@@ -75,7 +89,34 @@ const deleteService = async (id) => {
     5,
     Math.ceil(bookings.length / itemsPerPage)
   );
+const getStaffByCategory = (category) => {
+  let department = "";
 
+  switch (category) {
+    case "Plumbing":
+      department = "Water";
+      break;
+
+    case "Electrical":
+    case "AC Service":
+    case "Appliance Repair":
+      department = "Electrical";
+      break;
+
+    case "Cleaning":
+    case "Gardening":
+    case "Pest Control":
+      department = "Sanitation";
+      break;
+
+    default:
+      department = category;
+  }
+
+  return allStaff
+    .filter((u) => u.department === department)
+    .sort((a, b) => (a.activeTasks || 0) - (b.activeTasks || 0));
+};
   return (
     <div className="flex bg-gray-100 min-h-screen">
 
@@ -109,7 +150,7 @@ const deleteService = async (id) => {
                   <th className="p-4 text-left">Status</th>
                   <th className="p-4 text-left">Assigned Staff</th>
                   <th className="p-4 text-center">Assign Service</th>
-                  <th className="p-4 text-center">Delete</th>
+                  <th className="p-4 text-center">View</th>
                 </tr>
               </thead>
 
@@ -165,43 +206,35 @@ const deleteService = async (id) => {
                     </td>
 
                     <td className="p-4 text-center">
-                      <select
-                        defaultValue=""
-                        onClick={() => loadStaff(b.category)}
-                        onChange={(e) => {
-                          const selected = staff.find(
-                            (s) => s.email === e.target.value
-                          );
+                     <select
+  defaultValue=""
+  onChange={(e) => {
+    const selected = getStaffByCategory(b.category).find(
+      (s) => String(s.id) === e.target.value
+    );
 
-                          if (selected) {
-                            assignService(
-                              b.id,
-                              selected.name,
-                              selected.email
-                            );
-                          }
-                        }}
-                        className="border px-4 py-2 rounded-lg"
-                      >
-                        <option value="">Select Staff</option>
-                        {staff.map((s) => (
-                          <option key={s.id} value={s.email}>
-                            {s.name} ({s.activeTasks})
-                          </option>
-                        ))}
-                      </select>
+    if (selected) {
+      assignService(b.id, selected.name, selected.email, b.category);
+    }
+  }}
+  className="border px-3 py-2 rounded"
+>
+  <option value="">Select Staff</option>
+
+  {getStaffByCategory(b.category).map((staff) => (
+    <option key={staff.id} value={staff.id}>
+      {staff.name} - {staff.activeTasks || 0}
+    </option>
+  ))}
+</select>
                     </td>
                     <td className="p-4 text-center">
-
-  {b.status === "APPROVED" && (
-    <button
-      onClick={() => deleteService(b.id)}
-      className="bg-red-600 text-white px-4 py-2 rounded"
-    >
-      Delete
-    </button>
-  )}
-
+  <button
+    onClick={() => navigate(`/admin/service/${b.id}`)}
+    className="bg-green-600 text-white px-4 py-2 rounded"
+  >
+    View
+  </button>
 </td>
 
                   </tr>

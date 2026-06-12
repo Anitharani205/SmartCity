@@ -11,6 +11,8 @@ public interface UserRepository
 
     User findByEmail(String email);
 
+    List<User> findByRole(Role role);
+
     List<User> findByRoleAndDepartmentOrderByActiveTasksAsc(
             Role role,
             String department

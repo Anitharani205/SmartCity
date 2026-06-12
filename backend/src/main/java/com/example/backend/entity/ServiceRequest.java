@@ -28,6 +28,7 @@ public class ServiceRequest {
 
     private String progressNote;
     private String proofImage;
+    private String citizenImage;
 
   
 
@@ -136,5 +137,12 @@ public class ServiceRequest {
     public void setProofImage(String proofImage) {
         this.proofImage = proofImage;
     }
+    public String getCitizenImage() {
+    return citizenImage;
+}
+
+public void setCitizenImage(String citizenImage) {
+    this.citizenImage = citizenImage;
+}
   
 }

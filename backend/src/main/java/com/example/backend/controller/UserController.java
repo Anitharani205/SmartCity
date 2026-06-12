@@ -5,7 +5,8 @@ import com.example.backend.repository.UserRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-
+import com.example.backend.service.EmailService;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import java.util.List;
 
 @RestController
@@ -15,25 +16,53 @@ public class UserController {
 
     @Autowired
     private UserRepository userRepo;
+@Autowired
+private EmailService emailService;
 
+@Autowired
+private PasswordEncoder passwordEncoder;
    
     @GetMapping
     public List<User> getUsers() {
 
         return userRepo.findAll();
     }
-   @PostMapping("/create")
-public User createUser(
-        @RequestBody User user
-) {
+    
 
-    user.setStatus("Active");
 
-    if(user.getActiveTasks() == null) {
-        user.setActiveTasks(0);
+  @PostMapping("/create")
+public User createUser(@RequestBody User user) {
+
+    try {
+
+        user.setStatus("Active");
+
+        if (user.getActiveTasks() == null) {
+            user.setActiveTasks(0);
+        }
+
+        String email = user.getEmail();
+
+        String plainPassword = user.getPassword();
+
+        user.setPassword(passwordEncoder.encode(plainPassword));
+
+        User savedUser = userRepo.save(user);
+
+        try {
+            emailService.sendCredentials(email, plainPassword);
+            System.out.println("EMAIL SENT SUCCESSFULLY");
+        } catch (Exception e) {
+            System.out.println("EMAIL FAILED");
+            e.printStackTrace();
+        }
+
+        return savedUser;
+
+    } catch (Exception e) {
+        e.printStackTrace();
+        throw e;
     }
-
-    return userRepo.save(user);
 }
     @GetMapping("/department/{category}")
 public List<User> getStaffByCategory(
@@ -91,7 +120,39 @@ public List<User> getStaffByCategory(
 
         return "User Deleted";
     }
+   @PostMapping
+public User createUserDefault(@RequestBody User user) {
 
+    try {
+
+        user.setStatus("Active");
+
+        if (user.getActiveTasks() == null) {
+            user.setActiveTasks(0);
+        }
+
+        String email = user.getEmail();
+        String plainPassword = user.getPassword();
+
+        user.setPassword(passwordEncoder.encode(plainPassword));
+
+        User savedUser = userRepo.save(user);
+
+        try {
+            emailService.sendCredentials(email, plainPassword);
+            System.out.println("EMAIL SENT SUCCESSFULLY");
+        } catch (Exception e) {
+            System.out.println("EMAIL FAILED");
+            e.printStackTrace();
+        }
+
+        return savedUser;
+
+    } catch (Exception e) {
+        e.printStackTrace();
+        throw e;
+    }
+}
     
     @PutMapping("/toggle/{id}")
     public String toggleStatus(

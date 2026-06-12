@@ -19,32 +19,27 @@ public class ServiceController {
 
     @Autowired
     private ServiceRepository serviceRepository;
-
-    // CREATE SERVICE
-    @PostMapping
-    public ServiceRequest create(@RequestBody ServiceRequest s) {
-        return service.save(s);
-    }
-
-    // GET ALL SERVICES
+@PostMapping
+public ServiceRequest create(@RequestBody ServiceRequest s) {
+    return service.save(s);
+}
+  
     @GetMapping
     public List<ServiceRequest> getAll() {
         return service.getAll();
     }
 
-    // GET STAFF SERVICES
+    
     @GetMapping("/staff/{email}")
     public List<ServiceRequest> getStaff(@PathVariable String email) {
         return service.getByStaff(email);
     }
 
-    // GET CITIZEN SERVICES
     @GetMapping("/citizen/{email}")
     public List<ServiceRequest> getCitizenServices(@PathVariable String email) {
         return service.getCitizenServices(email);
     }
 
-    // ASSIGN SERVICE
     @PutMapping("/assign/{id}")
     public ServiceRequest assign(
             @PathVariable String id,
@@ -53,7 +48,7 @@ public class ServiceController {
         return service.assign(id, req);
     }
 
-    // UPDATE STATUS
+   
     @PutMapping("/{id}/status")
     public ServiceRequest update(
             @PathVariable String id,
@@ -61,8 +56,12 @@ public class ServiceController {
 
         return service.update(id, req);
     }
+   @GetMapping("/details/{id}")
+public ServiceRequest getServiceById(@PathVariable String id) {
+    return service.getServiceById(id);
+}
 
-    // FEEDBACK
+  
     @PutMapping("/feedback/{id}")
     public ServiceRequest feedback(
             @PathVariable String id,
@@ -71,7 +70,7 @@ public class ServiceController {
         return service.feedback(id, req);
     }
 
-    // DELETE SERVICE (FIXED)
+    
     @DeleteMapping("/{id}")
 public void deleteService(@PathVariable String id) {
     serviceRepository.deleteById(id);

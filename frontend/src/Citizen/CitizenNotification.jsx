@@ -51,7 +51,7 @@ const services = notifications.filter(
           Citizen Notifications
         </h1>
 
-        {/* ================= COMPLAINTS ================= */}
+        
         <h2 className="text-blue-600 font-bold mb-3">
           Complaints
         </h2>
@@ -101,7 +101,7 @@ const services = notifications.filter(
           </div>
         ))}
 
-        {/* ================= SERVICES ================= */}
+     
         <h2 className="text-green-600 font-bold mb-3 mt-6">
           Services
         </h2>

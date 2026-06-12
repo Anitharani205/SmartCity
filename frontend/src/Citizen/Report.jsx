@@ -7,15 +7,17 @@ export default function Report() {
   const navigate = useNavigate();
 
   const [form, setForm] = useState({
-    citizenName: "",
-    category: "",
-    title: "",
-    address: "",
-    mapLink: "",
-    latitude: "",
-    longitude: "",
-    priority: "Low"
-  });
+  citizenName: "",
+  category: "",
+  title: "",
+  description: "",
+  address: "",
+  mapLink: "",
+  latitude: "",
+  longitude: "",
+  image: "",
+  priority: "Low"
+});
 
   const getCurrentLocation = () => {
     if (!navigator.geolocation) {
@@ -55,16 +57,18 @@ export default function Report() {
 
       alert("Complaint Submitted Successfully!");
 
-      setForm({
-        citizenName: "",
-        category: "",
-        title: "",
-        address: "",
-        mapLink: "",
-        latitude: "",
-        longitude: "",
-        priority: "Low"
-      });
+    setForm({
+  citizenName: "",
+  category: "",
+  title: "",
+  description: "",
+  address: "",
+  mapLink: "",
+  latitude: "",
+  longitude: "",
+  image: "",
+  priority: "Low"
+});
 
       navigate("/citizen");
     } catch (err) {
@@ -133,6 +137,18 @@ export default function Report() {
               })
             }
           />
+          <textarea
+  placeholder="Complaint Description"
+  value={form.description}
+  rows="4"
+  className="border p-3 w-full rounded"
+  onChange={(e) =>
+    setForm({
+      ...form,
+      description: e.target.value
+    })
+  }
+/>
 
           <textarea
             placeholder="Address"
@@ -146,7 +162,34 @@ export default function Report() {
               })
             }
           />
+        <input
+  type="file"
+  accept="image/*"
+  className="border p-3 w-full rounded"
+  onChange={(e) => {
+    const file = e.target.files[0];
 
+    if (file) {
+      const reader = new FileReader();
+
+      reader.onloadend = () => {
+        setForm({
+          ...form,
+          image: reader.result
+        });
+      };
+
+      reader.readAsDataURL(file);
+    }
+  }}
+/>
+{form.image && (
+  <img
+    src={form.image}
+    alt="Preview"
+    className="w-64 h-48 object-cover rounded border"
+  />
+)}
           <input
             placeholder="Google Maps Link"
             value={form.mapLink}

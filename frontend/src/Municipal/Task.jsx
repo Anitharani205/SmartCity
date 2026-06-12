@@ -1,9 +1,11 @@
 import { useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import API from "../services/api";
 import MunicipalSidebar from "./components/MunicipalSidebar";
 
 export default function Task() {
+  const navigate = useNavigate();
 
   const location = useLocation();
 
@@ -30,29 +32,28 @@ export default function Task() {
   }
 
   const updateTask = async () => {
+  try {
+    const endpoint =
+      task.taskType === "Complaint"
+        ? `/complaints/${task.id || task._id}/status`
+        : `/services/${task.id || task._id}/status`;
 
-    try {
+    await API.put(endpoint, {
+      status,
+      progressNote: note,
+      proofImage: proof
+    });
 
-      const endpoint =
-        task.taskType === "Complaint"
-          ? `/complaints/${task.id || task._id}/status`
-          : `/services/${task.id || task._id}/status`;
+    alert("Updated Successfully");
 
-      await API.put(endpoint, {
-        status,
-        progressNote: note,
-        proofImage: proof
-      });
+    // ✅ redirect to dashboard
+    navigate("/dashboard");
 
-      alert("Updated Successfully");
-
-    } catch (error) {
-
-      console.log(error);
-
-      alert("Update Failed");
-    }
-  };
+  } catch (error) {
+    console.log(error);
+    alert("Update Failed");
+  }
+};
 
   return (
     <div className="flex bg-gray-100 min-h-screen">

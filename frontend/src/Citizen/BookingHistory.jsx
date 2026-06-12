@@ -19,17 +19,9 @@ export default function BookingHistory() {
   };
 
   useEffect(() => {
-    loadServices();
-
-    const interval = setInterval(() => {
-      loadServices();
-    }, 5000);
-
-    return () => clearInterval(interval);
-  }, []);
-
-  // ================= FILTER =================
-  // ONLY APPROVED SERVICES ARE RESOLVED
+  loadServices();
+}, []);
+  
 
   const resolvedServices = services.filter(
     (s) => String(s.status).toUpperCase() === "APPROVED"
@@ -39,7 +31,6 @@ export default function BookingHistory() {
     (s) => String(s.status).toUpperCase() !== "APPROVED"
   );
 
-  // ================= PAGINATION =================
 
   const allServices = [
     ...pendingServices,
@@ -66,7 +57,7 @@ export default function BookingHistory() {
           Service Booking History
         </h1>
 
-        {/* ================= PENDING SERVICES ================= */}
+        
 
         <h2 className="text-2xl font-semibold mb-5 text-yellow-600">
           Pending Services
@@ -98,7 +89,7 @@ export default function BookingHistory() {
           ))
         )}
 
-        {/* ================= RESOLVED SERVICES ================= */}
+        
 
         <h2 className="text-2xl font-semibold mt-10 mb-5 text-green-600">
           Resolved Services
@@ -130,7 +121,7 @@ export default function BookingHistory() {
           ))
         )}
 
-        {/* ================= PAGINATION ================= */}
+     
 
         <div className="flex justify-end items-center mt-10 gap-4">
           <button

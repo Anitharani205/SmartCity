@@ -80,12 +80,12 @@ export default function MunicipalDashboard() {
           </p>
         </div>
 
-        {/* ================= STATS ================= */}
+       
         <div className="grid grid-cols-4 gap-4">
 
           <StatCard title="Complaints" value={complaints.length} />
           <StatCard title="Services" value={services.length} />
-{/* Pending */}
+
 <StatCard
   title="Pending"
   value={
@@ -98,7 +98,7 @@ services.filter(
   }
 />
 
-{/* Resolved */}
+
 <StatCard
   title="Resolved"
   value={
@@ -113,7 +113,6 @@ services.filter(
 
         </div>
 
-        {/* ================= PIE CHART ================= */}
         <div className="bg-white p-6 rounded-2xl shadow">
 
           <h2 className="font-semibold text-lg mb-4">
@@ -170,10 +169,9 @@ services.filter(
 
         </div>
 
-        {/* ================= TABLES ================= */}
         <div className="grid grid-cols-2 gap-6">
 
-          {/* Complaints */}
+        
           <div className="bg-white p-5 rounded-2xl shadow">
 
             <h2 className="font-semibold mb-4 text-lg">
@@ -211,7 +209,7 @@ services.filter(
 
           </div>
 
-          {/* Services */}
+       
           <div className="bg-white p-5 rounded-2xl shadow">
 
             <h2 className="font-semibold mb-4 text-lg">

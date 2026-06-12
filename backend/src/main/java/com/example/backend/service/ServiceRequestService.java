@@ -46,10 +46,11 @@ public class ServiceRequestService {
     public void deleteService(String id) {
         repo.deleteById(id);
     }
+    public ServiceRequest getServiceById(String id) {
+    return repo.findById(id).orElse(null);
+}
 
-    // =========================
-    // ASSIGN SERVICE
-    // =========================
+    
     public ServiceRequest assign(String id, ServiceRequest req) {
 
     ServiceRequest s = repo.findById(id)
@@ -61,9 +62,7 @@ public class ServiceRequestService {
 
     return repo.save(s);
 }
-    // =========================
-    // STAFF UPDATE (FIXED NOTIFICATION)
-    // =========================
+   
     public ServiceRequest update(String id, ServiceRequest req) {
 
         ServiceRequest s = repo.findById(id)
@@ -85,16 +84,14 @@ public class ServiceRequestService {
 
         ServiceRequest updated = repo.save(s);
 
-        // =========================
-        // NOTIFICATION WHEN RESOLVED
-        // =========================
+        
         String newStatus = req.getStatus();
 
         if (newStatus != null &&
                 newStatus.equalsIgnoreCase("Resolved") &&
                 !"Resolved".equalsIgnoreCase(oldStatus)) {
 
-            // CITIZEN NOTIFICATION
+          
             NotificationLog citizen = new NotificationLog();
             citizen.setMessage("Your service '" + s.getService() + "' is completed");
             citizen.setRole("CITIZEN");
@@ -105,7 +102,7 @@ public class ServiceRequestService {
 
             notificationRepo.save(citizen);
 
-            // DECREASE STAFF TASK COUNT
+          
             if (s.getAssignedStaffEmail() != null) {
                 User staff = userRepo.findByEmail(s.getAssignedStaffEmail());
                 if (staff != null && staff.getActiveTasks() != null && staff.getActiveTasks() > 0) {
@@ -118,9 +115,7 @@ public class ServiceRequestService {
         return updated;
     }
 
-    // =========================
-    // CITIZEN FEEDBACK
-    // =========================
+    
     public ServiceRequest feedback(String id, ServiceRequest req) {
 
         ServiceRequest s = repo.findById(id)

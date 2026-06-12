@@ -3,8 +3,6 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import LandingPage from "./LandingPage";
 import Login from "./Login";
 import SignUp from "./SignUp";
-
-
 import Dashboard from "./Citizen/Dashboard";
 import Services from "./Citizen/Services";
 import CitizenAlerts from "./citizen/CitizenAlerts";
@@ -13,23 +11,19 @@ import ComplaintHistory from "./Citizen/ComplaintHistory";
 import Report from "./Citizen/Report";
 import CitizenNotification from "./Citizen/CitizenNotification";
 
-
-
 import MunicipalDashboard from "./Municipal/MunicipalDashboard";
-
 import ReceiveAssignedTask from "./Municipal/ReceiveAssignedTask";
 import Task from "./Municipal/Task";
 import StaffNotification from "./Municipal/StaffNotification";
 import AdminDashboard from "./Admin/AdminDashboard";
 import Complaints from "./Admin/Complaints";
-import ComplaintSummary from "./Admin/ComplaintSummary";
+import ComplaintDetails from "./Admin/ComplaintDetails";
 import NewUser from "./Admin/NewUser";
 import AdminServices from "./Admin/AdminServices";
+import ServiceDetails from "./Admin/ServiceDetails";
 import UserManagement from "./Admin/UserManagement";
 import CreateUser from "./Admin/NewUser";
-
 import Alerts from "./admin/Alerts";
-
 import CreateAlert from "./admin/CreateAlert";
 import Analytics from "./Admin/Analytics";
 import AuditLogs from "./Admin/AuditLogs";
@@ -65,9 +59,17 @@ function App() {
 />
         <Route path="/admin" element={<AdminDashboard />} />
         <Route path="/complaintsservices" element={<Complaints />} />
-        <Route path="/complaintsummary" element={<ComplaintSummary />} />
+      
         <Route path="/new-user" element={<NewUser />}/>
         <Route path="/adminservices" element={<AdminServices />} />
+        <Route
+  path="/admin/service/:id"
+  element={<ServiceDetails />}
+/>
+        <Route
+  path="/admin/complaint/:id"
+  element={<ComplaintDetails />}
+/>
         <Route path="/usermanagement" element={<UserManagement />} />
         <Route path="/create-user" element={<CreateUser />} />
          <Route path="/alerts" element={<Alerts />} />

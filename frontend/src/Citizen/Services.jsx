@@ -6,37 +6,40 @@ import Sidebar from "./components/Sidebar";
 export default function Services() {
 
   const navigate = useNavigate();
-
-  const [form, setForm] = useState({
-    citizenName: "",
-    category: "",
-    service: "",
-    address: "",
-    mapLink: "",
-    location: "",
-    date: ""
-  });
+const [form, setForm] = useState({
+  citizenName: "",
+  category: "",
+  service: "",
+  address: "",
+  mapLink: "",
+  location: "",
+  date: "",
+  citizenImage: ""
+});
 
   const handleBooking = async () => {
 
     try {
 
-      await API.post("/services", {
-        ...form,
-        citizen: localStorage.getItem("email")
-      });
+     const formData = new FormData();
+
+await API.post("/services", {
+  ...form,
+  citizen: localStorage.getItem("email")
+});
 
       alert("Service Booked Successfully!");
 
-      setForm({
-        citizenName: "",
-        category: "",
-        service: "",
-        address: "",
-        mapLink: "",
-        location: "",
-        date: ""
-      });
+    setForm({
+  citizenName: "",
+  category: "",
+  service: "",
+  address: "",
+  mapLink: "",
+  location: "",
+  date: "",
+  citizenImage: ""
+});
 
       navigate("/citizen");
 
@@ -188,6 +191,40 @@ export default function Services() {
             })
           }
         />
+        <div className="mb-4">
+  <label className="block mb-2 font-medium">
+    Upload Image
+  </label>
+
+  <input
+  type="file"
+  accept="image/*"
+  className="border p-3 w-full rounded"
+  onChange={(e) => {
+    const file = e.target.files[0];
+
+    if (file) {
+      const reader = new FileReader();
+
+      reader.onloadend = () => {
+        setForm({
+          ...form,
+          citizenImage: reader.result
+        });
+      };
+
+      reader.readAsDataURL(file);
+    }
+  }}
+/>
+{form.citizenImage && (
+  <img
+    src={form.citizenImage}
+    alt="Preview"
+    className="w-64 h-48 object-cover rounded border mt-3"
+  />
+)}
+</div>
 
         <button
           onClick={handleBooking}

@@ -19,14 +19,8 @@ export default function ComplaintHistory() {
   };
 
   useEffect(() => {
-    loadComplaints();
-
-    const interval = setInterval(() => {
-      loadComplaints();
-    }, 5000);
-
-    return () => clearInterval(interval);
-  }, []);
+  loadComplaints();
+}, []);
 
   // ONLY "Closed" COMPLAINTS GO TO RESOLVED
  const pendingComplaints = complaints.filter(
