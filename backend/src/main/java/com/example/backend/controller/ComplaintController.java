@@ -4,8 +4,10 @@ import com.example.backend.entity.Complaint;
 import com.example.backend.entity.NotificationLog;
 import com.example.backend.repository.NotificationRepository;
 import com.example.backend.service.ComplaintService;
+import com.example.backend.service.EmailService;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -23,6 +25,8 @@ public class ComplaintController {
     @Autowired
 private NotificationRepository notificationRepo;
 
+@Autowired
+private EmailService emailService;
     @GetMapping
     public List<Complaint> getAll() {
         return service.getAll();
@@ -48,10 +52,23 @@ public Complaint getComplaintById(@PathVariable String id) {
     }
 
     
-    @PutMapping("/assign/{id}")
-    public Complaint assign(@PathVariable String id, @RequestBody Complaint req) {
-        return service.assignTask(id, req);
+   @PutMapping("/assign/{id}")
+public ResponseEntity<?> assign(@PathVariable String id, @RequestBody Complaint req) {
+
+    Complaint updatedComplaint = service.assignTask(id, req);
+
+    try {
+        emailService.sendAssignmentEmail(
+                req.getAssignedStaffEmail(),
+                req.getAssignedStaffName(),
+                updatedComplaint.getTitle()
+        );
+    } catch (Exception e) {
+        System.out.println("Email error: " + e.getMessage());
     }
+
+    return ResponseEntity.ok(updatedComplaint);
+}
 
     @PutMapping("/accept/{id}")
     public Complaint accept(@PathVariable String id, @RequestBody Complaint req) {

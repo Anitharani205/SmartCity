@@ -98,7 +98,6 @@ function SignUp() {
 >
   <option value="">Select Role</option>
   <option value="CITIZEN">Citizen</option>
-  <option value="MUNICIPAL">Municipal</option>
 </select>
           <input
             type="password"

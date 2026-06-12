@@ -58,15 +58,15 @@ export default function ServiceDetails() {
             <p><strong>Date:</strong> {service.date}</p>
 
             <p><strong>Status:</strong> {service.status}</p>
-           {service.citizenImage && (
+          {service.citizenImage && (
+  
   <img
-    src={
-      service.citizenImage.startsWith("http")
-        ? service.citizenImage
-        : `http://localhost:8082/uploads/${service.citizenImage}`
-    }
+    src={service.citizenImage}
     alt="Service"
-    className="mt-2 w-96 rounded-lg border shadow"
+    className="mt-2 w-96 h-64 object-cover rounded-lg border shadow"
+    onError={(e) => {
+      e.target.src = "/no-image.png";
+    }}
   />
 )}
 

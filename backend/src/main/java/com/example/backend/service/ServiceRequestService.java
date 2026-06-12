@@ -53,14 +53,23 @@ public class ServiceRequestService {
     
     public ServiceRequest assign(String id, ServiceRequest req) {
 
-    ServiceRequest s = repo.findById(id)
-            .orElseThrow(() -> new RuntimeException("Service not found"));
+    ServiceRequest service = repo.findById(id)
+            .orElseThrow(() -> new RuntimeException("Not found"));
 
-    s.setAssignedStaffName(req.getAssignedStaffName());
-    s.setAssignedStaffEmail(req.getAssignedStaffEmail());
-    s.setStatus("Assigned");
+    service.setAssignedStaffName(req.getAssignedStaffName());
+    service.setAssignedStaffEmail(req.getAssignedStaffEmail());
 
-    return repo.save(s);
+    // ❗ INCREMENT ACTIVE TASKS
+    User staff = userRepo.findByEmail(req.getAssignedStaffEmail());
+
+    if (staff != null) {
+        staff.setActiveTasks(
+                (staff.getActiveTasks() == null ? 0 : staff.getActiveTasks()) + 1
+        );
+        userRepo.save(staff);
+    }
+
+    return repo.save(service);
 }
    
     public ServiceRequest update(String id, ServiceRequest req) {

@@ -1,6 +1,7 @@
 package com.example.backend.controller;
 
 import com.example.backend.entity.ServiceRequest;
+import com.example.backend.service.EmailService;
 import com.example.backend.service.ServiceRequestService;
 import com.example.backend.repository.ServiceRepository;
 
@@ -19,6 +20,9 @@ public class ServiceController {
 
     @Autowired
     private ServiceRepository serviceRepository;
+
+    @Autowired
+private EmailService emailService;
 @PostMapping
 public ServiceRequest create(@RequestBody ServiceRequest s) {
     return service.save(s);
@@ -41,13 +45,24 @@ public ServiceRequest create(@RequestBody ServiceRequest s) {
     }
 
     @PutMapping("/assign/{id}")
-    public ServiceRequest assign(
-            @PathVariable String id,
-            @RequestBody ServiceRequest req) {
+public ServiceRequest assign(
+        @PathVariable String id,
+        @RequestBody ServiceRequest req) {
 
-        return service.assign(id, req);
+    ServiceRequest updated = service.assign(id, req);
+
+    try {
+        emailService.sendAssignmentEmail(
+                req.getAssignedStaffEmail(),
+                req.getAssignedStaffName(),
+                updated.getService()
+        );
+    } catch (Exception e) {
+        System.out.println("Email failed: " + e.getMessage());
     }
 
+    return updated;
+}
    
     @PutMapping("/{id}/status")
     public ServiceRequest update(

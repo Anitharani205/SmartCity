@@ -112,9 +112,9 @@ export default function NewUser() {
               required
             >
               <option value="">Select Role</option>
-              <option value="CITIZEN">Citizen</option>
+             
               <option value="MUNICIPAL">Municipal Staff</option>
-              <option value="ADMIN">Admin</option>
+             
             </select>
 
             {/* Department only for MUNICIPAL */}

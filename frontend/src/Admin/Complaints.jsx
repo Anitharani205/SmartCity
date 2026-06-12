@@ -39,21 +39,22 @@ export default function Complaints() {
   }
 };
 
-  const assignTask = async (id, staff) => {
+ const assignTask = async (id, staff) => {
   try {
-    await API.put(`/complaints/assign/${id}`, {
+    const res = await API.put(`/complaints/assign/${id}`, {
       assignedStaffName: staff.name,
       assignedStaffEmail: staff.email,
     });
 
+    console.log("Response:", res.data); // 👈 check response
+
     alert(`Assigned to ${staff.name}`);
 
   } catch (err) {
-    console.log(err);
+    console.log("ERROR:", err.response?.data || err.message);
     alert("Assignment Failed");
   }
 };
-
   const deleteComplaint = async (id) => {
     if (!id) return;
 

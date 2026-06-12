@@ -47,17 +47,20 @@ console.log(res.data);
 
  const assignService = async (id, staffName, staffEmail, category) => {
   try {
-    await API.put(`/services/assign/${id}`, {
+    const res = await API.put(`/services/assign/${id}`, {
       assignedStaffName: staffName,
       assignedStaffEmail: staffEmail,
     });
 
-   // refresh active task count
-    await loadServices();
+    console.log("Assigned Response:", res.data);
 
     alert(`Assigned to ${staffName}`);
+
+    // optional refresh
+    loadServices();
+
   } catch (err) {
-    console.log(err);
+    console.log("ERROR:", err.response?.data || err.message);
     alert("Assignment Failed");
   }
 };

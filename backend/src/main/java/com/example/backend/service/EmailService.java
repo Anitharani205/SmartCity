@@ -30,4 +30,20 @@ public class EmailService {
 
         mailSender.send(message);
     }
+    public void sendAssignmentEmail(String toEmail, String staffName, String complaintTitle) {
+
+    SimpleMailMessage message = new SimpleMailMessage();
+    message.setTo(toEmail);
+    message.setSubject("New Complaint Assigned");
+
+    message.setText(
+            "Hello " + staffName + ",\n\n" +
+            "You have been assigned a complaint:\n\n" +
+            "Title: " + complaintTitle + "\n\n" +
+            "Please check your dashboard.\n\n" +
+            "Thank you"
+    );
+
+    mailSender.send(message);
+}
 }

@@ -39,6 +39,11 @@ function MunicipalSidebar() {
       icon:<ClipboardList size={18}/>,
       path:"/staff-notification",
     },
+     {
+      name:"Settings",
+      icon:<ClipboardList size={18}/>,
+      path:"/settings",
+    },
   ];
 
   const logout = () => {

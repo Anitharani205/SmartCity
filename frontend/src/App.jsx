@@ -55,8 +55,8 @@ function App() {
         <Route path="/task" element={<Task />}/>
    <Route
   path="/staff-notification"
-  element={<StaffNotification />}
-/>
+  element={<StaffNotification />}/>
+
         <Route path="/admin" element={<AdminDashboard />} />
         <Route path="/complaintsservices" element={<Complaints />} />
       

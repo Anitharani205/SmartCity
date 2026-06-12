@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import API from "../services/api";
+import MunicipalSidebar from "./components/MunicipalSidebar";
 
 export default function StaffNotification() {
 
@@ -16,25 +17,38 @@ export default function StaffNotification() {
   };
 
   return (
-    <div className="p-6">
+    <div className="flex min-h-screen bg-gray-100">
 
-      <h1 className="text-3xl font-bold mb-6">
-        Staff Notifications
-      </h1>
+      {/* Sidebar */}
+      <div className="w-64 fixed h-full bg-gray-900 text-white">
+        <MunicipalSidebar />
+      </div>
 
-      {notifications.map((n) => (
-        <div
-          key={n.id}
-          className="bg-white p-4 rounded shadow mb-4"
-        >
-          <p className="mb-2">{n.message}</p>
+      {/* Main Content */}
+      <div className="flex-1 ml-64 p-6">
 
-          <p className="text-sm text-gray-500">
-            {n.createdAt}
-          </p>
-        </div>
-      ))}
+        <h1 className="text-3xl font-bold mb-6">
+          Staff Notifications
+        </h1>
 
+        {notifications.length === 0 ? (
+          <p className="text-gray-500">No notifications</p>
+        ) : (
+          notifications.map((n) => (
+            <div
+              key={n.id}
+              className="bg-white p-4 rounded shadow mb-4"
+            >
+              <p className="mb-2">{n.message}</p>
+
+              <p className="text-sm text-gray-500">
+                {n.createdAt}
+              </p>
+            </div>
+          ))
+        )}
+
+      </div>
     </div>
   );
 }

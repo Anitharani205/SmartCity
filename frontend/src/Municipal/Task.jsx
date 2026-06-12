@@ -47,7 +47,7 @@ export default function Task() {
     alert("Updated Successfully");
 
     // ✅ redirect to dashboard
-    navigate("/dashboard");
+    navigate("/municipal");
 
   } catch (error) {
     console.log(error);
